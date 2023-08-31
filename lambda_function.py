@@ -10,11 +10,9 @@ def lambda_handler(event, context):
 
     alarm_controller = AlarmController()
     try:
-        alarm_controller.redshift_client.connect()
         alarm_controller.run_circ_trans_alarm()
         alarm_controller.run_pc_reserve_alarm()
         alarm_controller.run_patron_info_alarm()
-        alarm_controller.redshift_client.close_connection()
     except Exception as e:
         alarm_controller.redshift_client.close_connection()
         logger.error('Error running alarms: {}'.format(e))

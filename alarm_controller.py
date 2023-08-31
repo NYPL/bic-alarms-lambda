@@ -24,6 +24,9 @@ class AlarmController:
         self.yesterday_date = (
             datetime.now(timezone.utc) - timedelta(days=1)).date()
         self.yesterday = self.yesterday_date.isoformat()
+        self.redshift_suffix = (
+            '' if os.environ['REDSHIFT_DB_NAME'] == 'production' else (
+                '_' + os.environ['REDSHIFT_DB_NAME']))
 
         kms_client = KmsClient()
         self.redshift_client = RedshiftClient(
@@ -45,23 +48,24 @@ class AlarmController:
             kms_client.decrypt(os.environ['ENVISIONWARE_DB_PASSWORD']))
         kms_client.close()
 
+    def _get_record_count(self, client, query):
+        client.connect()
+        result = client.execute_query(query)
+        client.close_connection()
+        return int(result[0][0])
+
     def run_circ_trans_alarm(self):
         self.logger.info(
             'Checking that an equal number of circ trans records are in '
             'Sierra and Redshift for {}'.format(self.yesterday))
-        redshift_table = 'circ_trans'
-        if os.environ['REDSHIFT_DB_NAME'] != 'production':
-            redshift_table += ('_' + os.environ['REDSHIFT_DB_NAME'])
+        sierra_query = build_sierra_circ_trans_query(self.yesterday)
+        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
 
-        self.sierra_client.connect()
-        sierra_result = self.sierra_client.execute_query(
-            build_sierra_circ_trans_query(self.yesterday))
-        self.sierra_client.close_connection()
-        sierra_count = int(sierra_result[0][0])
-
-        redshift_result = self.redshift_client.execute_query(
-            build_redshift_circ_trans_query(redshift_table, self.yesterday))
-        redshift_count = int(redshift_result[0][0])
+        redshift_table = 'circ_trans' + self.redshift_suffix
+        redshift_query = build_redshift_circ_trans_query(
+            redshift_table, self.yesterday)
+        redshift_count = self._get_record_count(
+            self.redshift_client, redshift_query)
 
         if sierra_count != redshift_count:
             self.logger.error((
@@ -83,19 +87,14 @@ class AlarmController:
         self.logger.info(
             'Checking that an equal number of PcReserve records are in '
             'Envisionware and Redshift for {}'.format(date))
-        redshift_table = 'pc_reserve'
-        if os.environ['REDSHIFT_DB_NAME'] != 'production':
-            redshift_table += ('_' + os.environ['REDSHIFT_DB_NAME'])
+        envisionware_query = build_envisionware_pc_reserve_query(date)
+        envisionware_count = self._get_record_count(
+            self.envisionware_client, envisionware_query)
 
-        self.envisionware_client.connect()
-        envisionware_result = self.envisionware_client.execute_query(
-            build_envisionware_pc_reserve_query(date))
-        self.envisionware_client.close_connection()
-        envisionware_count = int(envisionware_result[0][0])
-
-        redshift_result = self.redshift_client.execute_query(
-            build_redshift_pc_reserve_query(redshift_table, date))
-        redshift_count = int(redshift_result[0][0])
+        redshift_table = 'pc_reserve' + self.redshift_suffix
+        redshift_query = build_redshift_pc_reserve_query(redshift_table, date)
+        redshift_count = self._get_record_count(
+            self.redshift_client, redshift_query)
 
         if envisionware_count != redshift_count:
             self.logger.error((
@@ -119,9 +118,6 @@ class AlarmController:
             'Checking that an equal number of newly created and newly deleted '
             'patron records are in Sierra and Redshift from {start} until '
             '{end}').format(start=start_date, end=self.yesterday))
-        redshift_table = 'patron_info'
-        if os.environ['REDSHIFT_DB_NAME'] != 'production':
-            redshift_table += ('_' + os.environ['REDSHIFT_DB_NAME'])
 
         self.sierra_client.connect()
         sierra_new_result = self.sierra_client.execute_query(
@@ -132,12 +128,15 @@ class AlarmController:
         sierra_new_counts = dict(sierra_new_result)
         sierra_deleted_counts = dict(sierra_deleted_result)
 
+        redshift_table = 'patron_info' + self.redshift_suffix
+        self.redshift_client.connect()
         redshift_new_result = self.redshift_client.execute_query(
             build_redshift_new_patrons_query(
                 redshift_table, start_date, self.yesterday))
         redshift_deleted_result = self.redshift_client.execute_query(
             build_redshift_deleted_patrons_query(
                 redshift_table, start_date, self.yesterday))
+        self.redshift_client.close_connection()
         redshift_new_counts = dict(redshift_new_result)
         redshift_deleted_counts = dict(redshift_deleted_result)
 

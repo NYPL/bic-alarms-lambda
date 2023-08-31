@@ -28,14 +28,14 @@ _REDSHIFT_CIRC_TRANS_QUERY = (
 
 _REDSHIFT_NEW_PATRONS_QUERY = '''
     SELECT creation_date_et, COUNT(patron_id)
-    FROM {table} 
+    FROM {table}
     WHERE creation_date_et >= '{start_date}'
         AND creation_date_et < '{end_date}'
     GROUP BY creation_date_et;'''
 
 _REDSHIFT_DELETED_PATRONS_QUERY = '''
     SELECT deletion_date_et, COUNT(patron_id)
-    FROM {table} 
+    FROM {table}
     WHERE deletion_date_et >= '{start_date}'
         AND deletion_date_et < '{end_date}'
     GROUP BY deletion_date_et;'''

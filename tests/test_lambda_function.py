@@ -1,6 +1,5 @@
 import json
 import lambda_function
-import os
 import pytest
 
 
@@ -23,11 +22,9 @@ class TestLambdaFunction:
             })
         }
 
-        mock_alarm_controller.redshift_client.connect.assert_called_once()
         mock_alarm_controller.run_circ_trans_alarm.assert_called_once()
         mock_alarm_controller.run_pc_reserve_alarm.assert_called_once()
         mock_alarm_controller.run_patron_info_alarm.assert_called_once()
-        mock_alarm_controller.redshift_client.close_connection.assert_called_once()  # noqa
 
     def test_lambda_handler_error(self, mock_alarm_controller, mocker):
         mock_alarm_controller.run_pc_reserve_alarm.side_effect = Exception(
@@ -36,9 +33,6 @@ class TestLambdaFunction:
         with pytest.raises(Exception):
             lambda_function.lambda_handler(None, None)
 
-        mock_alarm_controller.redshift_client.connect.assert_called_once()
         mock_alarm_controller.run_circ_trans_alarm.assert_called_once()
         mock_alarm_controller.run_pc_reserve_alarm.assert_called_once()
-        mock_alarm_controller.redshift_client.close_connection.assert_called_once()  # noqa
-
         mock_alarm_controller.run_patron_info_alarm.assert_not_called()

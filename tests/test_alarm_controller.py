@@ -69,6 +69,7 @@ class TestAlarmController:
 
         assert alarm_controller.yesterday_date == date(2023, 5, 31)
         assert alarm_controller.yesterday == '2023-05-31'
+        assert alarm_controller.redshift_suffix == ''
         mock_kms_client.close.assert_called_once()
         mock_kms_client.decrypt.assert_has_calls([
             mocker.call('test_redshift_host'),
@@ -102,9 +103,11 @@ class TestAlarmController:
             'sierra circ trans query')
         test_instance.sierra_client.close_connection.assert_called_once()
 
+        test_instance.redshift_client.connect.assert_called_once()
         mock_redshift_query.assert_called_once_with('circ_trans', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_called_once_with(
             'redshift circ trans query')
+        test_instance.redshift_client.close_connection.assert_called_once()
 
     def test_run_circ_trans_alarm_unequal_counts(
             self, test_instance, mocker, caplog):
@@ -152,9 +155,11 @@ class TestAlarmController:
             'envisionware pc reserve query')
         test_instance.envisionware_client.close_connection.assert_called_once()
 
+        test_instance.redshift_client.connect.assert_called_once()
         mock_redshift_query.assert_called_once_with('pc_reserve', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_called_once_with(
             'redshift pc reserve query')
+        test_instance.redshift_client.close_connection.assert_called_once()
 
     def test_run_pc_reserve_alarm_unequal_counts(
             self, test_instance, mocker, caplog):
@@ -217,13 +222,15 @@ class TestAlarmController:
             mocker.call('sierra deleted patrons query')])
         test_instance.sierra_client.close_connection.assert_called_once()
 
+        test_instance.redshift_client.connect.assert_called_once()
         mock_redshift_new_query.assert_called_once_with(
             'patron_info', '2023-05-24', '2023-05-31')
-        mock_redshift_new_query.assert_called_once_with(
+        mock_redshift_deleted_query.assert_called_once_with(
             'patron_info', '2023-05-24', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_has_calls([
             mocker.call('redshift new patrons query'),
             mocker.call('redshift deleted patrons query')])
+        test_instance.redshift_client.close_connection.assert_called_once()
 
     def test_run_patron_info_alarm_unequal_counts(
             self, test_instance, mocker, caplog):
