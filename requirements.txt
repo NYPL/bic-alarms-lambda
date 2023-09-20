@@ -1,2 +1,2 @@
-nypl-py-utils[mysql-client,postgresql-client]==1.0.4
+nypl-py-utils[mysql-client]==1.0.4
 redshift-connector
