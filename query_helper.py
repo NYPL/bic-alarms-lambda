@@ -50,11 +50,9 @@ _REDSHIFT_PC_RESERVE_QUERY = (
     "SELECT COUNT(key) FROM {table} "
     "WHERE transaction_et = '{date}';")
 
-_REDSHIFT_CODE_COUNT_QUERY = \
-    'SELECT COUNT({code}) FROM {table} WHERE deletion_date IS NULL;'
-
-_REDSHIFT_DISTINCT_CODE_COUNT_QUERY = \
-    'SELECT COUNT(DISTINCT {code}) FROM {table} WHERE deletion_date IS NULL;'
+_REDSHIFT_CODE_COUNTS_QUERY = (
+    'SELECT COUNT({code}), COUNT(DISTINCT {code}) FROM {table} '
+    'WHERE deletion_date IS NULL;')
 
 _REDSHIFT_ITYPE_NULL_QUERY = '''
     SELECT code FROM {table}
@@ -127,12 +125,8 @@ def build_redshift_pc_reserve_query(table, date):
     return _REDSHIFT_PC_RESERVE_QUERY.format(table=table, date=date)
 
 
-def build_redshift_code_count_query(code, table):
-    return _REDSHIFT_CODE_COUNT_QUERY.format(code=code, table=table)
-
-
-def build_redshift_distinct_code_count_query(code, table):
-    return _REDSHIFT_DISTINCT_CODE_COUNT_QUERY.format(code=code, table=table)
+def build_redshift_code_counts_query(code, table):
+    return _REDSHIFT_CODE_COUNTS_QUERY.format(code=code, table=table)
 
 
 def build_redshift_itype_null_query(itype_table):

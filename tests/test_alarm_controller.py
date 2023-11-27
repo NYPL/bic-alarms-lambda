@@ -297,19 +297,16 @@ class TestAlarmController:
         mock_sierra_query = mocker.patch(
             'alarm_controller.build_sierra_itypes_count_query',
             return_value='sierra itypes query')
-        mock_redshift_total_query = mocker.patch(
-            'alarm_controller.build_redshift_code_count_query',
-            return_value='redshift code count query')
-        mock_redshift_distinct_query = mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query',
-            return_value='redshift distinct code count query')
+        mock_redshift_counts_query = mocker.patch(
+            'alarm_controller.build_redshift_code_counts_query',
+            return_value='redshift code counts query')
         mock_redshift_null_query = mocker.patch(
             'alarm_controller.build_redshift_itype_null_query',
             return_value='redshift null query')
 
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), ()]
+            ([10, 10],), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_itype_codes_alarms()
@@ -322,28 +319,23 @@ class TestAlarmController:
         test_instance.sierra_client.close_connection.assert_called_once()
 
         test_instance.redshift_client.connect.assert_called_once()
-        mock_redshift_total_query.assert_called_once_with(
-            'code', 'sierra_itype_codes_test_redshift_db')
-        mock_redshift_distinct_query.assert_called_once_with(
+        mock_redshift_counts_query.assert_called_once_with(
             'code', 'sierra_itype_codes_test_redshift_db')
         mock_redshift_null_query.assert_called_once_with(
             'sierra_itype_codes_test_redshift_db')
         test_instance.redshift_client.execute_query.assert_has_calls([
-            mocker.call('redshift code count query'),
-            mocker.call('redshift distinct code count query'),
+            mocker.call('redshift code counts query'),
             mocker.call('redshift null query')])
         test_instance.redshift_client.close_connection.assert_called_once()
 
     def test_run_sierra_itype_codes_alarms_unequal_counts(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_itypes_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_itype_null_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([20],), ([20],), ()]
+            ([20, 20],), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_itype_codes_alarms()
@@ -354,13 +346,11 @@ class TestAlarmController:
     def test_run_sierra_itype_codes_alarms_duplicate_codes(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_itypes_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_itype_null_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([9],), ()]
+            ([10, 9],), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_itype_codes_alarms()
@@ -371,13 +361,11 @@ class TestAlarmController:
     def test_run_sierra_itype_codes_alarms_null_fields(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_itypes_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_itype_null_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), ([1], [2])]
+            ([10, 10],), ([1], [2])]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_itype_codes_alarms()
@@ -389,19 +377,16 @@ class TestAlarmController:
         mock_sierra_query = mocker.patch(
             'alarm_controller.build_sierra_code_count_query',
             return_value='sierra locations query')
-        mock_redshift_total_query = mocker.patch(
-            'alarm_controller.build_redshift_code_count_query',
-            return_value='redshift code count query')
-        mock_redshift_distinct_query = mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query',
-            return_value='redshift distinct code count query')
+        mock_redshift_counts_query = mocker.patch(
+            'alarm_controller.build_redshift_code_counts_query',
+            return_value='redshift code counts query')
         mock_redshift_null_query = mocker.patch(
             'alarm_controller.build_redshift_location_null_query',
             return_value='redshift null query')
 
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), ()]
+            ([10, 10],), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_location_codes_alarms()
@@ -415,28 +400,23 @@ class TestAlarmController:
         test_instance.sierra_client.close_connection.assert_called_once()
 
         test_instance.redshift_client.connect.assert_called_once()
-        mock_redshift_total_query.assert_called_once_with(
-            'location_code', 'sierra_location_codes_test_redshift_db')
-        mock_redshift_distinct_query.assert_called_once_with(
+        mock_redshift_counts_query.assert_called_once_with(
             'location_code', 'sierra_location_codes_test_redshift_db')
         mock_redshift_null_query.assert_called_once_with(
             'sierra_location_codes_test_redshift_db')
         test_instance.redshift_client.execute_query.assert_has_calls([
-            mocker.call('redshift code count query'),
-            mocker.call('redshift distinct code count query'),
+            mocker.call('redshift code counts query'),
             mocker.call('redshift null query')])
         test_instance.redshift_client.close_connection.assert_called_once()
 
     def test_run_sierra_location_codes_alarms_unequal_counts(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_location_null_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([20],), ([20],), ()]
+            ([20, 20],), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_location_codes_alarms()
@@ -447,13 +427,11 @@ class TestAlarmController:
     def test_run_sierra_location_codes_alarms_duplicate_codes(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_location_null_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([9],), ()]
+            ([10, 9],), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_location_codes_alarms()
@@ -464,13 +442,11 @@ class TestAlarmController:
     def test_run_sierra_location_codes_alarms_null_fields(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_location_null_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), (['aa123'], ['bb345'])]
+            ([10, 10],), (['aa123'], ['bb345'])]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_location_codes_alarms()
@@ -483,12 +459,9 @@ class TestAlarmController:
         mock_sierra_query = mocker.patch(
             'alarm_controller.build_sierra_code_count_query',
             return_value='sierra stat group query')
-        mock_redshift_total_query = mocker.patch(
-            'alarm_controller.build_redshift_code_count_query',
-            return_value='redshift code count query')
-        mock_redshift_distinct_query = mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query',
-            return_value='redshift distinct code count query')
+        mock_redshift_counts_query = mocker.patch(
+            'alarm_controller.build_redshift_code_counts_query',
+            return_value='redshift code counts query')
         mock_redshift_null_query = mocker.patch(
             'alarm_controller.build_redshift_stat_group_null_query',
             return_value='redshift null query')
@@ -498,7 +471,7 @@ class TestAlarmController:
 
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), (), ()]
+            ([10, 10],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -512,9 +485,7 @@ class TestAlarmController:
         test_instance.sierra_client.close_connection.assert_called_once()
 
         test_instance.redshift_client.connect.assert_called_once()
-        mock_redshift_total_query.assert_called_once_with(
-            'stat_group_code', 'sierra_stat_group_codes_test_redshift_db')
-        mock_redshift_distinct_query.assert_called_once_with(
+        mock_redshift_counts_query.assert_called_once_with(
             'stat_group_code', 'sierra_stat_group_codes_test_redshift_db')
         mock_redshift_null_query.assert_called_once_with(
             'sierra_stat_group_codes_test_redshift_db')
@@ -522,8 +493,7 @@ class TestAlarmController:
             'sierra_stat_group_codes_test_redshift_db',
             'sierra_location_codes_test_redshift_db')
         test_instance.redshift_client.execute_query.assert_has_calls([
-            mocker.call('redshift code count query'),
-            mocker.call('redshift distinct code count query'),
+            mocker.call('redshift code counts query'),
             mocker.call('redshift null query'),
             mocker.call('redshift unknown locations query')])
         test_instance.redshift_client.close_connection.assert_called_once()
@@ -531,15 +501,13 @@ class TestAlarmController:
     def test_run_sierra_stat_group_codes_alarms_unequal_counts(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_stat_group_null_query')
         mocker.patch(
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([20],), ([20],), (), ()]
+            ([20, 20],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -550,15 +518,13 @@ class TestAlarmController:
     def test_run_sierra_stat_group_codes_alarms_duplicate_codes(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_stat_group_null_query')
         mocker.patch(
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([9],), (), ()]
+            ([10, 9],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -569,15 +535,13 @@ class TestAlarmController:
     def test_run_sierra_stat_group_codes_alarms_null_fields(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_stat_group_null_query')
         mocker.patch(
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), ([1], [2]), ()]
+            ([10, 10],), ([1], [2]), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -587,15 +551,13 @@ class TestAlarmController:
     def test_run_sierra_stat_group_codes_alarms_unknown_locations(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_code_count_query')
-        mocker.patch('alarm_controller.build_redshift_code_count_query')
-        mocker.patch(
-            'alarm_controller.build_redshift_distinct_code_count_query')
+        mocker.patch('alarm_controller.build_redshift_code_counts_query')
         mocker.patch('alarm_controller.build_redshift_stat_group_null_query')
         mocker.patch(
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10],), ([10],), (), ([3], [4])]
+            ([10, 10],), (), ([3], [4])]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()

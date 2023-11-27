@@ -8,9 +8,8 @@ from nypl_py_utils.classes.redshift_client import RedshiftClient
 from nypl_py_utils.functions.log_helper import create_log
 from query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_circ_trans_query,
-                          build_redshift_code_count_query,
+                          build_redshift_code_counts_query,
                           build_redshift_deleted_patrons_query,
-                          build_redshift_distinct_code_count_query,
                           build_redshift_itype_null_query,
                           build_redshift_location_null_query,
                           build_redshift_new_patrons_query,
@@ -188,11 +187,10 @@ class AlarmController:
 
         itype_table = 'sierra_itype_codes' + self.redshift_suffix
         self.redshift_client.connect()
-        total_redshift_count = int(self.redshift_client.execute_query(
-            build_redshift_code_count_query('code', itype_table))[0][0])
-        distinct_redshift_count = int(self.redshift_client.execute_query(
-            build_redshift_distinct_code_count_query('code', itype_table))
-            [0][0])
+        redshift_counts = self.redshift_client.execute_query(
+            build_redshift_code_counts_query('code', itype_table))[0]
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_itype_codes = self.redshift_client.execute_query(
                 build_redshift_itype_null_query(itype_table))
@@ -226,12 +224,11 @@ class AlarmController:
 
         location_table = 'sierra_location_codes' + self.redshift_suffix
         self.redshift_client.connect()
-        total_redshift_count = int(self.redshift_client.execute_query(
-            build_redshift_code_count_query('location_code', location_table))
-            [0][0])
-        distinct_redshift_count = int(self.redshift_client.execute_query(
-            build_redshift_distinct_code_count_query(
-                'location_code', location_table))[0][0])
+        redshift_counts = self.redshift_client.execute_query(
+            build_redshift_code_counts_query(
+                'location_code', location_table))[0]
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_location_codes = self.redshift_client.execute_query(
                 build_redshift_location_null_query(location_table))
@@ -268,12 +265,11 @@ class AlarmController:
         stat_group_table = 'sierra_stat_group_codes' + self.redshift_suffix
         location_table = 'sierra_location_codes' + self.redshift_suffix
         self.redshift_client.connect()
-        total_redshift_count = int(self.redshift_client.execute_query(
-            build_redshift_code_count_query(
-                'stat_group_code', stat_group_table))[0][0])
-        distinct_redshift_count = int(self.redshift_client.execute_query(
-            build_redshift_distinct_code_count_query(
-                'stat_group_code', stat_group_table))[0][0])
+        redshift_counts = self.redshift_client.execute_query(
+            build_redshift_code_counts_query(
+                'stat_group_code', stat_group_table))[0]
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_stat_group_codes = self.redshift_client.execute_query(
                 build_redshift_stat_group_null_query(stat_group_table))
