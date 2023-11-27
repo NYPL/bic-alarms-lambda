@@ -9,6 +9,9 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When there are no PC reserve records in Sierra for the previous day
 * When the number of newly created/deleted patron records in Sierra and Redshift differs for any day in the previous week
 * When there are no newly created patron records in Sierra for the previous any day in the previous week
+* When the number of active itype/location/stat group codes in Sierra and Redshift differs
+* When there are duplicate active itype/location/stat group codes in Redshift
+* When there are active itype/location/stat group codes in Redshift without the necessary additional fields populated
 
 ## Git workflow
 This repo uses the [Main-QA-Production](https://github.com/NYPL/engineering-general/blob/main/standards/git-workflow.md#main-qa-production) git workflow.
@@ -23,6 +26,7 @@ The following environment variables are required for the code to run. The variab
 
 | Name        | Notes           |
 | ------------- | ------------- |
+| `ENVIRONMENT` | The environment in which to run the alarms. Certain alarms are only run when the environment is `production`. |
 | `REDSHIFT_DB_HOST` | Encrypted Redshift cluster endpoint |
 | `REDSHIFT_DB_NAME` | Which Redshift database to query (either `dev`, `qa`, or `production`) |
 | `REDSHIFT_DB_USER` | Encrypted Redshift user |

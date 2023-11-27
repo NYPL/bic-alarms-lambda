@@ -8,11 +8,18 @@ from nypl_py_utils.classes.redshift_client import RedshiftClient
 from nypl_py_utils.functions.log_helper import create_log
 from query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_circ_trans_query,
+                          build_redshift_code_counts_query,
                           build_redshift_deleted_patrons_query,
+                          build_redshift_itype_null_query,
+                          build_redshift_location_null_query,
                           build_redshift_new_patrons_query,
                           build_redshift_pc_reserve_query,
+                          build_redshift_stat_group_location_query,
+                          build_redshift_stat_group_null_query,
                           build_sierra_circ_trans_query,
+                          build_sierra_code_count_query,
                           build_sierra_deleted_patrons_query,
+                          build_sierra_itypes_count_query,
                           build_sierra_new_patrons_query)
 
 
@@ -27,6 +34,8 @@ class AlarmController:
         self.redshift_suffix = (
             '' if os.environ['REDSHIFT_DB_NAME'] == 'production' else (
                 '_' + os.environ['REDSHIFT_DB_NAME']))
+        self.run_added_tests = (os.environ['ENVIRONMENT'] == 'production' or
+                                os.environ['ENVIRONMENT'] == 'test')
 
         kms_client = KmsClient()
         self.redshift_client = RedshiftClient(
@@ -73,15 +82,14 @@ class AlarmController:
                 'Redshift circ trans records: {sierra_count} Sierra records '
                 'and {redshift_count} Redshift records').format(
                 sierra_count=sierra_count, redshift_count=redshift_count))
-        elif (sierra_count == 0 and
-              os.environ['REDSHIFT_DB_NAME'] == 'production'):
+        elif sierra_count == 0 and self.run_added_tests:
             self.logger.error(
                 'No circ trans records found for all of {}'.format(
                     self.yesterday))
 
     def run_pc_reserve_alarm(self):
         date = self.yesterday
-        if os.environ['REDSHIFT_DB_NAME'] != 'production':
+        if not self.run_added_tests:
             date = (self.yesterday_date - timedelta(days=1)).isoformat()
 
         self.logger.info(
@@ -151,8 +159,7 @@ class AlarmController:
                     'Redshift records').format(date=date.isoformat(),
                                                sierra_count=sierra_count,
                                                redshift_count=redshift_count))
-            elif (sierra_count == 0 and
-                  os.environ['REDSHIFT_DB_NAME'] == 'production'):
+            elif sierra_count == 0 and self.run_added_tests:
                 self.logger.error(
                     'No new patron records found for all of {}'.format(
                         date.isoformat()))
@@ -171,3 +178,128 @@ class AlarmController:
                     'Redshift records').format(date=date.isoformat(),
                                                sierra_count=sierra_count,
                                                redshift_count=redshift_count))
+
+    def run_sierra_itype_codes_alarms(self):
+        self.logger.info(
+            'Checking that all itype_codes have been captured and are valid')
+        sierra_query = build_sierra_itypes_count_query()
+        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
+
+        itype_table = 'sierra_itype_codes' + self.redshift_suffix
+        self.redshift_client.connect()
+        redshift_counts = self.redshift_client.execute_query(
+            build_redshift_code_counts_query('code', itype_table))[0]
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
+        if self.run_added_tests:
+            null_itype_codes = self.redshift_client.execute_query(
+                build_redshift_itype_null_query(itype_table))
+        self.redshift_client.close_connection()
+
+        if sierra_count != total_redshift_count:
+            self.logger.error((
+                'Number of Sierra itype codes does not match number of '
+                'Redshift itype codes: {sierra_count} Sierra codes and '
+                '{redshift_count} Redshift codes')
+                .format(sierra_count=sierra_count,
+                        redshift_count=total_redshift_count))
+        if total_redshift_count != distinct_redshift_count:
+            self.logger.error((
+                'Duplicate itype codes found in Redshift: {total_count} total '
+                'active itype codes but only {distinct_count} distinct active '
+                'itype codes').format(total_count=total_redshift_count,
+                                      distinct_count=distinct_redshift_count))
+        if self.run_added_tests and len(null_itype_codes) > 0:
+            self.logger.error(
+                'The following itype_codes have a null value for one of their '
+                'inferred columns: {codes}'.format(codes=null_itype_codes))
+
+    def run_sierra_location_codes_alarms(self):
+        self.logger.info(
+            'Checking that all location_codes have been captured and are valid'
+        )
+        sierra_query = build_sierra_code_count_query(
+            'sierra_view.location_myuser')
+        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
+
+        location_table = 'sierra_location_codes' + self.redshift_suffix
+        self.redshift_client.connect()
+        redshift_counts = self.redshift_client.execute_query(
+            build_redshift_code_counts_query(
+                'location_code', location_table))[0]
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
+        if self.run_added_tests:
+            null_location_codes = self.redshift_client.execute_query(
+                build_redshift_location_null_query(location_table))
+        self.redshift_client.close_connection()
+
+        if sierra_count != total_redshift_count:
+            self.logger.error((
+                'Number of Sierra location codes does not match number of '
+                'Redshift location codes: {sierra_count} Sierra codes and '
+                '{redshift_count} Redshift codes')
+                .format(sierra_count=sierra_count,
+                        redshift_count=total_redshift_count))
+        if total_redshift_count != distinct_redshift_count:
+            self.logger.error((
+                'Duplicate location codes found in Redshift: {total_count} '
+                'total active location codes but only {distinct_count} '
+                'distinct active location codes').format(
+                    total_count=total_redshift_count,
+                distinct_count=distinct_redshift_count))
+        if self.run_added_tests and len(null_location_codes) > 0:
+            self.logger.error(
+                'The following location_codes have a null value for both of '
+                'their inferred columns: {codes}'.format(
+                    codes=null_location_codes))
+
+    def run_sierra_stat_group_codes_alarms(self):
+        self.logger.info(
+            'Checking that all stat_group_codes have been captured and are '
+            'valid')
+        sierra_query = build_sierra_code_count_query(
+            'sierra_view.statistic_group_myuser')
+        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
+
+        stat_group_table = 'sierra_stat_group_codes' + self.redshift_suffix
+        location_table = 'sierra_location_codes' + self.redshift_suffix
+        self.redshift_client.connect()
+        redshift_counts = self.redshift_client.execute_query(
+            build_redshift_code_counts_query(
+                'stat_group_code', stat_group_table))[0]
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
+        if self.run_added_tests:
+            null_stat_group_codes = self.redshift_client.execute_query(
+                build_redshift_stat_group_null_query(stat_group_table))
+            stat_groups_without_locations = self.redshift_client.execute_query(
+                build_redshift_stat_group_location_query(
+                    stat_group_table, location_table))
+        self.redshift_client.close_connection()
+
+        if sierra_count != total_redshift_count:
+            self.logger.error((
+                'Number of Sierra stat group codes does not match number of '
+                'Redshift stat group codes: {sierra_count} Sierra codes and '
+                '{redshift_count} Redshift codes')
+                .format(sierra_count=sierra_count,
+                        redshift_count=total_redshift_count))
+        if total_redshift_count != distinct_redshift_count:
+            self.logger.error((
+                'Duplicate stat group codes found in Redshift: {total_count} '
+                'total active stat group codes but only {distinct_count} '
+                'distinct active stat group codes').format(
+                    total_count=total_redshift_count,
+                distinct_count=distinct_redshift_count))
+        if self.run_added_tests and len(null_stat_group_codes) > 0:
+            self.logger.error(
+                'The following stat_group_codes have a null '
+                'normalized_branch_code: {codes}'.format(
+                    codes=null_stat_group_codes))
+        if self.run_added_tests and len(stat_groups_without_locations) > 0:
+            self.logger.error(
+                'The following stat_group_codes have a normalized_branch_code '
+                'that does not appear in {location_table}: {codes}'.format(
+                    location_table=location_table,
+                    codes=stat_groups_without_locations))
