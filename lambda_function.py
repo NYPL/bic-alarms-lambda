@@ -2,12 +2,12 @@ import json
 import os
 
 from alarm_controller import AlarmController
-from nypl_py_utils.functions.config_helper import load_env_file
 from nypl_py_utils.functions.log_helper import create_log
 
 
 def lambda_handler(event, context):
     if os.environ['ENVIRONMENT'] == 'devel':
+        from nypl_py_utils.functions.config_helper import load_env_file
         load_env_file('devel', 'config/{}.yaml')
     logger = create_log('lambda_function')
     logger.info('Starting lambda processing')
