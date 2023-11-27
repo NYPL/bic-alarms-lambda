@@ -17,7 +17,7 @@ class TestLambdaFunction:
     @pytest.fixture
     def mock_alarm_controller(self, mocker):
         mocker.patch('lambda_function.create_log')
-        mocker.patch('lambda_function.load_env_file')
+        mocker.patch('nypl_py_utils.functions.config_helper.load_env_file')
 
         mock_alarm_controller = mocker.MagicMock()
         mocker.patch('lambda_function.AlarmController',
