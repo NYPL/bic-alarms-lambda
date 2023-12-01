@@ -193,7 +193,7 @@ class AlarmController:
         distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_itype_codes = self.redshift_client.execute_query(
-                build_redshift_itype_null_query(itype_table))
+                build_redshift_itype_null_query(itype_table, self.yesterday))
         self.redshift_client.close_connection()
 
         if sierra_count != total_redshift_count:
@@ -231,7 +231,8 @@ class AlarmController:
         distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_location_codes = self.redshift_client.execute_query(
-                build_redshift_location_null_query(location_table))
+                build_redshift_location_null_query(location_table,
+                                                   self.yesterday))
         self.redshift_client.close_connection()
 
         if sierra_count != total_redshift_count:
@@ -272,10 +273,11 @@ class AlarmController:
         distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_stat_group_codes = self.redshift_client.execute_query(
-                build_redshift_stat_group_null_query(stat_group_table))
+                build_redshift_stat_group_null_query(stat_group_table,
+                                                     self.yesterday))
             stat_groups_without_locations = self.redshift_client.execute_query(
                 build_redshift_stat_group_location_query(
-                    stat_group_table, location_table))
+                    stat_group_table, location_table, self.yesterday))
         self.redshift_client.close_connection()
 
         if sierra_count != total_redshift_count:

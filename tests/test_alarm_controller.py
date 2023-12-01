@@ -322,7 +322,7 @@ class TestAlarmController:
         mock_redshift_counts_query.assert_called_once_with(
             'code', 'sierra_itype_codes_test_redshift_db')
         mock_redshift_null_query.assert_called_once_with(
-            'sierra_itype_codes_test_redshift_db')
+            'sierra_itype_codes_test_redshift_db', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_has_calls([
             mocker.call('redshift code counts query'),
             mocker.call('redshift null query')])
@@ -403,7 +403,7 @@ class TestAlarmController:
         mock_redshift_counts_query.assert_called_once_with(
             'location_code', 'sierra_location_codes_test_redshift_db')
         mock_redshift_null_query.assert_called_once_with(
-            'sierra_location_codes_test_redshift_db')
+            'sierra_location_codes_test_redshift_db', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_has_calls([
             mocker.call('redshift code counts query'),
             mocker.call('redshift null query')])
@@ -488,10 +488,10 @@ class TestAlarmController:
         mock_redshift_counts_query.assert_called_once_with(
             'stat_group_code', 'sierra_stat_group_codes_test_redshift_db')
         mock_redshift_null_query.assert_called_once_with(
-            'sierra_stat_group_codes_test_redshift_db')
+            'sierra_stat_group_codes_test_redshift_db', '2023-05-31')
         mock_redshift_unknown_locations_query.assert_called_once_with(
             'sierra_stat_group_codes_test_redshift_db',
-            'sierra_location_codes_test_redshift_db')
+            'sierra_location_codes_test_redshift_db', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_has_calls([
             mocker.call('redshift code counts query'),
             mocker.call('redshift null query'),
