@@ -57,25 +57,25 @@ _REDSHIFT_CODE_COUNTS_QUERY = (
 _REDSHIFT_ITYPE_NULL_QUERY = '''
     SELECT code FROM {table}
     WHERE code != 0
-        AND deletion_date IS NULL
+        AND creation_date = '{date}'
         AND (is_research IS NULL
             OR age_category IS NULL
             OR is_print IS NULL);'''
 
 _REDSHIFT_LOCATION_NULL_QUERY = '''
     SELECT location_code FROM {table}
-    WHERE deletion_date IS NULL
-        AND research_branch IS NULL
-        AND shelving_category IS NULL;'''
+    WHERE creation_date = '{date}'
+        AND shelving_category IS NULL
+        AND (research_branch IS NULL OR is_mixed_use = TRUE);'''
 
 _REDSHIFT_STAT_GROUP_NULL_QUERY = '''
     SELECT stat_group_code FROM {table}
-    WHERE deletion_date IS NULL
+    WHERE creation_date = '{date}'
         AND normalized_branch_code IS NULL;'''
 
 _REDSHIFT_STAT_GROUP_LOCATION_QUERY = '''
     SELECT stat_group_code FROM {stat_group_table}
-    WHERE deletion_date IS NULL
+    WHERE creation_date = '{date}'
         AND normalized_branch_code NOT IN
             (SELECT location_code FROM {location_table}
             WHERE deletion_date IS NULL);'''
@@ -129,18 +129,22 @@ def build_redshift_code_counts_query(code, table):
     return _REDSHIFT_CODE_COUNTS_QUERY.format(code=code, table=table)
 
 
-def build_redshift_itype_null_query(itype_table):
-    return _REDSHIFT_ITYPE_NULL_QUERY.format(table=itype_table)
+def build_redshift_itype_null_query(itype_table, date):
+    return _REDSHIFT_ITYPE_NULL_QUERY.format(table=itype_table, date=date)
 
 
-def build_redshift_location_null_query(location_table):
-    return _REDSHIFT_LOCATION_NULL_QUERY.format(table=location_table)
+def build_redshift_location_null_query(location_table, date):
+    return _REDSHIFT_LOCATION_NULL_QUERY.format(
+        table=location_table, date=date)
 
 
-def build_redshift_stat_group_null_query(stat_group_table):
-    return _REDSHIFT_STAT_GROUP_NULL_QUERY.format(table=stat_group_table)
+def build_redshift_stat_group_null_query(stat_group_table, date):
+    return _REDSHIFT_STAT_GROUP_NULL_QUERY.format(
+        table=stat_group_table, date=date)
 
 
-def build_redshift_stat_group_location_query(stat_group_table, location_table):
+def build_redshift_stat_group_location_query(stat_group_table, location_table,
+                                             date):
     return _REDSHIFT_STAT_GROUP_LOCATION_QUERY.format(
-        stat_group_table=stat_group_table, location_table=location_table)
+        stat_group_table=stat_group_table, location_table=location_table,
+        date=date)
