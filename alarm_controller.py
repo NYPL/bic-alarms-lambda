@@ -88,9 +88,10 @@ class AlarmController:
                     self.yesterday))
 
     def run_pc_reserve_alarm(self):
-        date = self.yesterday
+        datetime_to_test = self.yesterday_date
         if not self.run_added_tests:
-            date = (self.yesterday_date - timedelta(days=1)).isoformat()
+            datetime_to_test = self.yesterday_date - timedelta(days=1)
+        date = datetime_to_test.isoformat()
 
         self.logger.info(
             'Checking that an equal number of PcReserve records are in '
@@ -111,7 +112,8 @@ class AlarmController:
                 'Envisionware records and {redshift_count} Redshift records')
                 .format(envisionware_count=envisionware_count,
                         redshift_count=redshift_count))
-        elif envisionware_count == 0:
+        # Al libraries are closed on Sunday, so don't fire an alarm then
+        elif envisionware_count == 0 and datetime_to_test.weekday() != 6:
             self.logger.error(
                 'No PcReserve records found for all of {}'.format(date))
 
