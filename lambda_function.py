@@ -15,6 +15,7 @@ def lambda_handler(event, context):
     alarm_controller = AlarmController()
     try:
         alarm_controller.run_circ_trans_alarm()
+        alarm_controller.run_holds_alarm()
         alarm_controller.run_pc_reserve_alarm()
         alarm_controller.run_patron_info_alarm()
         alarm_controller.run_sierra_itype_codes_alarms()
