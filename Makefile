@@ -15,7 +15,7 @@ run:
 	python -c 'import lambda_function; lambda_function.lambda_handler(None, None)'
 
 test:
-	pytest
+	pytest tests -W ignore::DeprecationWarning
 
 lint:
 	flake8 --exclude *env,package

@@ -89,6 +89,9 @@ class AlarmController:
                     self.yesterday))
 
     def run_holds_alarm(self):
+        if not self.run_added_tests:
+            return
+        
         self.logger.info(
             'Checking that holds were succcessfully updated in Redshift on '
             '{}'.format(self.yesterday))
