@@ -10,6 +10,7 @@ from query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_circ_trans_query,
                           build_redshift_code_counts_query,
                           build_redshift_deleted_patrons_query,
+                          build_redshift_holds_query,
                           build_redshift_itype_null_query,
                           build_redshift_location_null_query,
                           build_redshift_new_patrons_query,
@@ -86,6 +87,23 @@ class AlarmController:
             self.logger.error(
                 'No circ trans records found for all of {}'.format(
                     self.yesterday))
+
+    def run_holds_alarm(self):
+        if not self.run_added_tests:
+            return
+        
+        self.logger.info(
+            'Checking that holds were succcessfully updated in Redshift on '
+            '{}'.format(self.yesterday))
+        redshift_table = 'holds' + self.redshift_suffix
+        redshift_query = build_redshift_holds_query(
+            redshift_table, self.yesterday)
+        redshift_count = self._get_record_count(
+            self.redshift_client, redshift_query)
+
+        if redshift_count == 0:
+            self.logger.error(
+                'No holds updated for all of {}'.format(self.yesterday))
 
     def run_pc_reserve_alarm(self):
         datetime_to_test = self.yesterday_date

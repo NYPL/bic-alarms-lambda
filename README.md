@@ -5,6 +5,7 @@ This repository contains the code used by the [BICAlarms-qa](https://us-east-1.c
 Currently, the code will log an error (triggering an alarm to fire) under the following circumstances:
 * When the number of circ trans records in Sierra and Redshift differs for the previous day
 * When there are no circ trans records in Sierra for the previous day
+* When there are no holds updated in Redshift for the previous day
 * When the number of PC reserve records in Envisionware and Redshift differs for the previous day
 * When there are no PC reserve records in Sierra for the previous day
 * When the number of newly created/deleted patron records in Sierra and Redshift differs for any day in the previous week

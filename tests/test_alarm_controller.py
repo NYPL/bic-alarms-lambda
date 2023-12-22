@@ -137,6 +137,24 @@ class TestAlarmController:
             test_instance.run_circ_trans_alarm()
         assert 'No circ trans records found for all of 2023-05-31' \
             in caplog.text
+    
+    def test_run_holds_alarm_no_alarm(
+            self, test_instance, mocker, caplog):
+        mocker.patch('alarm_controller.build_redshift_holds_query')
+        test_instance.redshift_client.execute_query.return_value = ([10],)
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_holds_alarm()
+        assert caplog.text == ''
+
+    def test_run_holds_alarm_no_records(
+            self, test_instance, mocker, caplog):
+        mocker.patch('alarm_controller.build_redshift_holds_query')
+        test_instance.redshift_client.execute_query.return_value = ([0],)
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_holds_alarm()
+        assert 'No holds updated for all of 2023-05-31' in caplog.text
 
     def test_run_pc_reserve_alarm_no_alarm(
             self, test_instance, mocker, caplog):
@@ -471,7 +489,7 @@ class TestAlarmController:
 
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10, 10],), (), ()]
+            ([11, 11],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -507,7 +525,7 @@ class TestAlarmController:
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([20, 20],), (), ()]
+            ([21, 21],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -524,7 +542,7 @@ class TestAlarmController:
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10, 9],), (), ()]
+            ([11, 10],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -541,7 +559,7 @@ class TestAlarmController:
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10, 10],), ([1], [2]), ()]
+            ([11, 11],), ([1], [2]), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
@@ -557,7 +575,7 @@ class TestAlarmController:
             'alarm_controller.build_redshift_stat_group_location_query')
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([10, 10],), (), ([3], [4])]
+            ([11, 11],), (), ([3], [4])]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_sierra_stat_group_codes_alarms()
