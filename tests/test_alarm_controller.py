@@ -106,12 +106,14 @@ class TestAlarmController:
             'sierra circ trans query')
         test_instance.sierra_client.close_connection.assert_called_once()
 
-        test_instance.redshift_client.connect.assert_called_once()
-        mock_redshift_query.assert_called_once_with(
-            'circ_trans_test_redshift_db', '2023-05-31')
-        test_instance.redshift_client.execute_query.assert_called_once_with(
-            'redshift circ trans query')
-        test_instance.redshift_client.close_connection.assert_called_once()
+        assert test_instance.redshift_client.connect.call_count == 2
+        mock_redshift_query.assert_has_calls([mocker.call(
+            'circ_trans_test_redshift_db', '2023-05-31'), mocker.call(
+            'patron_circ_trans_test_redshift_db', '2023-05-31')])
+        test_instance.redshift_client.execute_query.assert_has_calls([
+            mocker.call('redshift circ trans query'),
+            mocker.call('redshift circ trans query')])
+        test_instance.redshift_client.close_connection.call_count == 2
 
     def test_run_circ_trans_alarm_unequal_counts(
             self, test_instance, mocker, caplog):
@@ -123,8 +125,11 @@ class TestAlarmController:
         with caplog.at_level(logging.ERROR):
             test_instance.run_circ_trans_alarm()
         assert ('Number of Sierra circ trans records does not match number of '
-                'Redshift circ trans records: 10 Sierra records and 20 '
-                'Redshift records') in caplog.text
+                'Redshift circ_trans_test_redshift_db records: 10 Sierra '
+                'records and 20 Redshift records') in caplog.text
+        assert ('Number of Sierra circ trans records does not match number of '
+                'Redshift patron_circ_trans_test_redshift_db records: 10 '
+                'Sierra records and 20 Redshift records') in caplog.text
 
     def test_run_circ_trans_alarm_no_records(
             self, test_instance, mocker, caplog):
@@ -137,7 +142,7 @@ class TestAlarmController:
             test_instance.run_circ_trans_alarm()
         assert 'No circ trans records found for all of 2023-05-31' \
             in caplog.text
-    
+
     def test_run_holds_alarm_no_alarm(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_redshift_holds_query')

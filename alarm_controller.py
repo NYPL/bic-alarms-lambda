@@ -71,27 +71,31 @@ class AlarmController:
         sierra_query = build_sierra_circ_trans_query(self.yesterday)
         sierra_count = self._get_record_count(self.sierra_client, sierra_query)
 
-        redshift_table = 'circ_trans' + self.redshift_suffix
-        redshift_query = build_redshift_circ_trans_query(
-            redshift_table, self.yesterday)
-        redshift_count = self._get_record_count(
-            self.redshift_client, redshift_query)
+        for table_name in ['circ_trans', 'patron_circ_trans']:
+            redshift_table = table_name + self.redshift_suffix
+            redshift_query = build_redshift_circ_trans_query(
+                redshift_table, self.yesterday)
+            redshift_count = self._get_record_count(
+                self.redshift_client, redshift_query)
 
-        if sierra_count != redshift_count:
-            self.logger.error((
-                'Number of Sierra circ trans records does not match number of '
-                'Redshift circ trans records: {sierra_count} Sierra records '
-                'and {redshift_count} Redshift records').format(
-                sierra_count=sierra_count, redshift_count=redshift_count))
-        elif sierra_count == 0 and self.run_added_tests:
-            self.logger.error(
-                'No circ trans records found for all of {}'.format(
-                    self.yesterday))
+            if sierra_count != redshift_count:
+                self.logger.error((
+                    'Number of Sierra circ trans records does not match '
+                    'number of Redshift {redshift_table} records: '
+                    '{sierra_count} Sierra records and {redshift_count} '
+                    'Redshift records').format(
+                        redshift_table=redshift_table,
+                        sierra_count=sierra_count,
+                        redshift_count=redshift_count))
+            elif sierra_count == 0 and self.run_added_tests:
+                self.logger.error(
+                    'No circ trans records found for all of {}'.format(
+                        self.yesterday))
 
     def run_holds_alarm(self):
         if not self.run_added_tests:
             return
-        
+
         self.logger.info(
             'Checking that holds were succcessfully updated in Redshift on '
             '{}'.format(self.yesterday))
