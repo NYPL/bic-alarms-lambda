@@ -13,6 +13,7 @@ def lambda_handler(event, context):
     logger.info('Starting lambda processing')
 
     alarm_controller = AlarmController()
+    logger.info('Running alarms for {}'.format(alarm_controller.yesterday))
     try:
         alarm_controller.run_circ_trans_alarm()
         alarm_controller.run_holds_alarm()

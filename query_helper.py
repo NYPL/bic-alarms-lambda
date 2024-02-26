@@ -58,6 +58,50 @@ _REDSHIFT_HOLDS_QUERY = (
     "SELECT COUNT(id) FROM {table} "
     "WHERE update_date_et = '{date}';")
 
+_REDSHIFT_HOLDS_DELETED_QUERY = '''
+    SELECT hold_id FROM {table}
+    WHERE update_date_et = '{date}'
+        AND (record_id IS NOT NULL
+            OR record_type IS NOT NULL
+            OR placed_utc IS NOT NULL)
+        AND hold_id IN (
+            SELECT hold_id FROM {table}
+            WHERE record_id IS NULL
+                AND record_type IS NULL
+                AND placed_utc IS NULL);'''
+
+_REDSHIFT_HOLDS_MODIFIED_QUERY = '''
+    SELECT hold_id FROM {table}
+    WHERE hold_id NOT IN (
+        SELECT hold_id FROM {table}
+        WHERE record_id IS NULL
+            AND record_type IS NULL
+            AND placed_utc IS NULL)
+    GROUP BY hold_id
+    HAVING COUNT(DISTINCT record_id) > 1
+        OR COUNT(DISTINCT record_type) > 1
+        OR COUNT(DISTINCT placed_utc) > 1;'''
+
+_REDSHIFT_HOLDS_NULL_QUERY = '''
+    SELECT hold_id FROM {table}
+    WHERE update_date_et = '{date}'
+        AND (
+            hold_id IS NULL
+            OR (
+                (
+                    record_id IS NULL
+                    OR record_type IS NULL
+                    OR placed_utc IS NULL
+                )
+                AND hold_id NOT IN (
+                    SELECT hold_id FROM {table}
+                    WHERE record_id IS NULL
+                        AND record_type IS NULL
+                        AND placed_utc IS NULL
+                )
+            )
+        );'''
+
 _REDSHIFT_ITYPE_NULL_QUERY = '''
     SELECT code FROM {table}
     WHERE code != 0
@@ -135,6 +179,18 @@ def build_redshift_code_counts_query(code, table):
 
 def build_redshift_holds_query(table, date):
     return _REDSHIFT_HOLDS_QUERY.format(table=table, date=date)
+
+
+def build_redshift_holds_deleted_query(table, date):
+    return _REDSHIFT_HOLDS_DELETED_QUERY.format(table=table, date=date)
+
+
+def build_redshift_holds_modified_query(table):
+    return _REDSHIFT_HOLDS_MODIFIED_QUERY.format(table=table)
+
+
+def build_redshift_holds_null_query(table, date):
+    return _REDSHIFT_HOLDS_NULL_QUERY.format(table=table, date=date)
 
 
 def build_redshift_itype_null_query(itype_table, date):
