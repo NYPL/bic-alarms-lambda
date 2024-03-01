@@ -166,14 +166,14 @@ class TestAlarmController:
 
         test_instance.redshift_client.connect.assert_called_once()
         mock_count_query.assert_has_calls([
-            mocker.call('holds_test_redshift_db', '2023-05-31'),
-            mocker.call('holds_queue_test_redshift_db', '2023-05-31')])
+            mocker.call('hold_info_test_redshift_db', '2023-05-31'),
+            mocker.call('queued_holds_test_redshift_db', '2023-05-31')])
         mock_deleted_query.assert_called_once_with(
-            'holds_queue_test_redshift_db', '2023-05-31')
+            'hold_info_test_redshift_db', '2023-05-31')
         mock_modified_query.assert_called_once_with(
-            'holds_queue_test_redshift_db')
+            'hold_info_test_redshift_db')
         mock_null_query.assert_called_once_with(
-            'holds_queue_test_redshift_db', '2023-05-31')
+            'hold_info_test_redshift_db', '2023-05-31')
         test_instance.redshift_client.execute_query.assert_has_calls([
             mocker.call('count query'), mocker.call('count query'),
             mocker.call('deleted query'), mocker.call('modified query'),
@@ -191,7 +191,7 @@ class TestAlarmController:
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_holds_alarms()
-        assert ('"holds_test_redshift_db" table not updated for all of '
+        assert ('"hold_info_test_redshift_db" table not updated for all of '
                 '2023-05-31') in caplog.text
 
     def test_run_holds_alarms_no_holds_queue_records(
@@ -205,7 +205,7 @@ class TestAlarmController:
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_holds_alarms()
-        assert ('"holds_queue_test_redshift_db" table not updated for all of '
+        assert ('"queued_holds_test_redshift_db" table not updated for all of '
                 '2023-05-31') in caplog.text
 
     def test_run_holds_alarms_deleted_holds(

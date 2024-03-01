@@ -94,24 +94,22 @@ class AlarmController:
                         self.yesterday))
 
     def run_holds_alarms(self):
-        if not self.run_added_tests:
-            return
-
         self.logger.info('\nHOLDS\n')
         self.redshift_client.connect()
-        for table_name in ['holds', 'holds_queue']:
-            redshift_table = table_name + self.redshift_suffix
-            redshift_query = build_redshift_holds_query(
-                redshift_table, self.yesterday)
-            redshift_count = int(
-                self.redshift_client.execute_query(redshift_query)[0][0])
+        if self.run_added_tests:
+            for table_name in ['hold_info', 'queued_holds']:
+                redshift_table = table_name + self.redshift_suffix
+                redshift_query = build_redshift_holds_query(
+                    redshift_table, self.yesterday)
+                redshift_count = int(
+                    self.redshift_client.execute_query(redshift_query)[0][0])
 
-            if redshift_count == 0:
-                self.logger.error(
-                    '"{table}" table not updated for all of {date}'.format(
-                        table=redshift_table, date=self.yesterday))
+                if redshift_count == 0:
+                    self.logger.error(
+                        '"{table}" table not updated for all of {date}'.format(
+                            table=redshift_table, date=self.yesterday))
 
-        redshift_table = 'holds_queue' + self.redshift_suffix
+        redshift_table = 'hold_info' + self.redshift_suffix
         deleted_holds = self.redshift_client.execute_query(
             build_redshift_holds_deleted_query(redshift_table, self.yesterday))
         modified_holds = self.redshift_client.execute_query(
