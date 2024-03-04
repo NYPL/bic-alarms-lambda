@@ -10,6 +10,9 @@ from query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_circ_trans_query,
                           build_redshift_code_counts_query,
                           build_redshift_deleted_patrons_query,
+                          build_redshift_holds_deleted_query,
+                          build_redshift_holds_modified_query,
+                          build_redshift_holds_null_query,
                           build_redshift_holds_query,
                           build_redshift_itype_null_query,
                           build_redshift_location_null_query,
@@ -64,10 +67,8 @@ class AlarmController:
         client.close_connection()
         return int(result[0][0])
 
-    def run_circ_trans_alarm(self):
-        self.logger.info(
-            'Checking that an equal number of circ trans records are in '
-            'Sierra and Redshift for {}'.format(self.yesterday))
+    def run_circ_trans_alarms(self):
+        self.logger.info('\nCIRC TRANS\n')
         sierra_query = build_sierra_circ_trans_query(self.yesterday)
         sierra_count = self._get_record_count(self.sierra_client, sierra_query)
 
@@ -92,32 +93,51 @@ class AlarmController:
                     'No circ trans records found for all of {}'.format(
                         self.yesterday))
 
-    def run_holds_alarm(self):
-        if not self.run_added_tests:
-            return
+    def run_holds_alarms(self):
+        self.logger.info('\nHOLDS\n')
+        self.redshift_client.connect()
+        if self.run_added_tests:
+            for table_name in ['hold_info', 'queued_holds']:
+                redshift_table = table_name + self.redshift_suffix
+                redshift_query = build_redshift_holds_query(
+                    redshift_table, self.yesterday)
+                redshift_count = int(
+                    self.redshift_client.execute_query(redshift_query)[0][0])
 
-        self.logger.info(
-            'Checking that holds were succcessfully updated in Redshift on '
-            '{}'.format(self.yesterday))
-        redshift_table = 'holds' + self.redshift_suffix
-        redshift_query = build_redshift_holds_query(
-            redshift_table, self.yesterday)
-        redshift_count = self._get_record_count(
-            self.redshift_client, redshift_query)
+                if redshift_count == 0:
+                    self.logger.error(
+                        '"{table}" table not updated for all of {date}'.format(
+                            table=redshift_table, date=self.yesterday))
 
-        if redshift_count == 0:
+        redshift_table = 'hold_info' + self.redshift_suffix
+        deleted_holds = self.redshift_client.execute_query(
+            build_redshift_holds_deleted_query(redshift_table, self.yesterday))
+        modified_holds = self.redshift_client.execute_query(
+            build_redshift_holds_modified_query(redshift_table))
+        null_holds = self.redshift_client.execute_query(
+            build_redshift_holds_null_query(redshift_table, self.yesterday))
+        self.redshift_client.close_connection()
+
+        if len(deleted_holds) > 0:
             self.logger.error(
-                'No holds updated for all of {}'.format(self.yesterday))
+                'The following hold_ids appear despite having previously been '
+                'marked as deleted: {}'.format(deleted_holds))
+        if len(modified_holds) > 0:
+            self.logger.error(
+                'The following hold_ids have an immutable field changing: '
+                '{}'.format(modified_holds))
+        if len(null_holds) > 0:
+            self.logger.error(
+                'The following hold_ids have an improper null value: '
+                '{}'.format(null_holds))
 
-    def run_pc_reserve_alarm(self):
+    def run_pc_reserve_alarms(self):
         datetime_to_test = self.yesterday_date
         if not self.run_added_tests:
             datetime_to_test = self.yesterday_date - timedelta(days=1)
         date = datetime_to_test.isoformat()
 
-        self.logger.info(
-            'Checking that an equal number of PcReserve records are in '
-            'Envisionware and Redshift for {}'.format(date))
+        self.logger.info('\nPC RESERVE: {}\n'.format(date))
         envisionware_query = build_envisionware_pc_reserve_query(date)
         envisionware_count = self._get_record_count(
             self.envisionware_client, envisionware_query)
@@ -139,17 +159,15 @@ class AlarmController:
             self.logger.error(
                 'No PcReserve records found for all of {}'.format(date))
 
-    def run_patron_info_alarm(self):
+    def run_patron_info_alarms(self):
         # If it's not Thursday, don't run this alarm, as the PatronInfo pollers
         # run weekly on Wednesday night
         if self.yesterday_date.weekday() != 2:
             return
 
         start_date = (self.yesterday_date - timedelta(days=7)).isoformat()
-        self.logger.info((
-            'Checking that an equal number of newly created and newly deleted '
-            'patron records are in Sierra and Redshift from {start} until '
-            '{end}').format(start=start_date, end=self.yesterday))
+        self.logger.info('\nPATRON INFO: {start}-{end}\n'.format(
+            start=start_date, end=self.yesterday))
 
         self.sierra_client.connect()
         sierra_new_result = self.sierra_client.execute_query(
@@ -204,8 +222,7 @@ class AlarmController:
                                                redshift_count=redshift_count))
 
     def run_sierra_itype_codes_alarms(self):
-        self.logger.info(
-            'Checking that all itype_codes have been captured and are valid')
+        self.logger.info('\nITYPE CODES\n')
         sierra_query = build_sierra_itypes_count_query()
         sierra_count = self._get_record_count(self.sierra_client, sierra_query)
 
@@ -239,9 +256,7 @@ class AlarmController:
                 'inferred columns: {codes}'.format(codes=null_itype_codes))
 
     def run_sierra_location_codes_alarms(self):
-        self.logger.info(
-            'Checking that all location_codes have been captured and are valid'
-        )
+        self.logger.info('\nLOCATION CODES\n')
         sierra_query = build_sierra_code_count_query(
             'sierra_view.location_myuser')
         sierra_count = self._get_record_count(self.sierra_client, sierra_query)
@@ -280,9 +295,7 @@ class AlarmController:
                     codes=null_location_codes))
 
     def run_sierra_stat_group_codes_alarms(self):
-        self.logger.info(
-            'Checking that all stat_group_codes have been captured and are '
-            'valid')
+        self.logger.info('\nSTAT GROUP CODES\n')
         sierra_query = build_sierra_code_count_query(
             'sierra_view.statistic_group_myuser')
         sierra_count = self._get_record_count(self.sierra_client, sierra_query)

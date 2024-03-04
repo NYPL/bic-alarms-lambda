@@ -32,23 +32,25 @@ class TestLambdaFunction:
             })
         }
 
-        mock_alarm_controller.run_circ_trans_alarm.assert_called_once()
-        mock_alarm_controller.run_pc_reserve_alarm.assert_called_once()
-        mock_alarm_controller.run_patron_info_alarm.assert_called_once()
+        mock_alarm_controller.run_circ_trans_alarms.assert_called_once()
+        mock_alarm_controller.run_holds_alarms.assert_called_once()
+        mock_alarm_controller.run_pc_reserve_alarms.assert_called_once()
+        mock_alarm_controller.run_patron_info_alarms.assert_called_once()
         mock_alarm_controller.run_sierra_itype_codes_alarms.assert_called_once()  # noqa: E501
         mock_alarm_controller.run_sierra_location_codes_alarms.assert_called_once()  # noqa: E501
         mock_alarm_controller.run_sierra_stat_group_codes_alarms.assert_called_once()  # noqa: E501
 
     def test_lambda_handler_error(self, mock_alarm_controller, mocker):
-        mock_alarm_controller.run_pc_reserve_alarm.side_effect = Exception(
+        mock_alarm_controller.run_pc_reserve_alarms.side_effect = Exception(
             'test exception')
 
         with pytest.raises(Exception):
             lambda_function.lambda_handler(None, None)
 
-        mock_alarm_controller.run_circ_trans_alarm.assert_called_once()
-        mock_alarm_controller.run_pc_reserve_alarm.assert_called_once()
-        mock_alarm_controller.run_patron_info_alarm.assert_not_called()
+        mock_alarm_controller.run_circ_trans_alarms.assert_called_once()
+        mock_alarm_controller.run_holds_alarms.assert_called_once()
+        mock_alarm_controller.run_pc_reserve_alarms.assert_called_once()
+        mock_alarm_controller.run_patron_info_alarms.assert_not_called()
         mock_alarm_controller.run_sierra_itype_codes_alarms.assert_not_called()  # noqa: E501
         mock_alarm_controller.run_sierra_location_codes_alarms.assert_not_called()  # noqa: E501
         mock_alarm_controller.run_sierra_stat_group_codes_alarms.assert_not_called()  # noqa: E501
