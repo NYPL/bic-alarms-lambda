@@ -56,11 +56,11 @@ _REDSHIFT_CODE_COUNTS_QUERY = (
 
 _REDSHIFT_HOLDS_QUERY = (
     "SELECT COUNT(id) FROM {table} "
-    "WHERE update_date_et = '{date}';")
+    "WHERE TRUNC(update_timestamp) = '{date}';")
 
 _REDSHIFT_HOLDS_DELETED_QUERY = '''
     SELECT hold_id FROM {table}
-    WHERE update_date_et = '{date}'
+    WHERE TRUNC(update_timestamp) = '{date}'
         AND (record_id IS NOT NULL
             OR record_type IS NOT NULL
             OR placed_utc IS NOT NULL)
@@ -84,7 +84,7 @@ _REDSHIFT_HOLDS_MODIFIED_QUERY = '''
 
 _REDSHIFT_HOLDS_NULL_QUERY = '''
     SELECT hold_id FROM {table}
-    WHERE update_date_et = '{date}'
+    WHERE TRUNC(update_timestamp) = '{date}'
         AND (
             hold_id IS NULL
             OR (
