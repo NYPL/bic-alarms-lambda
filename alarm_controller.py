@@ -69,11 +69,15 @@ class AlarmController:
 
     def run_circ_trans_alarms(self):
         self.logger.info('\nCIRC TRANS\n')
-        sierra_query = build_sierra_circ_trans_query(self.yesterday)
-        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
+        sierra_timezones = ('EST', 'America/New_York')
+        redshift_tables = ('circ_trans', 'patron_circ_trans')
 
-        for table_name in ['circ_trans', 'patron_circ_trans']:
-            redshift_table = table_name + self.redshift_suffix
+        for i in range(2):
+            sierra_query = build_sierra_circ_trans_query(
+                self.yesterday, sierra_timezones[i])
+            sierra_count = self._get_record_count(
+                self.sierra_client, sierra_query)
+            redshift_table = redshift_tables[i] + self.redshift_suffix
             redshift_query = build_redshift_circ_trans_query(
                 redshift_table, self.yesterday)
             redshift_count = self._get_record_count(
@@ -95,27 +99,31 @@ class AlarmController:
 
     def run_holds_alarms(self):
         self.logger.info('\nHOLDS\n')
+        # The update_timestamp is stored in UTC and the poller is run late at
+        # night, so the date for the most recent day of data is today
+        date_to_test = (self.yesterday_date + timedelta(days=1)).isoformat()
         self.redshift_client.connect()
         if self.run_added_tests:
             for table_name in ['hold_info', 'queued_holds']:
                 redshift_table = table_name + self.redshift_suffix
                 redshift_query = build_redshift_holds_query(
-                    redshift_table, self.yesterday)
+                    redshift_table, date_to_test)
                 redshift_count = int(
                     self.redshift_client.execute_query(redshift_query)[0][0])
 
                 if redshift_count == 0:
-                    self.logger.error(
-                        '"{table}" table not updated for all of {date}'.format(
+                    self.logger.error((
+                        '"{table}" table not updated for all of {date} '
+                        '(ET)').format(
                             table=redshift_table, date=self.yesterday))
 
         redshift_table = 'hold_info' + self.redshift_suffix
         deleted_holds = self.redshift_client.execute_query(
-            build_redshift_holds_deleted_query(redshift_table, self.yesterday))
+            build_redshift_holds_deleted_query(redshift_table, date_to_test))
         modified_holds = self.redshift_client.execute_query(
             build_redshift_holds_modified_query(redshift_table))
         null_holds = self.redshift_client.execute_query(
-            build_redshift_holds_null_query(redshift_table, self.yesterday))
+            build_redshift_holds_null_query(redshift_table, date_to_test))
         self.redshift_client.close_connection()
 
         if len(deleted_holds) > 0:
