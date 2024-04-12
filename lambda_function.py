@@ -19,6 +19,7 @@ def lambda_handler(event, context):
         alarm_controller.run_holds_alarms()
         alarm_controller.run_pc_reserve_alarms()
         alarm_controller.run_patron_info_alarms()
+        alarm_controller.run_location_visits_alarms()
         alarm_controller.run_sierra_itype_codes_alarms()
         alarm_controller.run_sierra_location_codes_alarms()
         alarm_controller.run_sierra_stat_group_codes_alarms()

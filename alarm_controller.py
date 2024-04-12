@@ -16,6 +16,8 @@ from query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_holds_query,
                           build_redshift_itype_null_query,
                           build_redshift_location_null_query,
+                          build_redshift_location_visits_count_query,
+                          build_redshift_location_visits_duplicate_query,
                           build_redshift_new_patrons_query,
                           build_redshift_pc_reserve_query,
                           build_redshift_stat_group_location_query,
@@ -228,6 +230,37 @@ class AlarmController:
                     'Redshift records').format(date=date.isoformat(),
                                                sierra_count=sierra_count,
                                                redshift_count=redshift_count))
+
+    def run_location_visits_alarms(self):
+        if not self.run_added_tests:
+            return
+
+        self.logger.info('\nLOCATION VISITS\n')
+        redshift_table = 'location_visits' + self.redshift_suffix
+        redshift_count_query = build_redshift_location_visits_count_query(
+            redshift_table, self.yesterday)
+        redshift_duplicate_query = \
+            build_redshift_location_visits_duplicate_query(
+                redshift_table, self.yesterday)
+
+        self.redshift_client.connect()
+        redshift_count = int(self.redshift_client.execute_query(
+            redshift_count_query)[0][0])
+        redshift_duplicates = self.redshift_client.execute_query(
+            redshift_duplicate_query)
+        self.redshift_client.close_connection()
+
+        if len(redshift_duplicates) > 0:
+            self.logger.error(
+                'The following (shoppertrak_site_id, orbit, increment_start, '
+                'is_healthy_orbit) combinations erroneously apply to more '
+                'than one row: {}'.format(redshift_duplicates))
+        if redshift_count < 10000:
+            self.logger.error((
+                'Found only {redshift_count} {redshift_table} rows for all of '
+                '{date}').format(redshift_count=redshift_count,
+                                 redshift_table=redshift_table,
+                                 date=self.yesterday))
 
     def run_sierra_itype_codes_alarms(self):
         self.logger.info('\nITYPE CODES\n')

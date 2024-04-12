@@ -3,7 +3,7 @@ import os
 import pytest
 
 from alarm_controller import AlarmController
-from datetime import date
+from datetime import date, datetime
 
 
 @pytest.mark.freeze_time('2023-06-01 01:23:45+00:00')
@@ -409,6 +409,63 @@ class TestAlarmController:
             in caplog.text
         assert 'No new patron records found for all of 2023-05-26' \
             in caplog.text
+
+    def test_run_location_visits_alarms_no_alarm(
+            self, test_instance, mocker, caplog):
+        mock_redshift_count_query = mocker.patch(
+            'alarm_controller.build_redshift_location_visits_count_query',
+            return_value='redshift count query')
+        mock_redshift_duplicate_query = mocker.patch(
+            'alarm_controller.build_redshift_location_visits_duplicate_query',
+            return_value='redshift duplicate query')
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([11000],), ()]
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_location_visits_alarms()
+        assert caplog.text == ''
+
+        test_instance.redshift_client.connect.assert_called_once()
+        mock_redshift_count_query.assert_called_once_with(
+            'location_visits_test_redshift_db', '2023-05-31')
+        mock_redshift_duplicate_query.assert_called_once_with(
+            'location_visits_test_redshift_db', '2023-05-31')
+        test_instance.redshift_client.execute_query.assert_has_calls([
+            mocker.call('redshift count query'),
+            mocker.call('redshift duplicate query')])
+        test_instance.redshift_client.close_connection.assert_called_once()
+
+    def test_run_location_visits_alarms_duplicate_records(
+            self, test_instance, mocker, caplog):
+        mocker.patch(
+            'alarm_controller.build_redshift_location_visits_count_query')
+        mocker.patch(
+            'alarm_controller.build_redshift_location_visits_duplicate_query')
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([11000],), (['lib a', 1, datetime(2023, 5, 31, 9, 0, 0), True],
+                         ['lib b', 2, datetime(2023, 5, 31, 9, 15, 0), False])]
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_location_visits_alarms()
+        assert ('The following (shoppertrak_site_id, orbit, increment_start, '
+                'is_healthy_orbit) combinations erroneously apply to more '
+                "than one row: (['lib a', 1, FakeDatetime(2023, 5, 31, 9, 0), "
+                "True], ['lib b', 2, FakeDatetime(2023, 5, 31, 9, 15), "
+                "False])") in caplog.text
+
+    def test_run_location_visits_alarms_no_records(
+            self, test_instance, mocker, caplog):
+        mocker.patch(
+            'alarm_controller.build_redshift_location_visits_count_query')
+        mocker.patch(
+            'alarm_controller.build_redshift_location_visits_duplicate_query')
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([10],), ()]
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_location_visits_alarms()
+        assert ('Found only 10 location_visits_test_redshift_db rows for all '
+                'of 2023-05-31') in caplog.text
 
     def test_run_sierra_itype_codes_alarms_no_alarms(
             self, test_instance, mocker, caplog):
