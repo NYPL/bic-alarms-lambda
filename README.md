@@ -11,8 +11,8 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When there are no PC reserve records in Sierra for the previous day
 * When the number of newly created/deleted patron records in Sierra and Redshift differs for any day in the previous week
 * When there are no newly created patron records in Sierra for the previous any day in the previous week
-* When there are multiple location visits records with the same combination of fields that should be unique
 * When there are fewer than 10000 new location visits records for the previous day
+* When a given location visits (site id, orbit, increment start) combination does not map to exactly one fresh row
 * When the number of active itype/location/stat group codes in Sierra and Redshift differs
 * When there are duplicate active itype/location/stat group codes in Redshift
 * When there are active itype/location/stat group codes in Redshift without the necessary additional fields populated
