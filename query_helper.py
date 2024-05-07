@@ -29,8 +29,8 @@ _ENVISIONWARE_PC_RESERVE_QUERY = (
     "WHERE DATE(pcrDateTime) = '{date}';")
 
 _REDSHIFT_CIRC_TRANS_QUERY = (
-    "SELECT COUNT(transaction_checksum) FROM {table} "
-    "WHERE transaction_et = '{date}';")
+    "SELECT COUNT(*) FROM {table} "
+    "WHERE {date_field} = '{date}';")
 
 _REDSHIFT_NEW_PATRONS_QUERY = '''
     SELECT creation_date_et, COUNT(patron_id)
@@ -156,8 +156,9 @@ def build_envisionware_pc_reserve_query(date):
     return _ENVISIONWARE_PC_RESERVE_QUERY.format(date=date)
 
 
-def build_redshift_circ_trans_query(table, date):
-    return _REDSHIFT_CIRC_TRANS_QUERY.format(table=table, date=date)
+def build_redshift_circ_trans_query(table, date_field, date):
+    return _REDSHIFT_CIRC_TRANS_QUERY.format(
+        table=table, date_field=date_field, date=date)
 
 
 def build_redshift_new_patrons_query(table, start_date, end_date):
