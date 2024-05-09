@@ -16,6 +16,9 @@ from query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_holds_query,
                           build_redshift_itype_null_query,
                           build_redshift_location_null_query,
+                          build_redshift_location_visits_count_query,
+                          build_redshift_location_visits_duplicate_query,
+                          build_redshift_location_visits_stale_query,
                           build_redshift_new_patrons_query,
                           build_redshift_pc_reserve_query,
                           build_redshift_stat_group_location_query,
@@ -228,6 +231,48 @@ class AlarmController:
                     'Redshift records').format(date=date.isoformat(),
                                                sierra_count=sierra_count,
                                                redshift_count=redshift_count))
+
+    def run_location_visits_alarms(self):
+        if not self.run_added_tests:
+            return
+
+        self.logger.info('\nLOCATION VISITS\n')
+        redshift_table = 'location_visits' + self.redshift_suffix
+        stale_start_date = (self.yesterday_date -
+                            timedelta(days=30)).isoformat()
+        redshift_count_query = build_redshift_location_visits_count_query(
+            redshift_table, self.yesterday)
+        redshift_duplicate_query = \
+            build_redshift_location_visits_duplicate_query(
+                redshift_table, self.yesterday)
+        redshift_stale_query = build_redshift_location_visits_stale_query(
+            redshift_table, stale_start_date)
+
+        self.redshift_client.connect()
+        redshift_count = int(self.redshift_client.execute_query(
+            redshift_count_query)[0][0])
+        redshift_duplicates = self.redshift_client.execute_query(
+            redshift_duplicate_query)
+        redshift_stale_rows = self.redshift_client.execute_query(
+            redshift_stale_query)
+        self.redshift_client.close_connection()
+
+        if redshift_count < 10000:
+            self.logger.error((
+                'Found only {redshift_count} {redshift_table} rows for all of '
+                '{date}').format(redshift_count=redshift_count,
+                                 redshift_table=redshift_table,
+                                 date=self.yesterday))
+        if len(redshift_duplicates) > 0:
+            self.logger.error(
+                'The following (shoppertrak_site_id, orbit, increment_start) '
+                'combinations contain more than one fresh row: {}'.format(
+                    redshift_duplicates))
+        if len(redshift_stale_rows) > 0:
+            self.logger.error(
+                'The following (shoppertrak_site_id, orbit, increment_start) '
+                'combinations are marked as stale and have not been replaced '
+                'with a fresh row: {}'.format(redshift_stale_rows))
 
     def run_sierra_itype_codes_alarms(self):
         self.logger.info('\nITYPE CODES\n')

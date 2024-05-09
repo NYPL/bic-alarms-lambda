@@ -102,6 +102,32 @@ _REDSHIFT_HOLDS_NULL_QUERY = '''
             )
         );'''
 
+_REDSHIFT_LOCATION_VISITS_COUNT_QUERY = (
+    "SELECT COUNT(id) FROM {table} "
+    "WHERE increment_start::DATE = '{date}' AND is_fresh;")
+
+_REDSHIFT_LOCATION_VISITS_DUPLICATE_QUERY = '''
+    SELECT shoppertrak_site_id, orbit, increment_start
+    FROM {table}
+    WHERE increment_start::DATE = '{date}' AND is_fresh
+    GROUP BY shoppertrak_site_id, orbit, increment_start
+    HAVING COUNT(*) > 1;'''
+
+_REDSHIFT_LOCATION_VISITS_STALE_QUERY = '''
+    WITH stale_keys AS (
+        SELECT shoppertrak_site_id, orbit, increment_start,
+            CONCAT(CONCAT(shoppertrak_site_id, orbit), increment_start) AS key
+        FROM {table}
+        WHERE poll_date >= '{date}' AND NOT is_fresh
+    )
+    SELECT shoppertrak_site_id, orbit, increment_start
+    FROM stale_keys
+    WHERE key NOT IN (
+        SELECT CONCAT(CONCAT(shoppertrak_site_id, orbit), increment_start)
+        FROM {table}
+        WHERE poll_date >= '{date}' AND is_fresh
+    );'''
+
 _REDSHIFT_ITYPE_NULL_QUERY = '''
     SELECT code FROM {table}
     WHERE code != 0
@@ -192,6 +218,21 @@ def build_redshift_holds_modified_query(table):
 
 def build_redshift_holds_null_query(table, date):
     return _REDSHIFT_HOLDS_NULL_QUERY.format(table=table, date=date)
+
+
+def build_redshift_location_visits_count_query(table, date):
+    return _REDSHIFT_LOCATION_VISITS_COUNT_QUERY.format(
+        table=table, date=date)
+
+
+def build_redshift_location_visits_duplicate_query(table, date):
+    return _REDSHIFT_LOCATION_VISITS_DUPLICATE_QUERY.format(
+        table=table, date=date)
+
+
+def build_redshift_location_visits_stale_query(table, date):
+    return _REDSHIFT_LOCATION_VISITS_STALE_QUERY.format(
+        table=table, date=date)
 
 
 def build_redshift_itype_null_query(itype_table, date):

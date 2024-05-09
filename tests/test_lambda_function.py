@@ -36,6 +36,7 @@ class TestLambdaFunction:
         mock_alarm_controller.run_holds_alarms.assert_called_once()
         mock_alarm_controller.run_pc_reserve_alarms.assert_called_once()
         mock_alarm_controller.run_patron_info_alarms.assert_called_once()
+        mock_alarm_controller.run_location_visits_alarms.assert_called_once()
         mock_alarm_controller.run_sierra_itype_codes_alarms.assert_called_once()  # noqa: E501
         mock_alarm_controller.run_sierra_location_codes_alarms.assert_called_once()  # noqa: E501
         mock_alarm_controller.run_sierra_stat_group_codes_alarms.assert_called_once()  # noqa: E501
@@ -51,6 +52,7 @@ class TestLambdaFunction:
         mock_alarm_controller.run_holds_alarms.assert_called_once()
         mock_alarm_controller.run_pc_reserve_alarms.assert_called_once()
         mock_alarm_controller.run_patron_info_alarms.assert_not_called()
+        mock_alarm_controller.run_run_location_visits_alarms.assert_not_called()  # noqa: E501
         mock_alarm_controller.run_sierra_itype_codes_alarms.assert_not_called()  # noqa: E501
         mock_alarm_controller.run_sierra_location_codes_alarms.assert_not_called()  # noqa: E501
         mock_alarm_controller.run_sierra_stat_group_codes_alarms.assert_not_called()  # noqa: E501
