@@ -1,6 +1,7 @@
 _SIERRA_CIRC_TRANS_QUERY = (
     "SELECT COUNT(id) FROM sierra_view.circ_trans "
-    "WHERE (transaction_gmt AT TIME ZONE '{timezone}')::DATE = '{date}';")
+    "WHERE (transaction_gmt AT TIME ZONE 'America/New_York')::DATE = '{date}';"
+)
 
 _SIERRA_NEW_PATRONS_QUERY = '''
     SELECT (creation_date_gmt AT TIME ZONE 'EST')::DATE, COUNT(id)
@@ -29,7 +30,7 @@ _ENVISIONWARE_PC_RESERVE_QUERY = (
     "WHERE DATE(pcrDateTime) = '{date}';")
 
 _REDSHIFT_CIRC_TRANS_QUERY = (
-    "SELECT COUNT(*) FROM {table} "
+    "SELECT COUNT(id) FROM {table} "
     "WHERE {date_field} = '{date}';")
 
 _REDSHIFT_NEW_PATRONS_QUERY = '''
@@ -155,9 +156,8 @@ _REDSHIFT_STAT_GROUP_LOCATION_QUERY = '''
             WHERE deletion_date IS NULL);'''
 
 
-def build_sierra_circ_trans_query(date, timezone):
-    return _SIERRA_CIRC_TRANS_QUERY.format(
-        date=date, timezone=timezone)
+def build_sierra_circ_trans_query(date):
+    return _SIERRA_CIRC_TRANS_QUERY.format(date=date)
 
 
 def build_sierra_new_patrons_query(start_date, end_date):

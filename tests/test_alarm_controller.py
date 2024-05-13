@@ -89,12 +89,10 @@ class TestAlarmController:
             self, test_instance, mocker, caplog):
         mock_sierra_query = mocker.patch(
             'alarm_controller.build_sierra_circ_trans_query',
-            side_effect=['sierra circ trans EST query',
-                         'sierra circ trans New York query'])
+            return_value='sierra circ trans query')
         mock_redshift_query = mocker.patch(
             'alarm_controller.build_redshift_circ_trans_query',
-            side_effect=['redshift circ trans query',
-                         'redshift patron circ trans query',
+            side_effect=['redshift patron circ trans query',
                          'redshift item circ trans query'])
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.return_value = ([10],)
@@ -103,43 +101,34 @@ class TestAlarmController:
             test_instance.run_circ_trans_alarms()
         assert caplog.text == ''
 
-        assert test_instance.sierra_client.connect.call_count == 2
-        mock_sierra_query.assert_has_calls([
-            mocker.call('2023-05-31', 'EST'),
-            mocker.call('2023-05-31', 'America/New_York')])
-        test_instance.sierra_client.execute_query.assert_has_calls([
-            mocker.call('sierra circ trans EST query'),
-            mocker.call('sierra circ trans New York query')])
-        assert test_instance.sierra_client.close_connection.call_count == 2
+        test_instance.sierra_client.connect.assert_called_once()
+        mock_sierra_query.assert_called_once_with('2023-05-31')
+        test_instance.sierra_client.execute_query.assert_called_once_with(
+            'sierra circ trans query')
+        test_instance.sierra_client.close_connection.assert_called_once()
 
-        assert test_instance.redshift_client.connect.call_count == 3
+        assert test_instance.redshift_client.connect.call_count == 2
         mock_redshift_query.assert_has_calls([
-            mocker.call('circ_trans_test_redshift_db', 'transaction_et', '2023-05-31'),  # noqa: E501
             mocker.call('patron_circ_trans_test_redshift_db', 'transaction_et',
                         '2023-05-31'),
             mocker.call('item_circ_trans_test_redshift_db',
                         'CONVERT_TIMEZONE(\'America/New_York\', transaction_timestamp)::DATE',  # noqa: E501
                         '2023-05-31')])
         test_instance.redshift_client.execute_query.assert_has_calls([
-            mocker.call('redshift circ trans query'),
             mocker.call('redshift patron circ trans query'),
             mocker.call('redshift item circ trans query')])
-        assert test_instance.redshift_client.close_connection.call_count == 3
+        assert test_instance.redshift_client.close_connection.call_count == 2
 
     def test_run_circ_trans_alarms_unequal_counts(
             self, test_instance, mocker, caplog):
         mocker.patch('alarm_controller.build_sierra_circ_trans_query')
         mocker.patch('alarm_controller.build_redshift_circ_trans_query')
-        test_instance.sierra_client.execute_query.side_effect = [
-            [(10,)], [(20,)]]
+        test_instance.sierra_client.execute_query.return_value = [(20,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([20],), ([15],), ([10],)]
+            ([15],), ([10],)]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_circ_trans_alarms()
-        assert ('Number of Sierra circ trans records does not match number of '
-                'Redshift circ_trans_test_redshift_db records: 10 Sierra '
-                'records and 20 Redshift records') in caplog.text
         assert ('Number of Sierra circ trans records does not match number of '
                 'Redshift patron_circ_trans_test_redshift_db records: 20 '
                 'Sierra records and 15 Redshift records') in caplog.text
