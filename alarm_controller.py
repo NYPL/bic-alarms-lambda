@@ -6,7 +6,7 @@ from nypl_py_utils.classes.mysql_client import MySQLClient
 from nypl_py_utils.classes.postgresql_client import PostgreSQLClient
 from nypl_py_utils.classes.redshift_client import RedshiftClient
 from nypl_py_utils.functions.log_helper import create_log
-from query_helper import (build_envisionware_pc_reserve_query,
+from helpers.query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_circ_trans_query,
                           build_redshift_code_counts_query,
                           build_redshift_deleted_patrons_query,
