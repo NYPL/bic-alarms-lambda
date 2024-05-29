@@ -45,6 +45,10 @@ class AlarmController:
                                 os.environ['ENVIRONMENT'] == 'test')
 
         kms_client = KmsClient()
+        self._setup_database_clients(self, kms_client)
+        kms_client.close()
+
+    def _setup_database_clients(self, kms_client):
         self.redshift_client = RedshiftClient(
             kms_client.decrypt(os.environ['REDSHIFT_DB_HOST']),
             os.environ['REDSHIFT_DB_NAME'],
@@ -62,7 +66,7 @@ class AlarmController:
             os.environ['ENVISIONWARE_DB_NAME'],
             kms_client.decrypt(os.environ['ENVISIONWARE_DB_USER']),
             kms_client.decrypt(os.environ['ENVISIONWARE_DB_PASSWORD']))
-        kms_client.close()
+
 
     def _get_record_count(self, client, query):
         client.connect()
