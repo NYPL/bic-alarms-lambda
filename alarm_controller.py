@@ -67,7 +67,6 @@ class AlarmController:
             kms_client.decrypt(os.environ['ENVISIONWARE_DB_USER']),
             kms_client.decrypt(os.environ['ENVISIONWARE_DB_PASSWORD']))
 
-
     def _get_record_count(self, client, query):
         client.connect()
         result = client.execute_query(query)
