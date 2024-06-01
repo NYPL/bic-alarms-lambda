@@ -1,5 +1,4 @@
 import os
-from signal import alarm
 
 from alarms.models.circ_trans_alarms import CircTransAlarms
 from alarms.models.holds_alarms import HoldsAlarms

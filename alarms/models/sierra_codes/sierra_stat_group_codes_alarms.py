@@ -1,4 +1,4 @@
-from alarm import Alarm
+from alarms.alarm import Alarm
 from helpers.query_helper import (build_redshift_code_counts_query,
                           build_redshift_stat_group_location_query,
                           build_redshift_stat_group_null_query,

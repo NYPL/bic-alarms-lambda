@@ -1,4 +1,4 @@
-from alarm import Alarm
+from alarms.alarm import Alarm
 from helpers.query_helper import (build_redshift_circ_trans_query,
                           build_sierra_circ_trans_query)
 

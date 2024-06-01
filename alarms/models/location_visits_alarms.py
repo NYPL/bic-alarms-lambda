@@ -1,4 +1,4 @@
-from alarm import Alarm
+from alarms.alarm import Alarm
 from datetime import timedelta
 from helpers.query_helper import (build_redshift_location_visits_count_query,
                           build_redshift_location_visits_duplicate_query,

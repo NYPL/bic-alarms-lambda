@@ -1,4 +1,4 @@
-from alarm import Alarm
+from alarms.alarm import Alarm
 from helpers.query_helper import (build_redshift_code_counts_query,
                           build_redshift_itype_null_query,
                           build_sierra_itypes_count_query)

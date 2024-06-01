@@ -1,4 +1,4 @@
-from alarm import Alarm
+from alarms.alarm import Alarm
 from datetime import timedelta
 from helpers.query_helper import (build_redshift_holds_deleted_query,
                           build_redshift_holds_modified_query,
