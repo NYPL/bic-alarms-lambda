@@ -4,10 +4,10 @@ from helpers.query_helper import (build_envisionware_pc_reserve_query,
                           build_redshift_pc_reserve_query)
 
 class PcReserveAlarms(Alarm):
-    def __init__(self, logger, run_added_tests,
-                 redshift_client, redshift_suffix, envisionware_client):
-        super().__init__(self, logger, run_added_tests,
-                         redshift_client, redshift_suffix)
+    def __init__(self, logger,
+                 redshift_client, envisionware_client):
+        super().__init__(self, logger,
+                         redshift_client)
         self.envisionware_client = envisionware_client
 
     def run_checks(self):
@@ -26,9 +26,11 @@ class PcReserveAlarms(Alarm):
         redshift_count = self._get_record_count(
             self.redshift_client, redshift_query)
 
-        self.pc_reserve_envisionware_redshift_discrepancy_alarm(self, envisionware_count, redshift_count)
+        self.pc_reserve_envisionware_redshift_discrepancy_alarm(self, 
+                                                                envisionware_count, redshift_count)
         
-        self.pc_reserve_no_records_alarm(self, envisionware_count, redshift_count, datetime_to_test, date)
+        self.pc_reserve_no_records_alarm(self, envisionware_count, 
+                                         redshift_count, datetime_to_test, date)
             
     def pc_reserve_envisionware_redshift_discrepancy_alarm(
             self, envisionware_count, redshift_count):

@@ -7,10 +7,9 @@ from helpers.sierra_codes_helper import (sierra_redshift_count_mismatch_alarm,
                                          null_code_alarm)
 
 class SierraItypeCodesAlarms(Alarm):
-    def __init__(self, logger, run_added_tests,
-                 redshift_client, redshift_suffix, sierra_client):
-        super().__init__(self, logger, run_added_tests,
-                         redshift_client, redshift_suffix)
+    def __init__(self, logger, 
+                 redshift_client, sierra_client):
+        super().__init__(self, logger, redshift_client)
         self.sierra_client = sierra_client
 
     def run_checks(self):
@@ -29,6 +28,6 @@ class SierraItypeCodesAlarms(Alarm):
                 build_redshift_itype_null_query(itype_table, self.yesterday))
         self.redshift_client.close_connection()
 
-        sierra_redshift_count_mismatch_alarm(sierra_count, total_redshift_count)
-        redshift_duplicate_code_alarm(total_redshift_count, distinct_redshift_count)
-        null_code_alarm(null_itype_codes)
+        sierra_redshift_count_mismatch_alarm('itype', sierra_count, total_redshift_count)
+        redshift_duplicate_code_alarm('itype', total_redshift_count, distinct_redshift_count)
+        null_code_alarm('itype_codes', null_itype_codes)

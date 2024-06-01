@@ -31,7 +31,9 @@ class HoldsAlarms(Alarm):
             build_redshift_holds_null_query(redshift_table, date_to_test))
         self.redshift_client.close_connection()
 
-        self.invalid_hold_alarms(self, deleted_holds, modified_holds, null_holds)
+        self.holds_not_deleted_alarm(self, deleted_holds)
+        self.immutable_hold_field_updated_alarm(self, modified_holds)
+        self.null_hold_id_alarm(self, null_holds)
         
     def holds_not_updated_alarm(self, redshift_count, redshift_table):
         if redshift_count == 0:
@@ -40,16 +42,19 @@ class HoldsAlarms(Alarm):
                 '(ET)').format(
                     table=redshift_table, date=self.yesterday))
 
-    def invalid_hold_alarms(self, deleted_holds, 
-                            modified_holds, null_holds):
+    def holds_not_deleted_alarm(self, deleted_holds):
         if len(deleted_holds) > 0:
             self.logger.error(
                 'The following hold_ids appear despite having previously been '
                 'marked as deleted: {}'.format(deleted_holds))
+
+    def immutable_hold_field_updated_alarm(self, modified_holds):
         if len(modified_holds) > 0:
             self.logger.error(
                 'The following hold_ids have an immutable field changing: '
                 '{}'.format(modified_holds))
+            
+    def null_hold_id_alarm(self, null_holds):
         if len(null_holds) > 0:
             self.logger.error(
                 'The following hold_ids have an improper null value: '

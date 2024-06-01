@@ -31,17 +31,8 @@ class LocationVisitsAlarms(Alarm):
         self.redshift_client.close_connection()
 
         self.new_location_visits_less_than_thousand_alarm(self, redshift_count, redshift_table)
-
-        if len(redshift_duplicates) > 0:
-            self.logger.error(
-                'The following (shoppertrak_site_id, orbit, increment_start) '
-                'combinations contain more than one fresh row: {}'.format(
-                    redshift_duplicates))
-        if len(redshift_stale_rows) > 0:
-            self.logger.error(
-                'The following (shoppertrak_site_id, orbit, increment_start) '
-                'combinations are marked as stale and have not been replaced '
-                'with a fresh row: {}'.format(redshift_stale_rows))
+        self.redshift_duplicates_alarm(redshift_duplicates)
+        self.redshift_stale_rows_alarm(redshift_stale_rows)
 
     def new_location_visits_less_than_thousand_alarm(self, redshift_count, redshift_table):
         if redshift_count < 10000:
@@ -50,3 +41,17 @@ class LocationVisitsAlarms(Alarm):
                 '{date}').format(redshift_count=redshift_count,
                                     redshift_table=redshift_table,
                                     date=self.yesterday))
+    
+    def redshift_duplicates_alarm(self, redshift_duplicates):
+        if len(redshift_duplicates) > 0:
+            self.logger.error(
+                'The following (shoppertrak_site_id, orbit, increment_start) '
+                'combinations contain more than one fresh row: {}'.format(
+                    redshift_duplicates))
+    
+    def redshift_stale_rows_alarm(self, redshift_stale_rows):
+        if len(redshift_stale_rows) > 0:
+            self.logger.error(
+                'The following (shoppertrak_site_id, orbit, increment_start) '
+                'combinations are marked as stale and have not been replaced '
+                'with a fresh row: {}'.format(redshift_stale_rows))

@@ -1,13 +1,17 @@
+import os 
+
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 
 class Alarm(ABC):
-    def __init__(self, logger, run_added_tests,
-                 redshift_client, redshift_suffix):
+    def __init__(self, logger, redshift_client):
         self.logger = logger
-        self.run_added_tests = run_added_tests
         self.redshift_client = redshift_client
-        self.redshift_suffix = redshift_suffix
+        self.redshift_suffix = (
+            '' if os.environ['REDSHIFT_DB_NAME'] == 'production' else (
+                '_' + os.environ['REDSHIFT_DB_NAME']))
+        self.run_added_tests = (os.environ['ENVIRONMENT'] == 'production' or
+                                os.environ['ENVIRONMENT'] == 'test')
         self.yesterday_date = (
                 datetime.now(timezone.utc) - timedelta(days=1)).date()
         self.yesterday = self.yesterday_date.isoformat()

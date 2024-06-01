@@ -3,10 +3,9 @@ from helpers.query_helper import (build_redshift_circ_trans_query,
                           build_sierra_circ_trans_query)
 
 class CircTransAlarms(Alarm):
-    def __init__(self, logger, run_added_tests,
-                 redshift_client, redshift_suffix, sierra_client):
-        super().__init__(self, logger, run_added_tests,
-                         redshift_client, redshift_suffix)
+    def __init__(self, logger,
+                 redshift_client, sierra_client):
+        super().__init__(self, logger, redshift_client)
         self.sierra_client = sierra_client
     
     def run_checks(self):
@@ -33,7 +32,6 @@ class CircTransAlarms(Alarm):
                 
                 self.circ_trans_sierra_redshift_discrepancy_alarm(
                         self, sierra_count, redshift_count, redshift_table)
-                
             self.circ_trans_sierra_no_records_alarm(self, sierra_count)
     
     def circ_trans_sierra_redshift_discrepancy_alarm(self, sierra_count, 
