@@ -22,8 +22,18 @@ This repo uses the [Main-QA-Production](https://github.com/NYPL/engineering-gene
 
 `main` has the latest and greatest commits, `qa` has what's in our QA environment, and `production` has what's in our production environment.
 
-## Local Development
-#TODO: add steps for adding a new alarm
+## How do I make a new alarm?
+To create a new alarm, set up a model for said alarm in the [alarms/models](alarms/models) folder. Here are some examples:
+* [CircTransAlarms](alarms/models/circ_trans_alarms.py) = General class containing all alarms related to circ trans records. *Each alarm is its own function, as is the norm*
+* [PatronInfoAlarms](alarms/models/patron_info_alarms.py) = General class with patron record related alerts
+
+Make sure to import whatever database client is needed as well (ex. Sierra, Envisionware). After creating your new alarm, add the alarm object to the [AlarmController](alarm_controller.py).
+
+## Local development
+On your command line, run 
+```
+python3 lambda_function.py
+```
 
 ## Deployment
 CI/CD is not enabled. To deploy a new version of this function, first modify the code in the git repo and open a pull request to the appropriate environment branch. Then run `source deployment_script.sh` and upload the resulting zip. Note that if any files are added or deleted, this script must be modified. For more information, see the directions [here](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html).
