@@ -9,8 +9,8 @@ def sierra_redshift_count_mismatch_alarm(logger, code_type,
                         sierra_count=sierra_count,
                         redshift_count=total_redshift_count))
             
-def redshift_duplicate_code_alarm(logger, code_type, 
-                                  total_redshift_count, distinct_redshift_count):
+def redshift_duplicate_code_alarm(logger, code_type, total_redshift_count, 
+                                  distinct_redshift_count):
     if total_redshift_count != distinct_redshift_count:
         logger.error((
             'Duplicate {code_type} codes found in Redshift: {total_count} '

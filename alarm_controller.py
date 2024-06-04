@@ -26,11 +26,14 @@ class AlarmController:
         kms_client.close()
     
     def _setup_database_clients(self, kms_client):
+        print("hiiiii")
         self.redshift_client = RedshiftClient(
             kms_client.decrypt(os.environ['REDSHIFT_DB_HOST']),
             os.environ['REDSHIFT_DB_NAME'],
-            kms_client.decrypt(os.environ['REDSHIFT_DB_USER']),
-            kms_client.decrypt(os.environ['REDSHIFT_DB_PASSWORD']))
+            os.environ['REDSHIFT_DB_USER'],
+            os.environ['REDSHIFT_DB_PASSWORD'])
+            # kms_client.decrypt(os.environ['REDSHIFT_DB_USER']),
+            # kms_client.decrypt(os.environ['REDSHIFT_DB_PASSWORD']))
         self.sierra_client = PostgreSQLClient(
             kms_client.decrypt(os.environ['SIERRA_DB_HOST']),
             os.environ['SIERRA_DB_PORT'],
