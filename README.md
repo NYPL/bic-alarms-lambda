@@ -32,7 +32,7 @@ Make sure to import whatever database client is needed as well (ex. Sierra, Envi
 ## Local development
 On your command line, run 
 ```
-python3 lambda_function.py
+make run
 ```
 
 ## Deployment

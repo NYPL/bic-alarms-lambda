@@ -10,14 +10,14 @@ from helpers.sierra_codes_helper import (sierra_redshift_count_mismatch_alarm,
 class SierraStatGroupCodesAlarms(Alarm):
     def __init__(self, logger, redshift_client, 
                  sierra_client):
-        super().__init__(self, logger, redshift_client)
+        super().__init__(logger, redshift_client)
         self.sierra_client = sierra_client
 
-    def run_sierra_stat_group_codes_alarms(self):
+    def run_checks(self):
         self.logger.info('\nSTAT GROUP CODES\n')
         sierra_query = build_sierra_code_count_query(
             'sierra_view.statistic_group_myuser')
-        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
+        sierra_count = self.get_record_count(self.sierra_client, sierra_query)
 
         stat_group_table = 'sierra_stat_group_codes' + self.redshift_suffix
         location_table = 'sierra_location_codes' + self.redshift_suffix
@@ -36,14 +36,16 @@ class SierraStatGroupCodesAlarms(Alarm):
             stat_groups_without_locations = self.redshift_client.execute_query(
                 build_redshift_stat_group_location_query(
                     stat_group_table, location_table, self.yesterday))
+            null_code_alarm(self.run_added_tests, self.logger, 
+                            'stat_group_codes', null_stat_group_codes)
+            self.missing_location_code_alarm(stat_groups_without_locations, 
+                                             location_table)
         self.redshift_client.close_connection()
 
-        sierra_redshift_count_mismatch_alarm('stat group', sierra_count, 
+        sierra_redshift_count_mismatch_alarm(self.logger, 'stat group', sierra_count, 
                                              total_redshift_count)
-        redshift_duplicate_code_alarm('stat group', total_redshift_count,
+        redshift_duplicate_code_alarm(self.logger, 'stat group', total_redshift_count,
                                       distinct_redshift_count)
-        null_code_alarm('stat_group_codes', null_stat_group_codes)
-        self.missing_location_code_alarm(stat_groups_without_locations, location_table)
     
     def missing_location_code_alarm(self, stat_groups_without_locations, 
                                     location_table):

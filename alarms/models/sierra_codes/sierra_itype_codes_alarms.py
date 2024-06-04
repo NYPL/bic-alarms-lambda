@@ -9,13 +9,13 @@ from helpers.sierra_codes_helper import (sierra_redshift_count_mismatch_alarm,
 class SierraItypeCodesAlarms(Alarm):
     def __init__(self, logger, 
                  redshift_client, sierra_client):
-        super().__init__(self, logger, redshift_client)
+        super().__init__(logger, redshift_client)
         self.sierra_client = sierra_client
 
     def run_checks(self):
         self.logger.info('\nITYPE CODES\n')
         sierra_query = build_sierra_itypes_count_query()
-        sierra_count = self._get_record_count(self.sierra_client, sierra_query)
+        sierra_count = self.get_record_count(self.sierra_client, sierra_query)
 
         itype_table = 'sierra_itype_codes' + self.redshift_suffix
         self.redshift_client.connect()
@@ -26,8 +26,11 @@ class SierraItypeCodesAlarms(Alarm):
         if self.run_added_tests:
             null_itype_codes = self.redshift_client.execute_query(
                 build_redshift_itype_null_query(itype_table, self.yesterday))
+            null_code_alarm(self.run_added_tests, self.logger, 
+                            'itype_codes', null_itype_codes)
         self.redshift_client.close_connection()
 
-        sierra_redshift_count_mismatch_alarm('itype', sierra_count, total_redshift_count)
-        redshift_duplicate_code_alarm('itype', total_redshift_count, distinct_redshift_count)
-        null_code_alarm('itype_codes', null_itype_codes)
+        sierra_redshift_count_mismatch_alarm(self.logger, 'itype', 
+                                             sierra_count, total_redshift_count)
+        redshift_duplicate_code_alarm(self.logger, 'itype', 
+                                      total_redshift_count, distinct_redshift_count)

@@ -8,7 +8,7 @@ from helpers.query_helper import (build_redshift_deleted_patrons_query,
 class PatronInfoAlarms(Alarm):
     def __init__(self, logger,
                  redshift_client, sierra_client):
-        super().__init__(self, logger, redshift_client)
+        super().__init__(logger, redshift_client)
         self.sierra_client = sierra_client
 
     def run_checks(self):

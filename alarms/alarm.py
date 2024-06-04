@@ -24,4 +24,4 @@ class Alarm(ABC):
     
     @abstractmethod
     def run_checks(self):
-        return False
+        return None
