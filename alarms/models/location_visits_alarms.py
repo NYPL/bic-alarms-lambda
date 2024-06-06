@@ -30,7 +30,7 @@ class LocationVisitsAlarms(Alarm):
             redshift_stale_query)
         self.redshift_client.close_connection()
 
-        self.new_location_visits_less_than_thousand_alarm(self, redshift_count, redshift_table)
+        self.new_location_visits_less_than_thousand_alarm(redshift_count, redshift_table)
         self.redshift_duplicates_alarm(redshift_duplicates)
         self.redshift_stale_rows_alarm(redshift_stale_rows)
 

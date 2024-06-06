@@ -6,8 +6,8 @@ from helpers.query_helper import (build_redshift_deleted_patrons_query,
                           build_sierra_new_patrons_query)
 
 class PatronInfoAlarms(Alarm):
-    def __init__(self, logger,
-                 redshift_client, sierra_client):
+    def __init__(self, logger, redshift_client, 
+                 sierra_client):
         super().__init__(logger, redshift_client)
         self.sierra_client = sierra_client
 
@@ -23,9 +23,11 @@ class PatronInfoAlarms(Alarm):
 
         self.sierra_client.connect()
         sierra_new_result = self.sierra_client.execute_query(
-            build_sierra_new_patrons_query(start_date, self.yesterday))
+            build_sierra_new_patrons_query(
+                start_date, self.yesterday))
         sierra_deleted_result = self.sierra_client.execute_query(
-            build_sierra_deleted_patrons_query(start_date, self.yesterday))
+            build_sierra_deleted_patrons_query(
+                start_date, self.yesterday))
         self.sierra_client.close_connection()
         sierra_new_counts = dict(sierra_new_result)
         sierra_deleted_counts = dict(sierra_deleted_result)
@@ -45,8 +47,10 @@ class PatronInfoAlarms(Alarm):
         for date in (sierra_new_counts.keys() | redshift_new_counts.keys()):
             sierra_count = int(sierra_new_counts.get(date, 0))
             redshift_count = int(redshift_new_counts.get(date, 0))
-            self.new_patron_sierra_redshift_discrepancy_alarm(self, sierra_count, redshift_count, date)
-            self.new_patron_sierra_no_records_alarm(self, sierra_count, redshift_count, date)
+            self.new_patron_sierra_redshift_discrepancy_alarm(
+                sierra_count, redshift_count, date)
+            self.new_patron_sierra_no_records_alarm(
+                sierra_count, redshift_count, date)
 
         # Don't check for whether there are no deleted patron records because
         # there are often days where this legitimately occurs
@@ -54,7 +58,8 @@ class PatronInfoAlarms(Alarm):
                         redshift_deleted_counts.keys()):
             sierra_count = int(sierra_deleted_counts.get(date, 0))
             redshift_count = int(redshift_deleted_counts.get(date, 0))
-            self.deleted_patron_sierra_redshift_discrepancy_alarm(self, sierra_count, redshift_count, date)
+            self.deleted_patron_sierra_redshift_discrepancy_alarm(
+                sierra_count, redshift_count, date)
 
     def new_patron_sierra_redshift_discrepancy_alarm(self, sierra_count, 
                                                     redshift_count, date):

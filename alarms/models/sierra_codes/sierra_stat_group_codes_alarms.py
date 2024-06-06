@@ -36,8 +36,7 @@ class SierraStatGroupCodesAlarms(Alarm):
             stat_groups_without_locations = self.redshift_client.execute_query(
                 build_redshift_stat_group_location_query(
                     stat_group_table, location_table, self.yesterday))
-            null_code_alarm(self.run_added_tests, self.logger, 
-                            'stat_group_codes', null_stat_group_codes)
+            self.null_branch_code_alarm(null_stat_group_codes)
             self.missing_location_code_alarm(stat_groups_without_locations, 
                                              location_table)
         self.redshift_client.close_connection()
@@ -46,6 +45,13 @@ class SierraStatGroupCodesAlarms(Alarm):
                                              total_redshift_count)
         redshift_duplicate_code_alarm(self.logger, 'stat group', total_redshift_count,
                                       distinct_redshift_count)
+    
+    def null_branch_code_alarm(self, null_codes):
+        if len(null_codes) > 0:
+            self.logger.error(
+                'The following stat_group_codes have a null '
+                'normalized_branch_code: {codes}'.format(codes=null_codes))
+
     
     def missing_location_code_alarm(self, stat_groups_without_locations, 
                                     location_table):

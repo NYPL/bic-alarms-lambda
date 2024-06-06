@@ -30,10 +30,19 @@ To create a new alarm, set up a model for said alarm in the [alarms/models](alar
 Make sure to import whatever database client is needed as well (ex. Sierra, Envisionware). After creating your new alarm, add the alarm object to the [AlarmController](alarm_controller.py).
 
 ## Local development
-On your command line, run 
+Before running the code, make sure the following environment vars are set up in either your bash or zsh profile:
+```
+export KEY=<AWS access key ID>
+export SECRET_KEY=<AWS secret key associated with key ID>
+export AWS_ACCESS_KEY_ID=$KEY
+export AWS_SECRET_ACCESS_KEY=$SECRET_KEY
+```
+
+After setting up said vars, run the following on your command line:
 ```
 make run
 ```
+The application logs should output to your terminal.
 
 ## Deployment
 CI/CD is not enabled. To deploy a new version of this function, first modify the code in the git repo and open a pull request to the appropriate environment branch. Then run `source deployment_script.sh` and upload the resulting zip. Note that if any files are added or deleted, this script must be modified. For more information, see the directions [here](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html).

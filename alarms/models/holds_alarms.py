@@ -19,8 +19,7 @@ class HoldsAlarms(Alarm):
                     redshift_table, date_to_test)
                 redshift_count = int(
                     self.redshift_client.execute_query(redshift_query)[0][0])
-
-                self.holds_not_updated_alarm(self, redshift_count, redshift_table)
+                self.holds_not_updated_alarm(redshift_count, redshift_table)
 
         redshift_table = 'hold_info' + self.redshift_suffix
         deleted_holds = self.redshift_client.execute_query(
@@ -31,9 +30,9 @@ class HoldsAlarms(Alarm):
             build_redshift_holds_null_query(redshift_table, date_to_test))
         self.redshift_client.close_connection()
 
-        self.holds_not_deleted_alarm(self, deleted_holds)
-        self.immutable_hold_field_updated_alarm(self, modified_holds)
-        self.null_hold_id_alarm(self, null_holds)
+        self.holds_not_deleted_alarm(deleted_holds)
+        self.immutable_hold_field_updated_alarm(modified_holds)
+        self.null_hold_id_alarm(null_holds)
         
     def holds_not_updated_alarm(self, redshift_count, redshift_table):
         if redshift_count == 0:

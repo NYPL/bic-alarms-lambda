@@ -22,5 +22,5 @@ def redshift_duplicate_code_alarm(logger, code_type, total_redshift_count,
 def null_code_alarm(run_added_tests, logger, code_type, null_codes):
     if run_added_tests and len(null_codes) > 0:
         logger.error(
-            'The following {code_type} have a null value for one of their '
+            'The following {code_type} have a null value for one or more of their '
             'inferred columns: {codes}'.format(code_type=code_type, codes=null_codes))

@@ -41,8 +41,8 @@ class PcReserveAlarms(Alarm):
                 .format(envisionware_count=envisionware_count,
                         redshift_count=redshift_count))
 
-    def pc_reserve_no_records_alarm(
-            self, envisionware_count, redshift_count, datetime_to_test, date):
+    def pc_reserve_no_records_alarm(self, envisionware_count, 
+                                    redshift_count, datetime_to_test, date):
         # All libraries are closed on Sunday, so don't fire an alarm then
         if ((envisionware_count == redshift_count) and 
             envisionware_count == 0 and 
