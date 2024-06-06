@@ -4,7 +4,6 @@ import pytest
 from freezegun import freeze_time
 
 # Sets OS vars for entire set of tests
-# TODO: should test env vars be stored elsewhere?
 TEST_ENV_VARS = {
     'ENVIRONMENT': 'test',
     'REDSHIFT_DB_HOST': 'test_redshift_host',
