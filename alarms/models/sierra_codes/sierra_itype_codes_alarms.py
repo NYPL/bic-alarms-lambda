@@ -9,12 +9,14 @@ from helpers.sierra_codes_helper import (
     redshift_duplicate_code_alarm,
     null_code_alarm,
 )
+from nypl_py_utils.functions.log_helper import create_log
 
 
 class SierraItypeCodesAlarms(Alarm):
-    def __init__(self, logger, redshift_client, sierra_client):
-        super().__init__(logger, redshift_client)
+    def __init__(self, redshift_client, sierra_client):
+        super().__init__(redshift_client)
         self.sierra_client = sierra_client
+        self.logger = create_log("sierra_itype_codes_alarms")
 
     def run_checks(self):
         self.logger.info("\nITYPE CODES\n")

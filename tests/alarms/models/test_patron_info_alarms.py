@@ -8,20 +8,14 @@ from datetime import date
 class TestPatronInfoAlarms:
     @pytest.fixture
     def test_instance(self, mocker):
-        test_logger = logging.getLogger(
-            "test"
-        )  # Custom logger since Alarm types use AlarmController logger
         mock_redshift_client = mocker.MagicMock()
         mock_sierra_client = mocker.MagicMock()
-        return PatronInfoAlarms(test_logger, mock_redshift_client, mock_sierra_client)
+        return PatronInfoAlarms(mock_redshift_client, mock_sierra_client)
 
     def test_init(self, mocker):
-        mock_logger = mocker.MagicMock()
         mock_redshift_client = mocker.MagicMock()
         mock_sierra_client = mocker.MagicMock()
-        patron_info_alarms = PatronInfoAlarms(
-            mock_logger, mock_redshift_client, mock_sierra_client
-        )
+        patron_info_alarms = PatronInfoAlarms(mock_redshift_client, mock_sierra_client)
         assert patron_info_alarms.redshift_suffix == "_test_redshift_db"
         assert patron_info_alarms.run_added_tests
         assert patron_info_alarms.yesterday_date == date(2023, 5, 31)

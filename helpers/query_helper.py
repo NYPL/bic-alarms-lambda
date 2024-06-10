@@ -27,11 +27,11 @@ _SIERRA_ITYPES_COUNT_QUERY = (
 )
 
 _ENVISIONWARE_PC_RESERVE_QUERY = (
-    "SELECT COUNT(pcrKey) FROM strad_bci " "WHERE DATE(pcrDateTime) = '{date}';"
+    "SELECT COUNT(pcrKey) FROM strad_bci WHERE DATE(pcrDateTime) = '{date}';"
 )
 
 _REDSHIFT_CIRC_TRANS_QUERY = (
-    "SELECT COUNT(*) FROM {table} " "WHERE {date_field} = '{date}';"
+    "SELECT COUNT(*) FROM {table} WHERE {date_field} = '{date}';"
 )
 
 _REDSHIFT_NEW_PATRONS_QUERY = """
@@ -49,7 +49,7 @@ _REDSHIFT_DELETED_PATRONS_QUERY = """
     GROUP BY deletion_date_et;"""
 
 _REDSHIFT_PC_RESERVE_QUERY = (
-    "SELECT COUNT(key) FROM {table} " "WHERE transaction_et = '{date}';"
+    "SELECT COUNT(key) FROM {table} WHERE transaction_et = '{date}';"
 )
 
 _REDSHIFT_CODE_COUNTS_QUERY = (
@@ -58,7 +58,7 @@ _REDSHIFT_CODE_COUNTS_QUERY = (
 )
 
 _REDSHIFT_HOLDS_QUERY = (
-    "SELECT COUNT(id) FROM {table} " "WHERE TRUNC(update_timestamp) = '{date}';"
+    "SELECT COUNT(id) FROM {table} WHERE TRUNC(update_timestamp) = '{date}';"
 )
 
 _REDSHIFT_HOLDS_DELETED_QUERY = """

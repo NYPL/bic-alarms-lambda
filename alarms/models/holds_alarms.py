@@ -6,9 +6,14 @@ from helpers.query_helper import (
     build_redshift_holds_null_query,
     build_redshift_holds_query,
 )
+from nypl_py_utils.functions.log_helper import create_log
 
 
 class HoldsAlarms(Alarm):
+    def __init__(self, redshift_client):
+        super().__init__(redshift_client)
+        self.logger = create_log("holds_alarms")
+
     def run_checks(self):
         self.logger.info("\nHOLDS\n")
         # The update_timestamp is stored in UTC and the poller is run late at

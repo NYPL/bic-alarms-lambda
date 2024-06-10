@@ -54,34 +54,16 @@ class AlarmController:
 
     def _setup_alarms(self):
         self.logger.info("Setting up alarms...")
-        alarms = []
-        alarms.append(
-            CircTransAlarms(self.logger, self.redshift_client, self.sierra_client)
-        )
-        alarms.append(HoldsAlarms(self.logger, self.redshift_client))
-        alarms.append(LocationVisitsAlarms(self.logger, self.redshift_client))
-        alarms.append(
-            PatronInfoAlarms(self.logger, self.redshift_client, self.sierra_client)
-        )
-        alarms.append(
-            PcReserveAlarms(self.logger, self.redshift_client, self.envisionware_client)
-        )
-        alarms.append(
-            SierraItypeCodesAlarms(
-                self.logger, self.redshift_client, self.sierra_client
-            )
-        )
-        alarms.append(
-            SierraLocationCodesAlarms(
-                self.logger, self.redshift_client, self.sierra_client
-            )
-        )
-        alarms.append(
-            SierraStatGroupCodesAlarms(
-                self.logger, self.redshift_client, self.sierra_client
-            )
-        )
-        return alarms
+        return [
+            CircTransAlarms(self.redshift_client, self.sierra_client),
+            HoldsAlarms(self.redshift_client),
+            LocationVisitsAlarms(self.redshift_client),
+            PatronInfoAlarms(self.redshift_client, self.sierra_client),
+            PcReserveAlarms(self.redshift_client, self.envisionware_client),
+            SierraItypeCodesAlarms(self.redshift_client, self.sierra_client),
+            SierraLocationCodesAlarms(self.redshift_client, self.sierra_client),
+            SierraStatGroupCodesAlarms(self.redshift_client, self.sierra_client),
+        ]
 
     def run_alarms(self):
         for e in self.alarms:

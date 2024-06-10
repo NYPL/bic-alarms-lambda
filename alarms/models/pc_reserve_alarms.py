@@ -4,12 +4,14 @@ from helpers.query_helper import (
     build_envisionware_pc_reserve_query,
     build_redshift_pc_reserve_query,
 )
+from nypl_py_utils.functions.log_helper import create_log
 
 
 class PcReserveAlarms(Alarm):
-    def __init__(self, logger, redshift_client, envisionware_client):
-        super().__init__(logger, redshift_client)
+    def __init__(self, redshift_client, envisionware_client):
+        super().__init__(redshift_client)
         self.envisionware_client = envisionware_client
+        self.logger = create_log("pc_reserve_alarms")
 
     def run_checks(self):
         datetime_to_test = self.yesterday_date

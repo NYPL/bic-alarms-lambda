@@ -5,8 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 
 class Alarm(ABC):
-    def __init__(self, logger, redshift_client):
-        self.logger = logger
+    def __init__(self, redshift_client):
         self.redshift_client = redshift_client
         self.redshift_suffix = (
             ""

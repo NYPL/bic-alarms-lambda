@@ -3,12 +3,14 @@ from helpers.query_helper import (
     build_redshift_circ_trans_query,
     build_sierra_circ_trans_query,
 )
+from nypl_py_utils.functions.log_helper import create_log
 
 
 class CircTransAlarms(Alarm):
-    def __init__(self, logger, redshift_client, sierra_client):
-        super().__init__(logger, redshift_client)
+    def __init__(self, redshift_client, sierra_client):
+        super().__init__(redshift_client)
         self.sierra_client = sierra_client
+        self.logger = create_log("circ_trans_alarms")
 
     def run_checks(self):
         self.logger.info("\nCIRC TRANS\n")
@@ -48,10 +50,9 @@ class CircTransAlarms(Alarm):
         if sierra_count != redshift_count:
             self.logger.error(
                 (
-                    "Number of Sierra circ trans records does not match "
-                    "number of Redshift {redshift_table} records: "
-                    "{sierra_count} Sierra records and {redshift_count} "
-                    "Redshift records"
+                    "Number of Sierra circ trans records does not match number "
+                    "of Redshift {redshift_table} records: {sierra_count} Sierra "
+                    "records and {redshift_count} Redshift records"
                 ).format(
                     redshift_table=redshift_table,
                     sierra_count=sierra_count,

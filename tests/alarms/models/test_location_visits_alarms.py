@@ -8,16 +8,12 @@ from datetime import date, datetime
 class TestLocationVisitsAlarms:
     @pytest.fixture
     def test_instance(self, mocker):
-        test_logger = logging.getLogger(
-            "test"
-        )  # Custom logger since Alarm types use AlarmController logger
         mock_redshift_client = mocker.MagicMock()
-        return LocationVisitsAlarms(test_logger, mock_redshift_client)
+        return LocationVisitsAlarms(mock_redshift_client)
 
     def test_init(self, mocker):
         mock_redshift_client = mocker.MagicMock()
-        mock_logger = mocker.MagicMock()
-        location_visits_alarms = LocationVisitsAlarms(mock_logger, mock_redshift_client)
+        location_visits_alarms = LocationVisitsAlarms(mock_redshift_client)
         assert location_visits_alarms.redshift_suffix == "_test_redshift_db"
         assert location_visits_alarms.run_added_tests
         assert location_visits_alarms.yesterday_date == date(2023, 5, 31)

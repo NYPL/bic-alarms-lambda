@@ -6,12 +6,14 @@ from helpers.query_helper import (
     build_sierra_deleted_patrons_query,
     build_sierra_new_patrons_query,
 )
+from nypl_py_utils.functions.log_helper import create_log
 
 
 class PatronInfoAlarms(Alarm):
-    def __init__(self, logger, redshift_client, sierra_client):
-        super().__init__(logger, redshift_client)
+    def __init__(self, redshift_client, sierra_client):
+        super().__init__(redshift_client)
         self.sierra_client = sierra_client
+        self.logger = create_log("patron_info_alarms")
 
     def run_checks(self):
         # If it's not Thursday, don't run this alarm, as the PatronInfo pollers

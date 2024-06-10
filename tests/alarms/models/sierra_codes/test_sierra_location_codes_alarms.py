@@ -10,21 +10,15 @@ from datetime import date
 class TestSierraLocationCodesAlarms:
     @pytest.fixture
     def test_instance(self, mocker):
-        test_logger = logging.getLogger(
-            "test"
-        )  # Custom logger since Alarm types use AlarmController logger
         mock_redshift_client = mocker.MagicMock()
         mock_sierra_client = mocker.MagicMock()
-        return SierraLocationCodesAlarms(
-            test_logger, mock_redshift_client, mock_sierra_client
-        )
+        return SierraLocationCodesAlarms(mock_redshift_client, mock_sierra_client)
 
     def test_init(self, mocker):
-        mock_logger = mocker.MagicMock()
         mock_redshift_client = mocker.MagicMock()
         mock_sierra_client = mocker.MagicMock()
         sierra_location_codes_alarms = SierraLocationCodesAlarms(
-            mock_logger, mock_redshift_client, mock_sierra_client
+            mock_redshift_client, mock_sierra_client
         )
         assert sierra_location_codes_alarms.redshift_suffix == "_test_redshift_db"
         assert sierra_location_codes_alarms.run_added_tests
