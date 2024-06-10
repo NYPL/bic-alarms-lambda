@@ -32,8 +32,6 @@ Make sure to import whatever database client is needed as well (ex. Sierra, Envi
 ## Local development
 Before running the code, make sure the following environment vars are set up in either your bash or zsh profile:
 ```
-export KEY=<AWS access key ID>
-export SECRET_KEY=<AWS secret key associated with key ID>
 export AWS_ACCESS_KEY_ID=<AWS access key ID>
 export AWS_SECRET_ACCESS_KEY=<AWS secret key associated with key ID>
 ```

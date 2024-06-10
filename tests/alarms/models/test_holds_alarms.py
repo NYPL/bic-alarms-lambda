@@ -123,14 +123,7 @@ class TestHoldsAlarms:
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),
-            (
-                [
-                    1,
-                ],
-                [
-                    2,
-                ],
-            ),
+            ([1,],[2,],),
             (),
             (),
         ]
@@ -151,14 +144,7 @@ class TestHoldsAlarms:
             ([10],),
             ([10],),
             (),
-            (
-                [
-                    1,
-                ],
-                [
-                    2,
-                ],
-            ),
+            ([1,],[2,],),
             (),
         ]
 
@@ -178,14 +164,7 @@ class TestHoldsAlarms:
             ([10],),
             (),
             (),
-            (
-                [
-                    1,
-                ],
-                [
-                    2,
-                ],
-            ),
+            ([1,],[2,],),
         ]
 
         with caplog.at_level(logging.ERROR):
