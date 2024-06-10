@@ -88,10 +88,7 @@ class TestLocationVisitsAlarms:
         )
         test_instance.redshift_client.execute_query.side_effect = [
             ([11000],),
-            (
-                ["aa", 1, datetime(2023, 5, 31, 9, 0, 0)],
-                ["bb", 2, datetime(2023, 5, 31, 9, 15, 0)],
-            ),
+            (["aa", 1, datetime(2023, 5, 31, 9, 0, 0)],["bb", 2, datetime(2023, 5, 31, 9, 15, 0)],),
             (),
         ]
 
@@ -117,10 +114,7 @@ class TestLocationVisitsAlarms:
         test_instance.redshift_client.execute_query.side_effect = [
             ([11000],),
             (),
-            (
-                ["aa", 1, datetime(2023, 5, 31, 9, 0, 0)],
-                ["bb", 2, datetime(2023, 5, 31, 9, 15, 0)],
-            ),
+            (["aa", 1, datetime(2023, 5, 31, 9, 0, 0)],["bb", 2, datetime(2023, 5, 31, 9, 15, 0)],),
         ]
 
         with caplog.at_level(logging.ERROR):
