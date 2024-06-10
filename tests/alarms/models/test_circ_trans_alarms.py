@@ -97,19 +97,19 @@ class TestCircTransAlarms:
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
         assert (
-            "Number of Sierra circ trans records does not match number of "
-            "Redshift circ_trans_test_redshift_db records: 10 Sierra "
-            "records and 20 Redshift records"
+            'Number of Sierra circ trans records does not match number '
+            'of Redshift circ_trans_test_redshift_db records: 10 '
+            'Sierra circ trans records and 20 Redshift records'
         ) in caplog.text
         assert (
             "Number of Sierra circ trans records does not match number of "
             "Redshift patron_circ_trans_test_redshift_db records: 20 "
-            "Sierra records and 15 Redshift records"
+            "Sierra circ trans records and 15 Redshift records"
         ) in caplog.text
         assert (
             "Number of Sierra circ trans records does not match number of "
             "Redshift item_circ_trans_test_redshift_db records: 20 "
-            "Sierra records and 10 Redshift records"
+            "Sierra circ trans records and 10 Redshift records"
         ) in caplog.text
 
     def test_run_checks_no_records(self, test_instance, mocker, caplog):

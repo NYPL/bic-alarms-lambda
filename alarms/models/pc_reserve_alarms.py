@@ -4,6 +4,10 @@ from helpers.query_helper import (
     build_envisionware_pc_reserve_query,
     build_redshift_pc_reserve_query,
 )
+from helpers.log_helper import (
+    build_redshift_mismatch_log,
+    build_no_records_found_log
+)
 from nypl_py_utils.functions.log_helper import create_log
 
 
@@ -28,36 +32,13 @@ class PcReserveAlarms(Alarm):
         redshift_table = "pc_reserve" + self.redshift_suffix
         redshift_query = build_redshift_pc_reserve_query(redshift_table, date)
         redshift_count = self.get_record_count(self.redshift_client, redshift_query)
-
-        self.pc_reserve_envisionware_redshift_discrepancy_alarm(
-            envisionware_count, redshift_count
-        )
-
-        self.pc_reserve_no_records_alarm(
-            envisionware_count, redshift_count, datetime_to_test, date
-        )
-
-    def pc_reserve_envisionware_redshift_discrepancy_alarm(
-        self, envisionware_count, redshift_count
-    ):
         if envisionware_count != redshift_count:
-            self.logger.error(
-                (
-                    "Number of Envisionware PcReserve records does not match "
-                    "number of Redshift PcReserve records: {envisionware_count} "
-                    "Envisionware records and {redshift_count} Redshift records"
-                ).format(
-                    envisionware_count=envisionware_count, redshift_count=redshift_count
-                )
-            )
-
-    def pc_reserve_no_records_alarm(
-        self, envisionware_count, redshift_count, datetime_to_test, date
-    ):
-        # All libraries are closed on Sunday, so don't fire an alarm then
-        if (
-            (envisionware_count == redshift_count)
-            and envisionware_count == 0
-            and datetime_to_test.weekday() != 6
-        ):
-            self.logger.error("No PcReserve records found for all of {}".format(date))
+            mismatch_log = build_redshift_mismatch_log(database_type="Envisionware PcReserve",
+                                                       redshift_table="PcReserve",
+                                                       database_count=envisionware_count,
+                                                       redshift_count=redshift_count)
+            self.logger.error(mismatch_log)
+        elif envisionware_count == 0 and datetime_to_test.weekday() != 6:
+            no_records_log = build_no_records_found_log(database_type="PcReserve",
+                                                        date=date)
+            self.logger.error(no_records_log)

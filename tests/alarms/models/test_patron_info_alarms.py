@@ -107,27 +107,33 @@ class TestPatronInfoAlarms:
             test_instance.run_checks()
 
         _ERROR_STRING = (
-            "Number of Sierra {type} patron records does not match number of "
-            "Redshift {type} patron records on {date}: {sierra_count} Sierra "
-            "records and {redshift_count} Redshift records"
+            "Number of Sierra {type} patron records does not match number "
+            "of Redshift {redshift_db} records: {sierra_count} "
+            "Sierra {type} patron records and {redshift_count} Redshift records"
         )
         assert (
             _ERROR_STRING.format(
-                type="new", sierra_count="90", date="2023-05-25", redshift_count="20"
+                type="new", 
+                redshift_db="patron_info_test_redshift_db", 
+                sierra_count="90", 
+                redshift_count="20"
             )
             in caplog.text
         )
         assert (
             _ERROR_STRING.format(
-                type="new", sierra_count="80", date="2023-05-26", redshift_count="30"
+                type="new", 
+                redshift_db="patron_info_test_redshift_db", 
+                sierra_count="80", 
+                redshift_count="30"
             )
             in caplog.text
         )
         assert (
             _ERROR_STRING.format(
                 type="deleted",
+                redshift_db="deleted patron",
                 sierra_count="90",
-                date="2023-05-25",
                 redshift_count="20",
             )
             in caplog.text
@@ -135,8 +141,8 @@ class TestPatronInfoAlarms:
         assert (
             _ERROR_STRING.format(
                 type="deleted",
+                redshift_db="deleted patron",
                 sierra_count="80",
-                date="2023-05-26",
                 redshift_count="30",
             )
             in caplog.text
