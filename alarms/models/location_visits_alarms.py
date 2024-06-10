@@ -47,8 +47,7 @@ class LocationVisitsAlarms(Alarm):
         self.redshift_stale_rows_alarm(redshift_stale_rows)
 
     def new_location_visits_less_than_ten_thousand_alarm(
-        self, redshift_count, redshift_table
-    ):
+        self, redshift_count, redshift_table):
         if redshift_count < 10000:
             self.logger.error(
                 (

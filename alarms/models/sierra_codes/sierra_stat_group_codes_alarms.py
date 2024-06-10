@@ -6,9 +6,9 @@ from helpers.query_helper import (
     build_redshift_stat_group_null_query,
     build_sierra_code_count_query,
 )
-from helpers.sierra_codes_helper import (
-    sierra_redshift_count_mismatch_alarm,
-    redshift_duplicate_code_alarm,
+from helpers.log_helper import (
+    build_redshift_mismatch_log,
+    build_sierra_duplicate_code_log,
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -50,13 +50,18 @@ class SierraStatGroupCodesAlarms(Alarm):
                 stat_groups_without_locations, location_table
             )
         self.redshift_client.close_connection()
+        if sierra_count != total_redshift_count:
+            mismatch_log = build_redshift_mismatch_log(database_type="Sierra stat group", 
+                                                       redshift_table="stat group", 
+                                                       database_count=sierra_count, 
+                                                       redshift_count=total_redshift_count)
+            self.logger.error(mismatch_log)
 
-        sierra_redshift_count_mismatch_alarm(
-            self.logger, "stat group", sierra_count, total_redshift_count
-        )
-        redshift_duplicate_code_alarm(
-            self.logger, "stat group", total_redshift_count, distinct_redshift_count
-        )
+        if total_redshift_count != distinct_redshift_count:
+            duplicate_code_log = build_sierra_duplicate_code_log(code_type="stat group",
+                                                                 total_count=total_redshift_count,
+                                                                 distinct_count=distinct_redshift_count)
+            self.logger.error(duplicate_code_log)
 
     def null_branch_code_alarm(self, null_codes):
         if len(null_codes) > 0:

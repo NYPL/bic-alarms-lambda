@@ -82,8 +82,8 @@ class TestSierraItypeCodesAlarms:
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
         assert (
-            "Number of Sierra itype codes does not match number of "
-            "Redshift itype codes: 10 Sierra codes and 20 Redshift codes"
+            "Number of Sierra itype records does not match number of "
+            "Redshift itype records: 10 Sierra itype records and 20 Redshift records"
         ) in caplog.text
 
     def test_run_checks_duplicate_codes_alarm(self, test_instance, mocker, caplog):

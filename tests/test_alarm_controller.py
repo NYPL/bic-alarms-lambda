@@ -1,6 +1,3 @@
-import logging
-import pytest
-
 from alarm_controller import AlarmController
 
 

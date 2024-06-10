@@ -4,10 +4,10 @@ from helpers.query_helper import (
     build_redshift_itype_null_query,
     build_sierra_itypes_count_query,
 )
-from helpers.sierra_codes_helper import (
-    sierra_redshift_count_mismatch_alarm,
-    redshift_duplicate_code_alarm,
-    null_code_alarm,
+from helpers.log_helper import (
+    build_redshift_mismatch_log,
+    build_sierra_duplicate_code_log,
+    build_sierra_null_codes_log
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -26,22 +26,28 @@ class SierraItypeCodesAlarms(Alarm):
         itype_table = "sierra_itype_codes" + self.redshift_suffix
         self.redshift_client.connect()
         redshift_counts = self.redshift_client.execute_query(
-            build_redshift_code_counts_query("code", itype_table)
-        )[0]
+            build_redshift_code_counts_query("code", itype_table))[0]
         total_redshift_count = int(redshift_counts[0])
         distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_itype_codes = self.redshift_client.execute_query(
                 build_redshift_itype_null_query(itype_table, self.yesterday)
             )
-            null_code_alarm(
-                self.run_added_tests, self.logger, "itype_codes", null_itype_codes
-            )
+            if len(null_itype_codes) > 0:
+                null_codes_log = build_sierra_null_codes_log(
+                    "itype_codes", null_itype_codes)
+                self.logger.error(null_codes_log)
         self.redshift_client.close_connection()
 
-        sierra_redshift_count_mismatch_alarm(
-            self.logger, "itype", sierra_count, total_redshift_count
-        )
-        redshift_duplicate_code_alarm(
-            self.logger, "itype", total_redshift_count, distinct_redshift_count
-        )
+        if sierra_count != total_redshift_count:
+            mismatch_log = build_redshift_mismatch_log(database_type="Sierra itype", 
+                                                       redshift_table="itype", 
+                                                       database_count=sierra_count, 
+                                                       redshift_count=total_redshift_count)
+            self.logger.error(mismatch_log)
+
+        if total_redshift_count != distinct_redshift_count:
+            duplicate_code_log = build_sierra_duplicate_code_log(code_type="itype",
+                                                                 total_count=total_redshift_count,
+                                                                 distinct_count=distinct_redshift_count)
+            self.logger.error(duplicate_code_log)
