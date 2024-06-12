@@ -113,19 +113,19 @@ class TestPatronInfoAlarms:
         )
         assert (
             _ERROR_STRING.format(
-                type="new", 
-                redshift_db="patron_info_test_redshift_db", 
-                sierra_count="90", 
-                redshift_count="20"
+                type="new",
+                redshift_db="patron_info_test_redshift_db",
+                sierra_count="90",
+                redshift_count="20",
             )
             in caplog.text
         )
         assert (
             _ERROR_STRING.format(
-                type="new", 
-                redshift_db="patron_info_test_redshift_db", 
-                sierra_count="80", 
-                redshift_count="30"
+                type="new",
+                redshift_db="patron_info_test_redshift_db",
+                sierra_count="80",
+                redshift_count="30",
             )
             in caplog.text
         )

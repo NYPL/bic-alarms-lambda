@@ -97,9 +97,9 @@ class TestCircTransAlarms:
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
         assert (
-            'Number of Sierra circ trans records does not match number '
-            'of Redshift circ_trans_test_redshift_db records: 10 '
-            'Sierra circ trans records and 20 Redshift records'
+            "Number of Sierra circ trans records does not match number "
+            "of Redshift circ_trans_test_redshift_db records: 10 "
+            "Sierra circ trans records and 20 Redshift records"
         ) in caplog.text
         assert (
             "Number of Sierra circ trans records does not match number of "

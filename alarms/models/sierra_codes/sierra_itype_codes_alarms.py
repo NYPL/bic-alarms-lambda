@@ -1,8 +1,8 @@
 from alarms.alarm import Alarm
 from helpers.alarm_helper import (
-    redshift_mismatch_alarm,
-    sierra_duplicate_code_alarm,
-    sierra_null_codes_alarm
+    check_redshift_mismatch_alarm,
+    check_sierra_duplicate_code_alarm,
+    check_sierra_null_codes_alarm,
 )
 from helpers.query_helper import (
     build_redshift_code_counts_query,
@@ -26,25 +26,30 @@ class SierraItypeCodesAlarms(Alarm):
         itype_table = "sierra_itype_codes" + self.redshift_suffix
         self.redshift_client.connect()
         redshift_counts = self.redshift_client.execute_query(
-            build_redshift_code_counts_query("code", itype_table))[0]
+            build_redshift_code_counts_query("code", itype_table)
+        )[0]
         total_redshift_count = int(redshift_counts[0])
         distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_itype_codes = self.redshift_client.execute_query(
                 build_redshift_itype_null_query(itype_table, self.yesterday)
             )
-            sierra_null_codes_alarm(logger=self.logger, 
-                                    null_codes=null_itype_codes,
-                                    code_type="itype_codes")
+            check_sierra_null_codes_alarm(
+                logger=self.logger, null_codes=null_itype_codes, code_type="itype_codes"
+            )
         self.redshift_client.close_connection()
 
-        redshift_mismatch_alarm(logger=self.logger, 
-                                database_type="Sierra itype", 
-                                redshift_table="itype",
-                                database_count=sierra_count,
-                                redshift_count=total_redshift_count)
+        check_redshift_mismatch_alarm(
+            logger=self.logger,
+            database_type="Sierra itype",
+            redshift_table="itype",
+            database_count=sierra_count,
+            redshift_count=total_redshift_count,
+        )
 
-        sierra_duplicate_code_alarm(logger=self.logger, 
-                                    code_type="itype",
-                                    total_count=total_redshift_count,
-                                    distinct_count=distinct_redshift_count)
+        check_sierra_duplicate_code_alarm(
+            logger=self.logger,
+            code_type="itype",
+            total_count=total_redshift_count,
+            distinct_count=distinct_redshift_count,
+        )

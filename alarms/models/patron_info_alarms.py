@@ -1,8 +1,8 @@
 from alarms.alarm import Alarm
 from datetime import timedelta
 from helpers.alarm_helper import (
-    redshift_mismatch_alarm,
-    no_records_found_alarm
+    check_redshift_mismatch_alarm,
+    check_no_records_found_alarm,
 )
 from helpers.query_helper import (
     build_redshift_deleted_patrons_query,
@@ -60,24 +60,30 @@ class PatronInfoAlarms(Alarm):
         for date in sierra_new_counts.keys() | redshift_new_counts.keys():
             sierra_count = int(sierra_new_counts.get(date, 0))
             redshift_count = int(redshift_new_counts.get(date, 0))
-            redshift_mismatch_alarm(logger=self.logger,
-                                    database_type="Sierra new patron", 
-                                    redshift_table=redshift_table,
-                                    database_count=sierra_count,
-                                    redshift_count=redshift_count)
-            no_records_found_alarm(logger=self.logger,
-                                   database_count=sierra_count,
-                                   conditional=self.run_added_tests,
-                                   database_type="new patron",
-                                   date=date)
+            check_redshift_mismatch_alarm(
+                logger=self.logger,
+                database_type="Sierra new patron",
+                redshift_table=redshift_table,
+                database_count=sierra_count,
+                redshift_count=redshift_count,
+            )
+            check_no_records_found_alarm(
+                logger=self.logger,
+                database_count=sierra_count,
+                conditional=self.run_added_tests,
+                database_type="new patron",
+                date=date,
+            )
 
         # Don't check for whether there are no deleted patron records because
         # there are often days where this legitimately occurs
         for date in sierra_deleted_counts.keys() | redshift_deleted_counts.keys():
             sierra_count = int(sierra_deleted_counts.get(date, 0))
             redshift_count = int(redshift_deleted_counts.get(date, 0))
-            redshift_mismatch_alarm(logger=self.logger, 
-                                    database_type="Sierra deleted patron",
-                                    redshift_table="deleted patron",
-                                    database_count=sierra_count,
-                                    redshift_count=redshift_count)
+            check_redshift_mismatch_alarm(
+                logger=self.logger,
+                database_type="Sierra deleted patron",
+                redshift_table="deleted patron",
+                database_count=sierra_count,
+                redshift_count=redshift_count,
+            )

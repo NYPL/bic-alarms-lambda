@@ -1,7 +1,7 @@
 from alarms.alarm import Alarm
 from helpers.alarm_helper import (
-    redshift_mismatch_alarm,
-    no_records_found_alarm
+    check_redshift_mismatch_alarm,
+    check_no_records_found_alarm,
 )
 from helpers.query_helper import (
     build_redshift_circ_trans_query,
@@ -42,14 +42,18 @@ class CircTransAlarms(Alarm):
                 redshift_count = self.get_record_count(
                     self.redshift_client, redshift_query
                 )
-                redshift_mismatch_alarm(logger=self.logger,
-                                            database_type='Sierra circ trans', 
-                                            redshift_table=redshift_table,
-                                            database_count=sierra_count,
-                                            redshift_count=redshift_count) 
-                    
-            no_records_found_alarm(logger = self.logger,
-                                       database_count=sierra_count,
-                                       conditional=self.run_added_tests,
-                                       database_type="Sierra circ trans",
-                                       date=self.yesterday)
+                check_redshift_mismatch_alarm(
+                    logger=self.logger,
+                    database_type="Sierra circ trans",
+                    redshift_table=redshift_table,
+                    database_count=sierra_count,
+                    redshift_count=redshift_count,
+                )
+
+            check_no_records_found_alarm(
+                logger=self.logger,
+                database_count=sierra_count,
+                conditional=self.run_added_tests,
+                database_type="Sierra circ trans",
+                date=self.yesterday,
+            )

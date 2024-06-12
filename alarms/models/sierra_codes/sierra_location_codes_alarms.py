@@ -5,9 +5,9 @@ from helpers.query_helper import (
     build_sierra_code_count_query,
 )
 from helpers.alarm_helper import (
-    redshift_mismatch_alarm,
-    sierra_duplicate_code_alarm,
-    sierra_null_codes_alarm
+    check_redshift_mismatch_alarm,
+    check_sierra_duplicate_code_alarm,
+    check_sierra_null_codes_alarm,
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -34,19 +34,24 @@ class SierraLocationCodesAlarms(Alarm):
             null_location_codes = self.redshift_client.execute_query(
                 build_redshift_location_null_query(location_table, self.yesterday)
             )
-            sierra_null_codes_alarm(logger=self.logger, 
-                                    null_codes=null_location_codes, 
-                                    code_type="location_codes")
+            check_sierra_null_codes_alarm(
+                logger=self.logger,
+                null_codes=null_location_codes,
+                code_type="location_codes",
+            )
         self.redshift_client.close_connection()
 
-        
-        redshift_mismatch_alarm(logger=self.logger, 
-                                database_type="Sierra location", 
-                                redshift_table="location", 
-                                database_count=sierra_count, 
-                                redshift_count=total_redshift_count)
-        
-        sierra_duplicate_code_alarm(logger=self.logger, 
-                                    code_type="location",
-                                    total_count=total_redshift_count,
-                                    distinct_count=distinct_redshift_count)
+        check_redshift_mismatch_alarm(
+            logger=self.logger,
+            database_type="Sierra location",
+            redshift_table="location",
+            database_count=sierra_count,
+            redshift_count=total_redshift_count,
+        )
+
+        check_sierra_duplicate_code_alarm(
+            logger=self.logger,
+            code_type="location",
+            total_count=total_redshift_count,
+            distinct_count=distinct_redshift_count,
+        )

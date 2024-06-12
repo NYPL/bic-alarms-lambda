@@ -98,7 +98,7 @@ class TestSierraItypeCodesAlarms:
             test_instance.run_checks()
         assert (
             "Number of Sierra stat group records does not match number of "
-            "Redshift stat group records: 10 Sierra stat group records and " 
+            "Redshift stat group records: 10 Sierra stat group records and "
             "20 Redshift records"
         ) in caplog.text
 
