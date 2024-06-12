@@ -1,11 +1,11 @@
 from alarms.alarm import Alarm
+from helpers.alarm_helper import (
+    redshift_mismatch_alarm,
+    no_records_found_alarm
+)
 from helpers.query_helper import (
     build_redshift_circ_trans_query,
     build_sierra_circ_trans_query,
-)
-from helpers.log_helper import (
-    build_redshift_mismatch_log,
-    build_no_records_found_log
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -42,14 +42,14 @@ class CircTransAlarms(Alarm):
                 redshift_count = self.get_record_count(
                     self.redshift_client, redshift_query
                 )
-                if sierra_count != redshift_count:
-                    mismatch_log = build_redshift_mismatch_log(database_type='Sierra circ trans', 
-                                                               redshift_table=redshift_table,
-                                                               database_count=sierra_count,
-                                                               redshift_count=redshift_count) 
-                    self.logger.error(mismatch_log)
+                redshift_mismatch_alarm(logger=self.logger,
+                                            database_type='Sierra circ trans', 
+                                            redshift_table=redshift_table,
+                                            database_count=sierra_count,
+                                            redshift_count=redshift_count) 
                     
-            if sierra_count == 0 and self.run_added_tests:
-                no_records_log = build_no_records_found_log(database_type="Sierra circ trans",
-                                                            date=self.yesterday)
-                self.logger.error(no_records_log)
+            no_records_found_alarm(logger = self.logger,
+                                       database_count=sierra_count,
+                                       conditional=self.run_added_tests,
+                                       database_type="Sierra circ trans",
+                                       date=self.yesterday)
