@@ -29,7 +29,7 @@ class HoldsAlarms(Alarm):
                 redshift_count = int(
                     self.redshift_client.execute_query(redshift_query)[0][0]
                 )
-                self.holds_not_updated_alarm(redshift_count, redshift_table)
+                self.check_holds_not_updated_alarm(redshift_count, redshift_table)
 
         redshift_table = "hold_info" + self.redshift_suffix
         deleted_holds = self.redshift_client.execute_query(
@@ -43,11 +43,11 @@ class HoldsAlarms(Alarm):
         )
         self.redshift_client.close_connection()
 
-        self.holds_not_deleted_alarm(deleted_holds)
-        self.immutable_hold_field_updated_alarm(modified_holds)
-        self.null_hold_id_alarm(null_holds)
+        self.check_olds_not_deleted_alarm(deleted_holds)
+        self.check_immutable_hold_field_updated_alarm(modified_holds)
+        self.check_null_hold_id_alarm(null_holds)
 
-    def holds_not_updated_alarm(self, redshift_count, redshift_table):
+    def check_holds_not_updated_alarm(self, redshift_count, redshift_table):
         if redshift_count == 0:
             self.logger.error(
                 ('"{table}" table not updated for all of {date} ' "(ET)").format(
@@ -55,21 +55,21 @@ class HoldsAlarms(Alarm):
                 )
             )
 
-    def holds_not_deleted_alarm(self, deleted_holds):
+    def check_olds_not_deleted_alarm(self, deleted_holds):
         if len(deleted_holds) > 0:
             self.logger.error(
                 "The following hold_ids appear despite having previously been "
                 "marked as deleted: {}".format(deleted_holds)
             )
 
-    def immutable_hold_field_updated_alarm(self, modified_holds):
+    def check_immutable_hold_field_updated_alarm(self, modified_holds):
         if len(modified_holds) > 0:
             self.logger.error(
                 "The following hold_ids have an immutable field changing: "
                 "{}".format(modified_holds)
             )
 
-    def null_hold_id_alarm(self, null_holds):
+    def check_null_hold_id_alarm(self, null_holds):
         if len(null_holds) > 0:
             self.logger.error(
                 "The following hold_ids have an improper null value: "

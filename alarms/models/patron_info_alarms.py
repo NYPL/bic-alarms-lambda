@@ -1,5 +1,9 @@
 from alarms.alarm import Alarm
 from datetime import timedelta
+from helpers.alarm_helper import (
+    check_redshift_mismatch_alarm,
+    check_no_records_found_alarm,
+)
 from helpers.query_helper import (
     build_redshift_deleted_patrons_query,
     build_redshift_new_patrons_query,
@@ -56,60 +60,30 @@ class PatronInfoAlarms(Alarm):
         for date in sierra_new_counts.keys() | redshift_new_counts.keys():
             sierra_count = int(sierra_new_counts.get(date, 0))
             redshift_count = int(redshift_new_counts.get(date, 0))
-            self.new_patron_sierra_redshift_discrepancy_alarm(
-                sierra_count, redshift_count, date
+            check_redshift_mismatch_alarm(
+                logger=self.logger,
+                database_type="Sierra new patron",
+                redshift_table=redshift_table,
+                database_count=sierra_count,
+                redshift_count=redshift_count,
             )
-            self.new_patron_sierra_no_records_alarm(sierra_count, redshift_count, date)
+            check_no_records_found_alarm(
+                logger=self.logger,
+                database_count=sierra_count,
+                conditional=self.run_added_tests,
+                database_type="new patron",
+                date=date,
+            )
 
         # Don't check for whether there are no deleted patron records because
         # there are often days where this legitimately occurs
         for date in sierra_deleted_counts.keys() | redshift_deleted_counts.keys():
             sierra_count = int(sierra_deleted_counts.get(date, 0))
             redshift_count = int(redshift_deleted_counts.get(date, 0))
-            self.deleted_patron_sierra_redshift_discrepancy_alarm(
-                sierra_count, redshift_count, date
-            )
-
-    def new_patron_sierra_redshift_discrepancy_alarm(
-        self, sierra_count, redshift_count, date
-    ):
-        if sierra_count != redshift_count:
-            self.logger.error(
-                (
-                    "Number of Sierra new patron records does not match "
-                    "number of Redshift new patron records on {date}: "
-                    "{sierra_count} Sierra records and {redshift_count} "
-                    "Redshift records"
-                ).format(
-                    date=date.isoformat(),
-                    sierra_count=sierra_count,
-                    redshift_count=redshift_count,
-                )
-            )
-
-    def new_patron_sierra_no_records_alarm(self, sierra_count, redshift_count, date):
-        if (
-            (sierra_count == redshift_count)
-            and sierra_count == 0
-            and self.run_added_tests
-        ):
-            self.logger.error(
-                "No new patron records found for all of {}".format(date.isoformat())
-            )
-
-    def deleted_patron_sierra_redshift_discrepancy_alarm(
-        self, sierra_count, redshift_count, date
-    ):
-        if sierra_count != redshift_count:
-            self.logger.error(
-                (
-                    "Number of Sierra deleted patron records does not match "
-                    "number of Redshift deleted patron records on {date}: "
-                    "{sierra_count} Sierra records and {redshift_count} "
-                    "Redshift records"
-                ).format(
-                    date=date.isoformat(),
-                    sierra_count=sierra_count,
-                    redshift_count=redshift_count,
-                )
+            check_redshift_mismatch_alarm(
+                logger=self.logger,
+                database_type="Sierra deleted patron",
+                redshift_table="deleted patron",
+                database_count=sierra_count,
+                redshift_count=redshift_count,
             )

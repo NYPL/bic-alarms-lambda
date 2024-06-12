@@ -43,8 +43,8 @@ class LocationVisitsAlarms(Alarm):
         self.new_location_visits_less_than_ten_thousand_alarm(
             redshift_count, redshift_table
         )
-        self.redshift_duplicates_alarm(redshift_duplicates)
-        self.redshift_stale_rows_alarm(redshift_stale_rows)
+        self.check_redshift_duplicates_alarm(redshift_duplicates)
+        self.check_redshift_stale_rows_alarm(redshift_stale_rows)
 
     def new_location_visits_less_than_ten_thousand_alarm(
         self, redshift_count, redshift_table
@@ -61,7 +61,7 @@ class LocationVisitsAlarms(Alarm):
                 )
             )
 
-    def redshift_duplicates_alarm(self, redshift_duplicates):
+    def check_redshift_duplicates_alarm(self, redshift_duplicates):
         if len(redshift_duplicates) > 0:
             self.logger.error(
                 "The following (shoppertrak_site_id, orbit, increment_start) "
@@ -70,7 +70,7 @@ class LocationVisitsAlarms(Alarm):
                 )
             )
 
-    def redshift_stale_rows_alarm(self, redshift_stale_rows):
+    def check_redshift_stale_rows_alarm(self, redshift_stale_rows):
         if len(redshift_stale_rows) > 0:
             self.logger.error(
                 "The following (shoppertrak_site_id, orbit, increment_start) "

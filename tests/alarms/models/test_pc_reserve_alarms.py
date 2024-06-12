@@ -67,7 +67,7 @@ class TestPcReserveAlarms:
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
         assert (
-            "Number of Envisionware PcReserve records does not match "
+            "Number of Envisionware records does not match "
             "number of Redshift PcReserve records: 10 Envisionware "
             "records and 20 Redshift records"
         ) in caplog.text

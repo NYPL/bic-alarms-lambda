@@ -1,4 +1,8 @@
 from alarms.alarm import Alarm
+from helpers.alarm_helper import (
+    check_redshift_mismatch_alarm,
+    check_no_records_found_alarm,
+)
 from helpers.query_helper import (
     build_redshift_circ_trans_query,
     build_sierra_circ_trans_query,
@@ -38,32 +42,18 @@ class CircTransAlarms(Alarm):
                 redshift_count = self.get_record_count(
                     self.redshift_client, redshift_query
                 )
-
-                self.circ_trans_sierra_redshift_discrepancy_alarm(
-                    sierra_count, redshift_count, redshift_table
-                )
-            self.circ_trans_sierra_no_records_alarm(sierra_count)
-
-    def circ_trans_sierra_redshift_discrepancy_alarm(
-        self, sierra_count, redshift_count, redshift_table
-    ):
-        if sierra_count != redshift_count:
-            self.logger.error(
-                (
-                    "Number of Sierra circ trans records does not match number "
-                    "of Redshift {redshift_table} records: {sierra_count} Sierra "
-                    "records and {redshift_count} Redshift records"
-                ).format(
+                check_redshift_mismatch_alarm(
+                    logger=self.logger,
+                    database_type="Sierra circ trans",
                     redshift_table=redshift_table,
-                    sierra_count=sierra_count,
+                    database_count=sierra_count,
                     redshift_count=redshift_count,
                 )
-            )
 
-    def circ_trans_sierra_no_records_alarm(self, sierra_count):
-        if sierra_count == 0 and self.run_added_tests:
-            self.logger.error(
-                "No Sierra circ trans records found for all of {}".format(
-                    self.yesterday
-                )
+            check_no_records_found_alarm(
+                logger=self.logger,
+                database_count=sierra_count,
+                conditional=self.run_added_tests,
+                database_type="Sierra circ trans",
+                date=self.yesterday,
             )

@@ -4,10 +4,10 @@ from helpers.query_helper import (
     build_redshift_location_null_query,
     build_sierra_code_count_query,
 )
-from helpers.sierra_codes_helper import (
-    sierra_redshift_count_mismatch_alarm,
-    redshift_duplicate_code_alarm,
-    null_code_alarm,
+from helpers.alarm_helper import (
+    check_redshift_mismatch_alarm,
+    check_sierra_duplicate_code_alarm,
+    check_sierra_null_codes_alarm,
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -34,14 +34,24 @@ class SierraLocationCodesAlarms(Alarm):
             null_location_codes = self.redshift_client.execute_query(
                 build_redshift_location_null_query(location_table, self.yesterday)
             )
-            null_code_alarm(
-                self.run_added_tests, self.logger, "location_codes", null_location_codes
+            check_sierra_null_codes_alarm(
+                logger=self.logger,
+                null_codes=null_location_codes,
+                code_type="location_codes",
             )
         self.redshift_client.close_connection()
 
-        sierra_redshift_count_mismatch_alarm(
-            self.logger, "location", sierra_count, total_redshift_count
+        check_redshift_mismatch_alarm(
+            logger=self.logger,
+            database_type="Sierra location",
+            redshift_table="location",
+            database_count=sierra_count,
+            redshift_count=total_redshift_count,
         )
-        redshift_duplicate_code_alarm(
-            self.logger, "location", total_redshift_count, distinct_redshift_count
+
+        check_sierra_duplicate_code_alarm(
+            logger=self.logger,
+            code_type="location",
+            total_count=total_redshift_count,
+            distinct_count=distinct_redshift_count,
         )
