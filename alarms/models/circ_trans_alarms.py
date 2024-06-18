@@ -18,42 +18,34 @@ class CircTransAlarms(Alarm):
 
     def run_checks(self):
         self.logger.info("\nCIRC TRANS\n")
-        sierra_timezones = ("EST", "America/New_York")
-        redshift_tables = (["circ_trans"], ["patron_circ_trans", "item_circ_trans"])
-        redshift_date_fields = (
-            ["transaction_et"],
-            [
-                "transaction_et",
+        redshift_parameters = [
+            ("patron_circ_trans", "transaction_et"),
+            (
+                "item_circ_trans",
                 "CONVERT_TIMEZONE('America/New_York', transaction_timestamp)::DATE",
-            ],
-        )
+            ),
+        ]
 
-        for i in range(len(sierra_timezones)):
-            sierra_query = build_sierra_circ_trans_query(
-                self.yesterday, sierra_timezones[i]
+        sierra_query = build_sierra_circ_trans_query(self.yesterday)
+        sierra_count = self.get_record_count(self.sierra_client, sierra_query)
+        for parameter_tuple in redshift_parameters:
+            redshift_table = parameter_tuple[0] + self.redshift_suffix
+            redshift_query = build_redshift_circ_trans_query(
+                redshift_table, parameter_tuple[1], self.yesterday
             )
-            sierra_count = self.get_record_count(self.sierra_client, sierra_query)
-            for j in range(len(redshift_tables[i])):
-                redshift_table = redshift_tables[i][j] + self.redshift_suffix
-                date_field = redshift_date_fields[i][j]
-                redshift_query = build_redshift_circ_trans_query(
-                    redshift_table, date_field, self.yesterday
-                )
-                redshift_count = self.get_record_count(
-                    self.redshift_client, redshift_query
-                )
-                check_redshift_mismatch_alarm(
-                    logger=self.logger,
-                    database_type="Sierra circ trans",
-                    redshift_table=redshift_table,
-                    database_count=sierra_count,
-                    redshift_count=redshift_count,
-                )
-
-            check_no_records_found_alarm(
+            redshift_count = self.get_record_count(self.redshift_client, redshift_query)
+            check_redshift_mismatch_alarm(
                 logger=self.logger,
-                database_count=sierra_count,
-                conditional=self.run_added_tests,
                 database_type="Sierra circ trans",
-                date=self.yesterday,
+                redshift_table=redshift_table,
+                database_count=sierra_count,
+                redshift_count=redshift_count,
             )
+
+        check_no_records_found_alarm(
+            logger=self.logger,
+            database_count=sierra_count,
+            conditional=self.run_added_tests,
+            database_type="Sierra circ trans",
+            date=self.yesterday,
+        )

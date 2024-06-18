@@ -18,4 +18,4 @@ test:
 	pytest tests -W ignore::DeprecationWarning
 
 lint:
-	flake8 --exclude *env,package
+	black ./ --check --exclude="(env/)|(tests/)"
