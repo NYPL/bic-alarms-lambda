@@ -4,12 +4,12 @@ _SIERRA_CIRC_TRANS_QUERY = (
 )
 
 _SIERRA_NEW_PATRONS_QUERY = """
-    SELECT (creation_date_gmt AT TIME ZONE 'EST')::DATE, COUNT(id)
+    SELECT (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE, COUNT(id)
     FROM sierra_view.record_metadata
     WHERE record_type_code = 'p'
-        AND (creation_date_gmt AT TIME ZONE 'EST')::DATE >= '{start_date}'
-        AND (creation_date_gmt AT TIME ZONE 'EST')::DATE < '{end_date}'
-    GROUP BY (creation_date_gmt AT TIME ZONE 'EST')::DATE;"""
+        AND (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE >= '2024-06-19'
+        AND (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE < '2024-06-26'
+    GROUP BY (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE;"""
 
 _SIERRA_DELETED_PATRONS_QUERY = """
     SELECT deletion_date_gmt, COUNT(id)
