@@ -7,8 +7,8 @@ _SIERRA_NEW_PATRONS_QUERY = """
     SELECT (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE, COUNT(id)
     FROM sierra_view.record_metadata
     WHERE record_type_code = 'p'
-        AND (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE >= '2024-06-19'
-        AND (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE < '2024-06-26'
+        AND (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE >= '{start_date}'
+        AND (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE < '{end_date}'
     GROUP BY (creation_date_gmt AT TIME ZONE 'America/New_York')::DATE;"""
 
 _SIERRA_DELETED_PATRONS_QUERY = """
