@@ -159,8 +159,8 @@ _REDSHIFT_STAT_GROUP_LOCATION_QUERY = """
             WHERE deletion_date IS NULL);"""
 
 
-def build_sierra_circ_trans_query(date, timezone):
-    return _SIERRA_CIRC_TRANS_QUERY.format(date=date, timezone=timezone)
+def build_sierra_circ_trans_query(date):
+    return _SIERRA_CIRC_TRANS_QUERY.format(date=date)
 
 
 def build_sierra_new_patrons_query(start_date, end_date):
