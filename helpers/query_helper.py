@@ -1,6 +1,6 @@
 _SIERRA_CIRC_TRANS_QUERY = (
     "SELECT COUNT(id) FROM sierra_view.circ_trans "
-    "WHERE (transaction_gmt AT TIME ZONE '{timezone}')::DATE = '{date}';"
+    "WHERE (transaction_gmt AT TIME ZONE 'America/New_York')::DATE = '{date}';"
 )
 
 _SIERRA_NEW_PATRONS_QUERY = """
