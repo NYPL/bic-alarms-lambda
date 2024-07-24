@@ -18,6 +18,7 @@ zip deployment-package.zip alarms/alarm.py
 zip deployment-package.zip alarms/models/circ_trans_alarms.py
 zip deployment-package.zip alarms/models/holds_alarms.py
 zip deployment-package.zip alarms/models/location_visits_alarms.py
+zip deployment-package.zip alarms/models/overdrive_checkout_alarms.py
 zip deployment-package.zip alarms/models/patron_info_alarms.py
 zip deployment-package.zip alarms/models/pc_reserve_alarms.py
 zip deployment-package.zip alarms/models/sierra_codes/sierra_itype_codes_alarms.py

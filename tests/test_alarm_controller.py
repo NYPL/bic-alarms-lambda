@@ -25,5 +25,7 @@ class TestAlarmController:
                 mocker.call("test_envisionware_host"),
                 mocker.call("test_envisionware_user"),
                 mocker.call("test_envisionware_password"),
+                mocker.call("test_overdrive_username"),
+                mocker.call("test_overdrive_password"),
             ]
         )

@@ -1,0 +1,5 @@
+black
+freezegun
+nypl-py-utils[mysql-client,postgresql-client,redshift-client,config-helper]==1.1.5
+pytest
+pytest-mock
