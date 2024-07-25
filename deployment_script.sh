@@ -25,4 +25,5 @@ zip deployment-package.zip alarms/models/sierra_codes/sierra_itype_codes_alarms.
 zip deployment-package.zip alarms/models/sierra_codes/sierra_location_codes_alarms.py
 zip deployment-package.zip alarms/models/sierra_codes/sierra_stat_group_codes_alarms.py
 zip deployment-package.zip helpers/alarm_helper.py
+zip deployment-package.zip helpers/overdrive_web_scraper.py
 zip deployment-package.zip helpers/query_helper.py
