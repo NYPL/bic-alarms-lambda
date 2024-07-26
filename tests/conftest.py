@@ -20,6 +20,8 @@ TEST_ENV_VARS = {
     "ENVISIONWARE_DB_NAME": "test_envisionware_db",
     "ENVISIONWARE_DB_USER": "test_envisionware_user",
     "ENVISIONWARE_DB_PASSWORD": "test_envisionware_password",
+    "OVERDRIVE_USERNAME": "test_overdrive_username",
+    "OVERDRIVE_PASSWORD": "test_overdrive_password",
 }
 
 

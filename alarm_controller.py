@@ -3,6 +3,7 @@ import os
 from alarms.models.circ_trans_alarms import CircTransAlarms
 from alarms.models.holds_alarms import HoldsAlarms
 from alarms.models.location_visits_alarms import LocationVisitsAlarms
+from alarms.models.overdrive_checkouts_alarms import OverDriveCheckoutsAlarms
 from alarms.models.patron_info_alarms import PatronInfoAlarms
 from alarms.models.pc_reserve_alarms import PcReserveAlarms
 from alarms.models.sierra_codes.sierra_itype_codes_alarms import SierraItypeCodesAlarms
@@ -51,6 +52,10 @@ class AlarmController:
             kms_client.decrypt(os.environ["ENVISIONWARE_DB_USER"]),
             kms_client.decrypt(os.environ["ENVISIONWARE_DB_PASSWORD"]),
         )
+        self.overdrive_credentials = (
+            kms_client.decrypt(os.environ["OVERDRIVE_USERNAME"]),
+            kms_client.decrypt(os.environ["OVERDRIVE_PASSWORD"]),
+        )
 
     def _setup_alarms(self):
         self.logger.info("Setting up alarms...")
@@ -58,6 +63,7 @@ class AlarmController:
             CircTransAlarms(self.redshift_client, self.sierra_client),
             HoldsAlarms(self.redshift_client),
             LocationVisitsAlarms(self.redshift_client),
+            OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
             PatronInfoAlarms(self.redshift_client, self.sierra_client),
             PcReserveAlarms(self.redshift_client, self.envisionware_client),
             SierraItypeCodesAlarms(self.redshift_client, self.sierra_client),

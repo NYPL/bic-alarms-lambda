@@ -9,6 +9,8 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When an invalid hold appears in Redshift for the previous day
 * When the number of PC reserve records in Envisionware and Redshift differs for the previous day
 * When there are no PC reserve records in Sierra for the previous day
+* When the number of OverDrive checkout records online (via OverDrive Marketplace) and in Redshift differs for the previous day
+* When there are no OverDrive checkout records online (via OverDrive Marketplace) for the previous day
 * When the number of newly created/deleted patron records in Sierra and Redshift differs for any day in the previous week
 * When there are no newly created patron records in Sierra for the previous any day in the previous week
 * When there are fewer than 10000 new location visits records for the previous day
