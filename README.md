@@ -19,17 +19,10 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When there are duplicate active itype/location/stat group codes in Redshift
 * When there are active itype/location/stat group codes in Redshift without the necessary additional fields populated
 
-## Git workflow
-This repo uses the [Main-QA-Production](https://github.com/NYPL/engineering-general/blob/main/standards/git-workflow.md#main-qa-production) git workflow.
-
-`main` has the latest and greatest commits, `qa` has what's in our QA environment, and `production` has what's in our production environment.
-
 ## How do I make a new alarm?
-To create a new alarm, set up a model for said alarm in the [alarms/models](alarms/models) folder. Here are some examples:
-* [CircTransAlarms](alarms/models/circ_trans_alarms.py) = General class containing all alarms related to circ trans records. *Each alarm is its own function, as is the norm*
-* [PatronInfoAlarms](alarms/models/patron_info_alarms.py) = General class with patron record related alerts
-
-Make sure to import whatever database client is needed as well (ex. Sierra, Envisionware). After creating your new alarm, add the alarm object to the [AlarmController](alarm_controller.py).
+To create a new alarm, set up a model for said alarm in the [alarms/models](alarms/models) directory. After creating your new alarm, add the alarm object to the [AlarmController](alarm_controller.py). Here are some examples:
+* [PcReserveAlarms](alarms/models/pc_reserve_alarms.py): all generic alarms
+* [LocationVisitsAlarms](alarms/models/location_visits_alarms.py): custom alarms -- *each custom alarm is its own function, as is the norm*
 
 ## Local development
 Before running the code, make sure the following environment vars are set up in either your bash or zsh profile:
@@ -44,8 +37,35 @@ make run
 ```
 The application logs should output to your terminal.
 
+* Export your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and run `make run`
+* Alternatively, to build and run a Docker container, copy the `configs` directory in the `Dockerfile` and run:
+```
+docker build --platform linux/amd64 -t bic-alarms:local .
+
+docker run --platform linux/amd64 -p 9000:8080 -e ENVIRONMENT=devel -e AWS_ACCESS_KEY_ID=<> -e AWS_SECRET_ACCESS_KEY=<> bic-alarms:local
+
+# From a new terminal tab
+curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+```
+
+## Git workflow
+This repo uses the [Main-QA-Production](https://github.com/NYPL/engineering-general/blob/main/standards/git-workflow.md#main-qa-production) git workflow.
+
+`main` has the latest and greatest commits, `qa` has what's in our QA environment, and `production` has what's in our production environment.
+
+### Ideal Workflow
+- Cut a feature branch off of `main`
+- Commit changes to your feature branch
+- File a pull request against `main` and assign a reviewer
+  - In order for the PR to be accepted, it must pass all unit tests, have no lint issues, and update the CHANGELOG (or contain the Skip-Changelog label in GitHub)
+- After the PR is accepted, merge into `main`
+- Merge `main` > `qa`
+- Deploy app to QA and confirm it works
+- Merge `qa` > `production`
+- Deploy app to production and confirm it works
+
 ## Deployment
-CI/CD is not enabled. To deploy a new version of this function, first modify the code in the git repo and open a pull request to the appropriate environment branch. Then run `source deployment_script.sh` and upload the resulting zip. Note that if any files are added or deleted, this script must be modified. For more information, see the directions [here](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html).
+The poller is deployed as a Docker image to the `bic-alarms` repository in [ECR](https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories). From there, the appropriate Lambda's code is updated based on the image's tag (either `qa` or `production`). To upload a new QA version of the Lambda, create a new release in GitHub off of the `qa` branch and tag it `qa-vX.X.X`. The GitHub Actions deploy-qa workflow will then deploy the code to ECR and update the Lambda appropriately. To deploy to production, create the release from the `production` branch and tag it `production-vX.X.X`.
 
 ## Environment variables
 The following environment variables are required for the code to run. The variables marked as encrypted should have been encrypted via KMS.
@@ -67,3 +87,5 @@ The following environment variables are required for the code to run. The variab
 | `ENVISIONWARE_DB_NAME` | Always `iii` |
 | `ENVISIONWARE_DB_USER` | Encrypted Envisionware user |
 | `ENVISIONWARE_DB_PASSWORD` | Encrypted Envisionware password for the user |
+| `OVERDRIVE_USERNAME` | Encrypted OverDrive Marketplace username |
+| `OVERDRIVE_PASSWORD` | Encrypted OverDrive Marketplace password for the user |

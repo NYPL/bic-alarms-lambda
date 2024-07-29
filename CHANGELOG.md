@@ -1,3 +1,9 @@
+## 2024-07-29
+### Added
+- Use Docker to install Google Chrome and run tests
+- Include GitHub workflows for deploying Docker image to ECR and updating the Lambda
+- Remove old deployment script now that GitHub Actions is in use
+
 ## 2024-07-25
 ### Added
 - Added OverDriveCheckouts alarms checking that the number of records online at OverDrive Marketplace is greater than 0 and matches the number of records in Redshift
