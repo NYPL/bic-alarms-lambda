@@ -1,18 +1,15 @@
-import json
 import os
 
 from alarm_controller import AlarmController
 from datetime import datetime, timedelta, timezone
 from nypl_py_utils.functions.log_helper import create_log
+from nypl_py_utils.functions.config_helper import load_env_file
 
 
-def lambda_handler(event, context):
-    if os.environ["ENVIRONMENT"] == "devel":
-        from nypl_py_utils.functions.config_helper import load_env_file
-
-        load_env_file("devel", "config/{}.yaml")
-    logger = create_log("lambda_function")
-    logger.info("Starting lambda processing")
+def main():
+    load_env_file(os.environ["ENVIRONMENT"], "config/{}.yaml")
+    logger = create_log("main")
+    logger.info("Starting alarms")
 
     alarm_controller = AlarmController()
     yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).date().isoformat()
@@ -24,8 +21,8 @@ def lambda_handler(event, context):
         logger.error("Error running alarms: {}".format(e))
         raise e
 
-    logger.info("Finished lambda processing")
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"message": "Job ran successfully."}),
-    }
+    logger.info("Finished alarms")
+
+
+if __name__ == "__main__":
+    main()
