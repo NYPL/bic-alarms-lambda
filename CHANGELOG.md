@@ -4,6 +4,7 @@
 
 ### Fixed
 - Update Dockerfile to run Chrome correctly
+- Update GitHub workflows to update ECS service instead of Lambda
 
 ## 2024-07-29
 ### Added
