@@ -1,3 +1,10 @@
+## 2024-09-19
+### Added
+- Refactor code to run in an ECS cluster rather than as a Lambda
+
+### Fixed
+- Update Dockerfile to run Chrome correctly
+
 ## 2024-07-29
 ### Added
 - Use Docker to install Google Chrome and run tests
