@@ -8,16 +8,16 @@ from helpers.query_helper import (
 from nypl_py_utils.functions.log_helper import create_log
 
 
-class LocationVisitsAlarms(Alarm):
+class GranularLocationVisitsAlarms(Alarm):
     def __init__(self, redshift_client):
         super().__init__(redshift_client)
-        self.logger = create_log("location_visits_alarms")
+        self.logger = create_log("granular_location_visits_alarms")
 
     def run_checks(self):
         if not self.run_added_tests:
             return
 
-        self.logger.info("\nLOCATION VISITS\n")
+        self.logger.info("\nGRANULAR LOCATION VISITS\n")
         redshift_table = "location_visits" + self.redshift_suffix
         stale_start_date = (self.yesterday_date - timedelta(days=30)).isoformat()
         redshift_count_query = build_redshift_location_visits_count_query(
@@ -40,13 +40,16 @@ class LocationVisitsAlarms(Alarm):
         redshift_stale_rows = self.redshift_client.execute_query(redshift_stale_query)
         self.redshift_client.close_connection()
 
-        self.new_location_visits_less_than_ten_thousand_alarm(
+        self.check_location_visits_less_than_ten_thousand_alarm(
+            redshift_count, redshift_table
+        )
+        self.check_location_visits_evenly_divisible_alarm(
             redshift_count, redshift_table
         )
         self.check_redshift_duplicates_alarm(redshift_duplicates)
         self.check_redshift_stale_rows_alarm(redshift_stale_rows)
 
-    def new_location_visits_less_than_ten_thousand_alarm(
+    def check_location_visits_less_than_ten_thousand_alarm(
         self, redshift_count, redshift_table
     ):
         if redshift_count < 10000:
@@ -58,6 +61,21 @@ class LocationVisitsAlarms(Alarm):
                     redshift_count=redshift_count,
                     redshift_table=redshift_table,
                     date=self.yesterday,
+                )
+            )
+
+    def check_location_visits_evenly_divisible_alarm(
+        self, redshift_count, redshift_table
+    ):
+        if redshift_count % 96:
+            self.logger.error(
+                (
+                    "Number of {redshift_table} rows on {date} not divisible by 96: "
+                    "{redshift_count}"
+                ).format(
+                    redshift_count=redshift_count,
+                    date=self.yesterday,
+                    redshift_table=redshift_table,
                 )
             )
 
