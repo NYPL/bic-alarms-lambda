@@ -43,9 +43,6 @@ class GranularLocationVisitsAlarms(Alarm):
         self.check_location_visits_less_than_ten_thousand_alarm(
             redshift_count, redshift_table
         )
-        self.check_location_visits_evenly_divisible_alarm(
-            redshift_count, redshift_table
-        )
         self.check_redshift_duplicates_alarm(redshift_duplicates)
         self.check_redshift_stale_rows_alarm(redshift_stale_rows)
 
@@ -61,21 +58,6 @@ class GranularLocationVisitsAlarms(Alarm):
                     redshift_count=redshift_count,
                     redshift_table=redshift_table,
                     date=self.yesterday,
-                )
-            )
-
-    def check_location_visits_evenly_divisible_alarm(
-        self, redshift_count, redshift_table
-    ):
-        if redshift_count % 96:
-            self.logger.error(
-                (
-                    "Number of {redshift_table} rows on {date} not divisible by 96: "
-                    "{redshift_count}"
-                ).format(
-                    redshift_count=redshift_count,
-                    date=self.yesterday,
-                    redshift_table=redshift_table,
                 )
             )
 

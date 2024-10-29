@@ -32,7 +32,7 @@ class TestGranularLocationVisitsAlarms:
             "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query",
             return_value="redshift stale query",
         )
-        test_instance.redshift_client.execute_query.side_effect = [([11040],), (), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([11000],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
@@ -67,32 +67,13 @@ class TestGranularLocationVisitsAlarms:
         mocker.patch(
             "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
         )
-        test_instance.redshift_client.execute_query.side_effect = [([96],), (), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([10],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
         assert (
-            "Found only 96 location_visits_test_redshift_db rows for all "
+            "Found only 10 location_visits_test_redshift_db rows for all "
             "of 2023-05-31"
-        ) in caplog.text
-    
-    def test_run_checks_bad_records_num_alarm(self, test_instance, mocker, caplog):
-        mocker.patch(
-            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_count_query"
-        )
-        mocker.patch(
-            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_duplicate_query"
-        )
-        mocker.patch(
-            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
-        )
-        test_instance.redshift_client.execute_query.side_effect = [([11000],), (), ()]
-
-        with caplog.at_level(logging.ERROR):
-            test_instance.run_checks()
-        assert (
-            "Number of location_visits_test_redshift_db rows on 2023-05-31 not "
-            "divisible by 96: 11000"
         ) in caplog.text
 
     def test_run_checks_duplicate_records_alarm(self, test_instance, mocker, caplog):
@@ -106,7 +87,7 @@ class TestGranularLocationVisitsAlarms:
             "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
         )
         test_instance.redshift_client.execute_query.side_effect = [
-            ([11040],),
+            ([11000],),
             (
                 ["aa", 1, datetime(2023, 5, 31, 9, 0, 0)],
                 ["bb", 2, datetime(2023, 5, 31, 9, 15, 0)],
@@ -134,7 +115,7 @@ class TestGranularLocationVisitsAlarms:
             "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
         )
         test_instance.redshift_client.execute_query.side_effect = [
-            ([11040],),
+            ([11000],),
             (),
             (
                 ["aa", 1, datetime(2023, 5, 31, 9, 0, 0)],

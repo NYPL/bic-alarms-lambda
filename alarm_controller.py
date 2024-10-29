@@ -1,7 +1,6 @@
 import os
 
 from alarms.models.circ_trans_alarms import CircTransAlarms
-from alarms.models.daily_location_visits_alarms import DailyLocationVisitsAlarms
 from alarms.models.granular_location_visits_alarms import GranularLocationVisitsAlarms
 from alarms.models.holds_alarms import HoldsAlarms
 from alarms.models.overdrive_checkouts_alarms import OverDriveCheckoutsAlarms
@@ -62,7 +61,6 @@ class AlarmController:
         self.logger.info("Setting up alarms...")
         return [
             CircTransAlarms(self.redshift_client, self.sierra_client),
-            DailyLocationVisitsAlarms(self.redshift_client),
             GranularLocationVisitsAlarms(self.redshift_client),
             HoldsAlarms(self.redshift_client),
             OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
