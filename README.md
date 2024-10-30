@@ -42,14 +42,11 @@ make run
 The application logs should output to your terminal.
 
 * Export your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and run `make run`
-* Alternatively, to build and run a Docker container, copy the `configs` directory in the `Dockerfile` and run:
+* Alternatively, to build and run a Docker container, run:
 ```
-docker build --platform linux/amd64 -t bic-alarms:local .
+docker image build -t bic-alarms:local .
 
-docker run --platform linux/amd64 -p 9000:8080 -e ENVIRONMENT=devel -e AWS_ACCESS_KEY_ID=<> -e AWS_SECRET_ACCESS_KEY=<> bic-alarms:local
-
-# From a new terminal tab
-curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+docker container run -e ENVIRONMENT=<env> -e AWS_ACCESS_KEY_ID=<> -e AWS_SECRET_ACCESS_KEY=<> bic-alarms:local
 ```
 
 ## Git workflow

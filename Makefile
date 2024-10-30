@@ -12,7 +12,7 @@ help:
 
 run:
 	export ENVIRONMENT=devel; \
-	python -c 'import lambda_function; lambda_function.lambda_handler(None, None)'
+	python main.py
 
 test:
 	pytest tests -W ignore::DeprecationWarning
