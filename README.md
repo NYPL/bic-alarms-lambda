@@ -13,8 +13,12 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When there are no OverDrive checkout records online (via OverDrive Marketplace) for the previous day
 * When the number of newly created/deleted patron records in Sierra and Redshift differs for any day in the previous week
 * When there are no newly created patron records in Sierra for the previous any day in the previous week
+* When a single Sierra branch code maps to multiple Drupal branch codes
+* When a Drupal branch code in location_hours does not contain a mapping to a Sierra branch code
+* When a Sierra branch code with a mapping to a Drupal branch code does not appear in location_hours
 * When there are fewer than 10000 new location visits records for the previous day
-* When a given location visits (site id, orbit, increment start) combination does not map to exactly one fresh row
+* When a given location visits (site id, orbit, increment start) combination from the previous day contains multiple fresh rows
+* When a given location visits (site id, orbit, increment start) combination from the previous thirty days contains only stale rows
 * When the number of active itype/location/stat group codes in Sierra and Redshift differs
 * When there are duplicate active itype/location/stat group codes in Redshift
 * When there are active itype/location/stat group codes in Redshift without the necessary additional fields populated

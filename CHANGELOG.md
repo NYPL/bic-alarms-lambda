@@ -1,3 +1,11 @@
+## 2024-10-30
+### Added
+- Add BranchCodesMap alarms checking that it's in sync with all branches with location hours
+
+### Fixed
+- Rename LocationVisits alarms to GranularLocationVisits alarms and remove unnecessary alarms
+- Delete old chrome_installation file
+
 ## 2024-09-19
 ### Added
 - Refactor code to run in an ECS cluster rather than as a Lambda

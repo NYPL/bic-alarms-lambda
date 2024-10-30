@@ -8,12 +8,10 @@ from datetime import date, datetime
 class TestGranularLocationVisitsAlarms:
     @pytest.fixture
     def test_instance(self, mocker):
-        mock_redshift_client = mocker.MagicMock()
-        return GranularLocationVisitsAlarms(mock_redshift_client)
+        return GranularLocationVisitsAlarms(mocker.MagicMock())
 
     def test_init(self, mocker):
-        mock_redshift_client = mocker.MagicMock()
-        location_visits_alarms = GranularLocationVisitsAlarms(mock_redshift_client)
+        location_visits_alarms = GranularLocationVisitsAlarms(mocker.MagicMock())
         assert location_visits_alarms.redshift_suffix == "_test_redshift_db"
         assert location_visits_alarms.run_added_tests
         assert location_visits_alarms.yesterday_date == date(2023, 5, 31)

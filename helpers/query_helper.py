@@ -1,4 +1,15 @@
 ### REDSHIFT QUERIES -- in order of _setup_alarms placement ###
+_REDSHIFT_BRANCH_CODES_DUPLICATE_QUERY = """
+    SELECT sierra_code FROM {}
+    GROUP BY sierra_code
+    HAVING COUNT(*) > 1;"""
+
+_REDSHIFT_BRANCH_CODES_HOURS_QUERY = """
+    SELECT drupal_location_id, sierra_code
+    FROM {location_hours_table} FULL JOIN {branch_codes_table}
+        ON {location_hours_table}.drupal_location_id = {branch_codes_table}.drupal_code
+    WHERE drupal_location_id IS NULL OR sierra_code IS NULL;"""
+
 _REDSHIFT_CIRC_TRANS_QUERY = (
     "SELECT COUNT(*) FROM {table} WHERE {date_field} = '{date}';"
 )
@@ -163,6 +174,16 @@ _SIERRA_ITYPES_COUNT_QUERY = (
 _ENVISIONWARE_PC_RESERVE_QUERY = (
     "SELECT COUNT(pcrKey) FROM strad_bci WHERE DATE(pcrDateTime) = '{date}';"
 )
+
+
+def build_redshift_branch_codes_duplicate_query(table):
+    return _REDSHIFT_BRANCH_CODES_DUPLICATE_QUERY.format(table)
+
+
+def build_redshift_branch_codes_hours_query(location_hours_table, branch_codes_table):
+    return _REDSHIFT_BRANCH_CODES_HOURS_QUERY.format(
+        location_hours_table=location_hours_table, branch_codes_table=branch_codes_table
+    )
 
 
 def build_redshift_circ_trans_query(table, date_field, date):

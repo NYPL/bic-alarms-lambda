@@ -1,5 +1,6 @@
 import os
 
+from alarms.models.branch_codes_map_alarms import BranchCodesMapAlarms
 from alarms.models.circ_trans_alarms import CircTransAlarms
 from alarms.models.granular_location_visits_alarms import GranularLocationVisitsAlarms
 from alarms.models.holds_alarms import HoldsAlarms
@@ -60,6 +61,7 @@ class AlarmController:
     def _setup_alarms(self):
         self.logger.info("Setting up alarms...")
         return [
+            BranchCodesMapAlarms(self.redshift_client),
             CircTransAlarms(self.redshift_client, self.sierra_client),
             GranularLocationVisitsAlarms(self.redshift_client),
             HoldsAlarms(self.redshift_client),
