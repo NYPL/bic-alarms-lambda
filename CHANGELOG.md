@@ -1,3 +1,7 @@
+## 2024-11-12
+### Fixed
+- Gracefully handle any exception thrown by the OverDrive web scraper
+
 ## 2024-09-19
 ### Added
 - Refactor code to run in an ECS cluster rather than as a Lambda
