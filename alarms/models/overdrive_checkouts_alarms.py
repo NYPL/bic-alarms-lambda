@@ -20,8 +20,8 @@ class OverDriveCheckoutsAlarms(Alarm):
         self.logger.info("\nOVERDRIVE CHECKOUTS\n")
         try:
             overdrive_count = self.overdrive_client.get_count(self.yesterday)
-        except:
-            self.logger.error("Failed to scrape OverDrive Marketplace")
+        except Exception as e:
+            self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
             return
 
         redshift_table = "overdrive_checkouts" + self.redshift_suffix
