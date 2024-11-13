@@ -3,7 +3,7 @@ from helpers.alarm_helper import (
     check_redshift_mismatch_alarm,
     check_no_records_found_alarm,
 )
-from helpers.overdrive_web_scraper import OverDriveWebScraper, OverDriveWebScraperError
+from helpers.overdrive_web_scraper import OverDriveWebScraper
 from helpers.query_helper import build_redshift_overdrive_query
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -20,8 +20,8 @@ class OverDriveCheckoutsAlarms(Alarm):
         self.logger.info("\nOVERDRIVE CHECKOUTS\n")
         try:
             overdrive_count = self.overdrive_client.get_count(self.yesterday)
-        except OverDriveWebScraperError:
-            self.logger.error("Failed to scrape OverDrive Marketplace")
+        except Exception as e:
+            self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
             return
 
         redshift_table = "overdrive_checkouts" + self.redshift_suffix
