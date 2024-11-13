@@ -1,3 +1,11 @@
+## 2024-11-13
+### Added
+- Add BranchCodesMap alarms checking that it's in sync with all branches with location hours
+
+### Fixed
+- Rename LocationVisits alarms to GranularLocationVisits alarms and remove unnecessary alarms
+- Delete old chrome_installation file
+
 ## 2024-11-12
 ### Fixed
 - Gracefully handle any exception thrown by the OverDrive web scraper

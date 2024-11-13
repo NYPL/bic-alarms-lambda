@@ -1,19 +1,17 @@
 import logging
 import pytest
 
-from alarms.models.location_visits_alarms import LocationVisitsAlarms
+from alarms.models.granular_location_visits_alarms import GranularLocationVisitsAlarms
 from datetime import date, datetime
 
 
-class TestLocationVisitsAlarms:
+class TestGranularLocationVisitsAlarms:
     @pytest.fixture
     def test_instance(self, mocker):
-        mock_redshift_client = mocker.MagicMock()
-        return LocationVisitsAlarms(mock_redshift_client)
+        return GranularLocationVisitsAlarms(mocker.MagicMock())
 
     def test_init(self, mocker):
-        mock_redshift_client = mocker.MagicMock()
-        location_visits_alarms = LocationVisitsAlarms(mock_redshift_client)
+        location_visits_alarms = GranularLocationVisitsAlarms(mocker.MagicMock())
         assert location_visits_alarms.redshift_suffix == "_test_redshift_db"
         assert location_visits_alarms.run_added_tests
         assert location_visits_alarms.yesterday_date == date(2023, 5, 31)
@@ -21,15 +19,15 @@ class TestLocationVisitsAlarms:
 
     def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
         mock_redshift_count_query = mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_count_query",
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_count_query",
             return_value="redshift count query",
         )
         mock_redshift_duplicate_query = mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_duplicate_query",
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_duplicate_query",
             return_value="redshift duplicate query",
         )
         mock_redshift_stale_query = mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_stale_query",
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query",
             return_value="redshift stale query",
         )
         test_instance.redshift_client.execute_query.side_effect = [([11000],), (), ()]
@@ -59,13 +57,13 @@ class TestLocationVisitsAlarms:
 
     def test_run_checks_no_records_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_count_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_count_query"
         )
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_duplicate_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_duplicate_query"
         )
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_stale_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
         )
         test_instance.redshift_client.execute_query.side_effect = [([10],), (), ()]
 
@@ -78,13 +76,13 @@ class TestLocationVisitsAlarms:
 
     def test_run_checks_duplicate_records_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_count_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_count_query"
         )
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_duplicate_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_duplicate_query"
         )
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_stale_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
         )
         test_instance.redshift_client.execute_query.side_effect = [
             ([11000],),
@@ -106,13 +104,13 @@ class TestLocationVisitsAlarms:
 
     def test_run_checks_stale_records_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_count_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_count_query"
         )
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_duplicate_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_duplicate_query"
         )
         mocker.patch(
-            "alarms.models.location_visits_alarms.build_redshift_location_visits_stale_query"
+            "alarms.models.granular_location_visits_alarms.build_redshift_location_visits_stale_query"
         )
         test_instance.redshift_client.execute_query.side_effect = [
             ([11000],),
