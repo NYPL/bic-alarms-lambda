@@ -14,6 +14,11 @@ _REDSHIFT_CIRC_TRANS_QUERY = (
     "SELECT COUNT(*) FROM {table} WHERE {date_field} = '{date}';"
 )
 
+_REDSHIFT_DAILY_LOCATION_VISITS_QUERY = (
+    "SELECT shoppertrak_site_id, is_all_healthy FROM {table} "
+    "WHERE visits_date = '{date}';"
+)
+
 _REDSHIFT_LOCATION_VISITS_COUNT_QUERY = (
     "SELECT COUNT(id) FROM {table} "
     "WHERE increment_start::DATE = '{date}' AND is_fresh;"
@@ -190,6 +195,10 @@ def build_redshift_circ_trans_query(table, date_field, date):
     return _REDSHIFT_CIRC_TRANS_QUERY.format(
         table=table, date_field=date_field, date=date
     )
+
+
+def build_redshift_daily_location_visits_query(table, date):
+    return _REDSHIFT_DAILY_LOCATION_VISITS_QUERY.format(table=table, date=date)
 
 
 def build_redshift_location_visits_count_query(table, date):
