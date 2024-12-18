@@ -7,43 +7,56 @@ from datetime import date
 
 class TestDailyLocationVisitsAlarms:
     @pytest.fixture
-    def test_instance(self, mocker, monkeypatch):
-        monkeypatch.setattr(
-            "alarms.models.daily_location_visits_alarms.SHOPPERTRAK_SITES",
-            set(["aa", "bb", "cc"]),
+    def test_instance(self, mocker):
+        mocker.patch(
+            "alarms.models.daily_location_visits_alarms.S3Client.fetch_cache",
+            return_value=["aa", "bb", "cc"],
         )
         return DailyLocationVisitsAlarms(mocker.MagicMock())
 
     def test_init(self, mocker):
-        location_visits_alarms = DailyLocationVisitsAlarms(mocker.MagicMock())
-        assert location_visits_alarms.redshift_suffix == "_test_redshift_db"
-        assert location_visits_alarms.run_added_tests
-        assert location_visits_alarms.yesterday_date == date(2023, 5, 31)
-        assert location_visits_alarms.yesterday == "2023-05-31"
+        daily_location_visits_alarms = DailyLocationVisitsAlarms(mocker.MagicMock())
+        assert daily_location_visits_alarms.redshift_suffix == "_test_redshift_db"
+        assert daily_location_visits_alarms.run_added_tests
+        assert daily_location_visits_alarms.yesterday_date == date(2023, 5, 31)
+        assert daily_location_visits_alarms.yesterday == "2023-05-31"
 
-    def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
+    def test_run_checks_no_alarm(self, mocker, caplog):
+        daily_location_visits_alarms = DailyLocationVisitsAlarms(mocker.MagicMock())
+        mock_s3_client = mocker.MagicMock()
+        mock_s3_constructor = mocker.patch(
+            "alarms.models.daily_location_visits_alarms.S3Client",
+            return_value=mock_s3_client,
+        )
+        mock_s3_client.fetch_cache.return_value = ["aa", "bb", "cc"]
+
         mock_redshift_query = mocker.patch(
             "alarms.models.daily_location_visits_alarms.build_redshift_daily_location_visits_query",
             return_value="redshift query",
         )
-        test_instance.redshift_client.execute_query.return_value = (
+        daily_location_visits_alarms.redshift_client.execute_query.return_value = (
             ["aa", True],
             ["bb", True],
             ["cc", False],
         )
 
         with caplog.at_level(logging.ERROR):
-            test_instance.run_checks()
+            daily_location_visits_alarms.run_checks()
         assert caplog.text == ""
 
-        test_instance.redshift_client.connect.assert_called_once()
+        mock_s3_constructor.assert_called_once_with(
+            "test_shoppertrak_s3_bucket", "test_shoppertrak_s3_resource"
+        )
+        mock_s3_client.fetch_cache.assert_called_once()
+        mock_s3_client.close.assert_called_once()
+        daily_location_visits_alarms.redshift_client.connect.assert_called_once()
         mock_redshift_query.assert_called_once_with(
             "daily_location_visits_test_redshift_db", "2023-05-02"
         )
-        test_instance.redshift_client.execute_query.assert_called_once_with(
+        daily_location_visits_alarms.redshift_client.execute_query.assert_called_once_with(
             "redshift query"
         )
-        test_instance.redshift_client.close_connection.assert_called_once()
+        daily_location_visits_alarms.redshift_client.close_connection.assert_called_once()
 
     def test_run_checks_redshift_duplicate_sites_alarm(
         self, test_instance, mocker, caplog

@@ -11,11 +11,11 @@ class TestGranularLocationVisitsAlarms:
         return GranularLocationVisitsAlarms(mocker.MagicMock())
 
     def test_init(self, mocker):
-        location_visits_alarms = GranularLocationVisitsAlarms(mocker.MagicMock())
-        assert location_visits_alarms.redshift_suffix == "_test_redshift_db"
-        assert location_visits_alarms.run_added_tests
-        assert location_visits_alarms.yesterday_date == date(2023, 5, 31)
-        assert location_visits_alarms.yesterday == "2023-05-31"
+        gran_location_visits_alarms = GranularLocationVisitsAlarms(mocker.MagicMock())
+        assert gran_location_visits_alarms.redshift_suffix == "_test_redshift_db"
+        assert gran_location_visits_alarms.run_added_tests
+        assert gran_location_visits_alarms.yesterday_date == date(2023, 5, 31)
+        assert gran_location_visits_alarms.yesterday == "2023-05-31"
 
     def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
         mock_redshift_count_query = mocker.patch(

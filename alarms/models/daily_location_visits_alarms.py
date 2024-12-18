@@ -1,7 +1,9 @@
+import os
+
 from alarms.alarm import Alarm
 from datetime import timedelta
 from helpers.query_helper import build_redshift_daily_location_visits_query
-from helpers.shoppertrak_sites import SHOPPERTRAK_SITES
+from nypl_py_utils.classes.s3_client import S3Client
 from nypl_py_utils.functions.log_helper import create_log
 
 
@@ -13,6 +15,12 @@ class DailyLocationVisitsAlarms(Alarm):
     def run_checks(self):
         date_to_test = (self.yesterday_date - timedelta(days=29)).isoformat()
         self.logger.info(f"\nDAILY LOCATION VISITS: {date_to_test}\n")
+        s3_client = S3Client(
+            os.environ["SHOPPERTRAK_S3_BUCKET"], os.environ["SHOPPERTRAK_S3_RESOURCE"]
+        )
+        all_shoppertrak_sites = set(s3_client.fetch_cache())
+        s3_client.close()
+
         redshift_table = "daily_location_visits" + self.redshift_suffix
         redshift_query = build_redshift_daily_location_visits_query(
             redshift_table, date_to_test
@@ -29,8 +37,8 @@ class DailyLocationVisitsAlarms(Alarm):
             redshift_healthy.append(int(is_all_healthy))
 
         self.check_redshift_duplicate_sites_alarm(redshift_sites)
-        self.check_redshift_missing_sites_alarm(redshift_sites)
-        self.check_redshift_extra_sites_alarm(redshift_sites)
+        self.check_redshift_missing_sites_alarm(redshift_sites, all_shoppertrak_sites)
+        self.check_redshift_extra_sites_alarm(redshift_sites, all_shoppertrak_sites)
         self.check_redshift_healthy_sites_alarm(redshift_healthy)
 
     def check_redshift_duplicate_sites_alarm(self, redshift_sites):
@@ -48,8 +56,8 @@ class DailyLocationVisitsAlarms(Alarm):
                 )
             )
 
-    def check_redshift_missing_sites_alarm(self, redshift_sites):
-        missing_sites = SHOPPERTRAK_SITES.difference(set(redshift_sites))
+    def check_redshift_missing_sites_alarm(self, redshift_sites, all_sites):
+        missing_sites = all_sites.difference(set(redshift_sites))
         if missing_sites:
             self.logger.error(
                 "The following ShopperTrak sites are missing: {}".format(
@@ -57,8 +65,8 @@ class DailyLocationVisitsAlarms(Alarm):
                 )
             )
 
-    def check_redshift_extra_sites_alarm(self, redshift_sites):
-        extra_sites = set(redshift_sites).difference(SHOPPERTRAK_SITES)
+    def check_redshift_extra_sites_alarm(self, redshift_sites, all_sites):
+        extra_sites = set(redshift_sites).difference(all_sites)
         if extra_sites:
             self.logger.error(
                 "The following unknown ShopperTrak site ids were found: {}".format(

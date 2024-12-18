@@ -22,6 +22,8 @@ TEST_ENV_VARS = {
     "ENVISIONWARE_DB_PASSWORD": "test_envisionware_password",
     "OVERDRIVE_USERNAME": "test_overdrive_username",
     "OVERDRIVE_PASSWORD": "test_overdrive_password",
+    "SHOPPERTRAK_S3_BUCKET": "test_shoppertrak_s3_bucket",
+    "SHOPPERTRAK_S3_RESOURCE": "test_shoppertrak_s3_resource",
 }
 
 
