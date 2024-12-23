@@ -1,2 +1,2 @@
-nypl-py-utils[mysql-client,postgresql-client,redshift-client,config-helper]==1.4.0
+nypl-py-utils[mysql-client,postgresql-client,redshift-client,s3-client,config-helper]==1.6.2
 selenium>=4.10.0
