@@ -31,7 +31,7 @@ class OverDriveWebScraper:
 
         self.driver = None
         self.chrome_options = Options()
-        options = ["--headless=old", "--disable-dev-shm-usage", "--no-sandbox"]
+        options = ["--headless=new", "--disable-dev-shm-usage", "--no-sandbox"]
         for option in options:
             self.chrome_options.add_argument(option)
 

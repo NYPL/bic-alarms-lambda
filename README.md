@@ -1,6 +1,6 @@
 # BICAlarmsLambda
 
-This repository contains the code used by the [BICAlarms-qa](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/BICAlarms-qa?newFunction=true&tab=code) and [BICAlarms-production](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions/BICAlarms-production?newFunction=true&tab=code) AWS lambda functions. It is responsible for ensuring the data in the BIC is fresh and high quality.
+This repository contains the code used by the [BICAlarms-qa](https://us-east-1.console.aws.amazon.com/ecs/v2/clusters/bic-alarms-qa/services?region=us-east-1) and [BICAlarms-production](https://us-east-1.console.aws.amazon.com/ecs/v2/clusters/bic-alarms-production/services?region=us-east-1) AWS ECS services. It is responsible for ensuring the data in the BIC is fresh and high quality.
 
 Currently, the code will log an error (triggering an alarm to fire) under the following circumstances:
 * When the number of circ trans records in Sierra and Redshift differs for the previous day
@@ -66,7 +66,7 @@ This repo uses the [Main-QA-Production](https://github.com/NYPL/engineering-gene
 - Deploy app to production and confirm it works
 
 ## Deployment
-The poller is deployed as a Docker image to the `bic-alarms` repository in [ECR](https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories). From there, the appropriate Lambda's code is updated based on the image's tag (either `qa` or `production`). To upload a new QA version of the Lambda, create a new release in GitHub off of the `qa` branch and tag it `qa-vX.X.X`. The GitHub Actions deploy-qa workflow will then deploy the code to ECR and update the Lambda appropriately. To deploy to production, create the release from the `production` branch and tag it `production-vX.X.X`.
+The poller is deployed as a Docker image to the `bic-alarms` repository in [ECR](https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories). From there, the appropriate ECS service's code is updated based on the image's tag (either `qa` or `production`). To upload a new QA version of the ECS service, create a new release in GitHub off of the `qa` branch and tag it `qa-vX.X.X`. The GitHub Actions deploy-qa workflow will then deploy the code to ECR and update the ECS service appropriately. To deploy to production, create the release from the `production` branch and tag it `production-vX.X.X`.
 
 ## Environment variables
 The following environment variables are required for the code to run. The variables marked as encrypted should have been encrypted via KMS.

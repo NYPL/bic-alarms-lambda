@@ -1,3 +1,7 @@
+## 2025-02-19
+### Added
+- Update OverDrive web scraper to avoid session creation errors (use newest "headless" webdriver property)
+
 ## 2024-11-13
 ### Added
 - Add BranchCodesMap alarms checking that it's in sync with all branches with location hours
