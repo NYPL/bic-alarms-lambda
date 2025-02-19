@@ -19,6 +19,9 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When there are fewer than 10000 new location visits records for the previous day
 * When a given location visits (site id, orbit, increment start) combination from the previous day contains multiple fresh rows
 * When a given location visits (site id, orbit, increment start) combination from the previous thirty days contains only stale rows
+* When the sites from the aggregated location visits don't perfectly match the known sites
+* When there are duplicate aggregated location visits sites
+* When less than 50% of sites had a healthy day of location visits
 * When the number of active itype/location/stat group codes in Sierra and Redshift differs
 * When there are duplicate active itype/location/stat group codes in Redshift
 * When there are active itype/location/stat group codes in Redshift without the necessary additional fields populated

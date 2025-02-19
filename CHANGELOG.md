@@ -2,6 +2,10 @@
 ### Added
 - Update OverDrive web scraper to avoid session creation errors (use newest "headless" webdriver property)
 
+## 2024-12-17
+### Added
+- Add DailyLocationVisits alarms checking that the Redshift daily_location_visits table has the right sites, has no duplicates, and contains mostly healthy data
+
 ## 2024-11-13
 ### Added
 - Add BranchCodesMap alarms checking that it's in sync with all branches with location hours
