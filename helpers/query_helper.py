@@ -98,6 +98,18 @@ _REDSHIFT_OVERDRIVE_QUERY = (
     "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
 )
 
+_REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY = """
+    SELECT DISTINCT platform 
+    FROM {table} 
+    WHERE transaction_et::DATE = '{date}'
+    AND transaction_checksum = '{checksum}';"""
+
+_REDSHIFT_OVERDRIVE_DUPLICATE_TRANSACTIONS_QUERY = """
+    SELECT transaction_checksum 
+    FROM {table} 
+    WHERE transaction_et::DATE = '{date}'
+    GROUP BY transaction_checksum HAVING COUNT(*) > 1;"""
+
 _REDSHIFT_NEW_PATRONS_QUERY = """
     SELECT creation_date_et, COUNT(patron_id)
     FROM {table}
@@ -231,6 +243,18 @@ def build_redshift_holds_null_query(table, date):
 
 def build_redshift_overdrive_query(table, date):
     return _REDSHIFT_OVERDRIVE_QUERY.format(table=table, date=date)
+
+
+def build_redshift_overdrive_duplicate_query(table, date):
+    return _REDSHIFT_OVERDRIVE_DUPLICATE_TRANSACTIONS_QUERY.format(
+        table=table, date=date
+    )
+
+
+def build_redshift_overdrive_duplicate_platform_query(table, date, checksum):
+    return _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY.format(
+        table=table, date=date, checksum=checksum
+    )
 
 
 def build_redshift_new_patrons_query(table, start_date, end_date):

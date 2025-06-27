@@ -12,7 +12,7 @@ class BranchCodesMapAlarms(Alarm):
         self.logger = create_log("branch_codes_map_alarms")
 
     def run_checks(self):
-        self.logger.info("\nBRANCH CODES MAP\n")
+        self.logger.info("BRANCH CODES MAP")
         branch_codes_table = "branch_codes_map" + self.redshift_suffix
         location_hours_table = "location_hours" + self.redshift_suffix
 

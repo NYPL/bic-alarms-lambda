@@ -27,22 +27,32 @@ class TestOverDriveCheckoutsAlarms:
     def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
         mock_redshift_query = mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query",
-            return_value="redshift overdrive query",
+            return_value="redshift od query",
         )
-        test_instance.redshift_client.execute_query.return_value = ([10],)
+        mock_duplicate_query = mocker.patch(
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query",
+            return_value="redshift od duplicate query",
+        )
+        test_instance.redshift_client.execute_query.side_effect = [([10],), ()]
         test_instance.overdrive_client.get_count.return_value = 10
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
 
         assert caplog.text == ""
+        assert test_instance.redshift_client.connect.call_count == 2
         test_instance.overdrive_client.get_count.assert_called_once_with("2023-05-31")
-        test_instance.redshift_client.connect.assert_called_once()
         mock_redshift_query.assert_called_once_with(
             "overdrive_checkouts_test_redshift_db", "2023-05-31"
         )
-        test_instance.redshift_client.execute_query.assert_called_once_with(
-            "redshift overdrive query"
+        mock_duplicate_query.assert_called_once_with(
+            "overdrive_checkouts_test_redshift_db", "2023-05-31"
+        )
+        test_instance.redshift_client.execute_query.assert_has_calls(
+            [
+                mocker.call("redshift od query"),
+                mocker.call("redshift od duplicate query"),
+            ]
         )
         test_instance.redshift_client.close_connection.assert_called_once()
 
@@ -50,7 +60,10 @@ class TestOverDriveCheckoutsAlarms:
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query"
         )
-        test_instance.redshift_client.execute_query.return_value = ([10],)
+        mocker.patch(
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
+        )
+        test_instance.redshift_client.execute_query.side_effect = [([10],), ()]
         test_instance.overdrive_client.get_count.return_value = 20
 
         with caplog.at_level(logging.ERROR):
@@ -62,11 +75,37 @@ class TestOverDriveCheckoutsAlarms:
             "records and 10 Redshift records"
         ) in caplog.text
 
+    def test_run_checks_equal_counts_after_adjusting(
+        self, test_instance, mocker, caplog
+    ):
+        mocker.patch(
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query",
+        )
+        mocker.patch(
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
+        )
+        mocker.patch(
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_platform_query"
+        )
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([11],),
+            (["jQhmtNm/QuLk"],),
+            (["OverDrive Read"], ["Kindle Book"]),
+        ]
+        test_instance.overdrive_client.get_count.return_value = 10
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_checks()
+        assert caplog.text == ""
+
     def test_run_checks_no_records_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query"
         )
-        test_instance.redshift_client.execute_query.return_value = ([0],)
+        mocker.patch(
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
+        )
+        test_instance.redshift_client.execute_query.side_effect = [([0],), ()]
         test_instance.overdrive_client.get_count.return_value = 0
 
         with caplog.at_level(logging.ERROR):
