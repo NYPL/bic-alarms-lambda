@@ -1,3 +1,7 @@
+## 2025-06-27
+### Added
+- Update OverDrive alerting to account for different download types
+
 ## 2025-02-19
 ### Added
 - Update OverDrive web scraper to avoid session creation errors (use newest "headless" webdriver property)
