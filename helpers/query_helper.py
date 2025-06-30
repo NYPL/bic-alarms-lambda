@@ -101,13 +101,13 @@ _REDSHIFT_OVERDRIVE_QUERY = (
 _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY = """
     SELECT DISTINCT platform 
     FROM {table} 
-    WHERE transaction_et::DATE = '{date}'
+    WHERE transaction_et = '{date}'
     AND transaction_checksum = '{checksum}';"""
 
 _REDSHIFT_OVERDRIVE_DUPLICATE_TRANSACTIONS_QUERY = """
     SELECT transaction_checksum 
     FROM {table} 
-    WHERE transaction_et::DATE = '{date}'
+    WHERE transaction_et = '{date}'
     GROUP BY transaction_checksum HAVING COUNT(*) > 1;"""
 
 _REDSHIFT_NEW_PATRONS_QUERY = """
