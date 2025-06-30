@@ -29,7 +29,7 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 ## How do I make a new alarm?
 To create a new alarm, set up a model for said alarm in the [alarms/models](alarms/models) directory. After creating your new alarm, add the alarm object to the [AlarmController](alarm_controller.py). Here are some examples:
 * [PcReserveAlarms](alarms/models/pc_reserve_alarms.py): all generic alarms
-* [LocationVisitsAlarms](alarms/models/location_visits_alarms.py): custom alarms -- *each custom alarm is its own function, as is the norm*
+* [LocationVisitsAlarms](alarms/models/granular_location_visits_alarms.py): custom alarms -- *each custom alarm is its own function, as is the norm*
 
 ## Local development
 Before running the code, make sure the following environment vars are set up in either your bash or zsh profile:

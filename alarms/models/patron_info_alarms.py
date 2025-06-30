@@ -27,9 +27,7 @@ class PatronInfoAlarms(Alarm):
 
         start_date = (self.yesterday_date - timedelta(days=7)).isoformat()
         self.logger.info(
-            "\nPATRON INFO: {start}-{end}\n".format(
-                start=start_date, end=self.yesterday
-            )
+            "PATRON INFO: {start}-{end}".format(start=start_date, end=self.yesterday)
         )
 
         self.sierra_client.connect()

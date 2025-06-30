@@ -20,7 +20,7 @@ class SierraStatGroupCodesAlarms(Alarm):
         self.logger = create_log("sierra_stat_group_codes_alarms")
 
     def run_checks(self):
-        self.logger.info("\nSTAT GROUP CODES\n")
+        self.logger.info("STAT GROUP CODES")
         sierra_query = build_sierra_code_count_query(
             "sierra_view.statistic_group_myuser"
         )

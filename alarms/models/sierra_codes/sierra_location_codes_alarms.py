@@ -19,7 +19,7 @@ class SierraLocationCodesAlarms(Alarm):
         self.logger = create_log("sierra_location_codes_alarms")
 
     def run_checks(self):
-        self.logger.info("\nLOCATION CODES\n")
+        self.logger.info("LOCATION CODES")
         sierra_query = build_sierra_code_count_query("sierra_view.location_myuser")
         sierra_count = self.get_record_count(self.sierra_client, sierra_query)
 

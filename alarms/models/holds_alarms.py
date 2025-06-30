@@ -15,7 +15,7 @@ class HoldsAlarms(Alarm):
         self.logger = create_log("holds_alarms")
 
     def run_checks(self):
-        self.logger.info("\nHOLDS\n")
+        self.logger.info("HOLDS")
         # The update_timestamp is stored in UTC and the poller is run late at
         # night, so the date for the most recent day of data is today
         date_to_test = (self.yesterday_date + timedelta(days=1)).isoformat()
