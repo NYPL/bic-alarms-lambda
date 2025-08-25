@@ -1,3 +1,10 @@
+## 2025-08-25
+### Added
+- Add EZproxy alarms
+
+### Fixed
+- Update hold alarms to check for previously deleted holds using timestamps rather than only dates
+
 ## 2025-06-27
 ### Added
 - Update OverDrive alerting to account for different download types

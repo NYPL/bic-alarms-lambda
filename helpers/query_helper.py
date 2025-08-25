@@ -46,21 +46,36 @@ _REDSHIFT_LOCATION_VISITS_STALE_QUERY = """
         WHERE poll_date >= '{date}' AND is_fresh
     );"""
 
-_REDSHIFT_HOLDS_QUERY = (
+_REDSHIFT_EZPROXY_COUNT_QUERY = (
+    "SELECT COUNT(id) FROM {table} WHERE session_et = '{date}';"
+)
+
+_REDSHIFT_EZPROXY_DUPLICATE_QUERY = """
+    SELECT session_id, patron_id, domain
+    FROM {table}
+    WHERE session_et = '{date}'
+    GROUP BY session_id, patron_id, domain
+    HAVING COUNT(*) > 1;"""
+
+_REDSHIFT_HOLDS_COUNT_QUERY = (
     "SELECT COUNT(id) FROM {table} WHERE TRUNC(update_timestamp) = '{date}';"
 )
 
 _REDSHIFT_HOLDS_DELETED_QUERY = """
-    SELECT hold_id FROM {table}
-    WHERE TRUNC(update_timestamp) = '{date}'
-        AND (record_id IS NOT NULL
-            OR record_type IS NOT NULL
-            OR placed_utc IS NOT NULL)
-        AND hold_id IN (
-            SELECT hold_id FROM {table}
-            WHERE record_id IS NULL
-                AND record_type IS NULL
-                AND placed_utc IS NULL);"""
+    WITH active_holds AS (
+        SELECT hold_id, MAX(update_timestamp) as last_active_timestamp
+        FROM {table}
+        WHERE TRUNC(update_timestamp) = '{date}' AND record_id IS NOT NULL
+        GROUP BY hold_id
+    ), deleted_holds AS (
+        SELECT hold_id, update_timestamp AS deleted_timestamp
+        FROM {table}
+        WHERE record_id IS NULL AND hold_id IN (SELECT hold_id FROM active_holds)
+    )
+    SELECT active_holds.hold_id
+    FROM active_holds INNER JOIN deleted_holds
+        ON active_holds.hold_id = deleted_holds.hold_id
+    WHERE last_active_timestamp >= deleted_timestamp;"""
 
 _REDSHIFT_HOLDS_MODIFIED_QUERY = """
     SELECT hold_id FROM {table}
@@ -225,8 +240,16 @@ def build_redshift_location_visits_stale_query(table, date):
     return _REDSHIFT_LOCATION_VISITS_STALE_QUERY.format(table=table, date=date)
 
 
-def build_redshift_holds_query(table, date):
-    return _REDSHIFT_HOLDS_QUERY.format(table=table, date=date)
+def build_redshift_ezproxy_count_query(table, date):
+    return _REDSHIFT_EZPROXY_COUNT_QUERY.format(table=table, date=date)
+
+
+def build_redshift_ezproxy_duplicate_query(table, date):
+    return _REDSHIFT_EZPROXY_DUPLICATE_QUERY.format(table=table, date=date)
+
+
+def build_redshift_holds_count_query(table, date):
+    return _REDSHIFT_HOLDS_COUNT_QUERY.format(table=table, date=date)
 
 
 def build_redshift_holds_deleted_query(table, date):
