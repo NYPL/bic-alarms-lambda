@@ -3,6 +3,7 @@ import os
 from alarms.models.branch_codes_map_alarms import BranchCodesMapAlarms
 from alarms.models.circ_trans_alarms import CircTransAlarms
 from alarms.models.daily_location_visits_alarms import DailyLocationVisitsAlarms
+from alarms.models.ezproxy_alarms import EZproxyAlarms
 from alarms.models.granular_location_visits_alarms import GranularLocationVisitsAlarms
 from alarms.models.holds_alarms import HoldsAlarms
 from alarms.models.overdrive_checkouts_alarms import OverDriveCheckoutsAlarms
@@ -66,6 +67,7 @@ class AlarmController:
             CircTransAlarms(self.redshift_client, self.sierra_client),
             GranularLocationVisitsAlarms(self.redshift_client),
             DailyLocationVisitsAlarms(self.redshift_client),
+            EZproxyAlarms(self.redshift_client),
             HoldsAlarms(self.redshift_client),
             OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
             PatronInfoAlarms(self.redshift_client, self.sierra_client),

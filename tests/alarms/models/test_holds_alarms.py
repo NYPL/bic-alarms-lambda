@@ -21,7 +21,7 @@ class TestHoldsAlarms:
 
     def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
         mock_count_query = mocker.patch(
-            "alarms.models.holds_alarms.build_redshift_holds_query",
+            "alarms.models.holds_alarms.build_redshift_holds_count_query",
             return_value="count query",
         )
         mock_deleted_query = mocker.patch(
@@ -77,7 +77,7 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
-        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([0],),
             ([10],),
@@ -99,7 +99,7 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
-        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([0],),
@@ -119,7 +119,7 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
-        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),
@@ -146,7 +146,7 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
-        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),
@@ -172,7 +172,7 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
-        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),

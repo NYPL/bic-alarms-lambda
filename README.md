@@ -16,6 +16,8 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When a single Sierra branch code maps to multiple Drupal branch codes
 * When a Drupal branch code in location_hours does not contain a mapping to a Sierra branch code
 * When a Sierra branch code with a mapping to a Drupal branch code does not appear in location_hours
+* When there are fewer than 1000 EZproxy session rows for the previous day
+* When a given EZproxy (session id, patron id, domain) combination from the previous day corresponds to multiple rows
 * When there are fewer than 10000 new location visits records for the previous day
 * When a given location visits (site id, orbit, increment start) combination from the previous day contains multiple fresh rows
 * When a given location visits (site id, orbit, increment start) combination from the previous thirty days contains only stale rows
