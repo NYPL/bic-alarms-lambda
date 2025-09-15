@@ -61,6 +61,11 @@ _REDSHIFT_HOLDS_COUNT_QUERY = (
     "SELECT COUNT(id) FROM {table} WHERE TRUNC(update_timestamp) = '{date}';"
 )
 
+_REDSHIFT_HOLDS_MISMATCH_QUERY = """
+    SELECT hold_id FROM {queue_table}
+    WHERE TRUNC(update_timestamp) = '{date}'
+        AND hold_id NOT IN (SELECT hold_id FROM {info_table});"""
+
 _REDSHIFT_HOLDS_DELETED_QUERY = """
     WITH active_holds AS (
         SELECT hold_id, MAX(update_timestamp) as last_active_timestamp
@@ -250,6 +255,12 @@ def build_redshift_ezproxy_duplicate_query(table, date):
 
 def build_redshift_holds_count_query(table, date):
     return _REDSHIFT_HOLDS_COUNT_QUERY.format(table=table, date=date)
+
+
+def build_redshift_holds_mismatch_query(queue_table, info_table, date):
+    return _REDSHIFT_HOLDS_MISMATCH_QUERY.format(
+        queue_table=queue_table, info_table=info_table, date=date
+    )
 
 
 def build_redshift_holds_deleted_query(table, date):
