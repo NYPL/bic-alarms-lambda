@@ -1,3 +1,7 @@
+## 2025-09-15
+### Added
+- Add mismatched holds alarm
+
 ## 2025-08-25
 ### Added
 - Add EZproxy alarms

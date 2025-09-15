@@ -24,6 +24,10 @@ class TestHoldsAlarms:
             "alarms.models.holds_alarms.build_redshift_holds_count_query",
             return_value="count query",
         )
+        mock_mismatch_query = mocker.patch(
+            "alarms.models.holds_alarms.build_redshift_holds_mismatch_query",
+            return_value="mismatch query",
+        )
         mock_deleted_query = mocker.patch(
             "alarms.models.holds_alarms.build_redshift_holds_deleted_query",
             return_value="deleted query",
@@ -42,6 +46,7 @@ class TestHoldsAlarms:
             (),
             (),
             (),
+            (),
         ]
 
         with caplog.at_level(logging.ERROR):
@@ -55,6 +60,9 @@ class TestHoldsAlarms:
                 mocker.call("queued_holds_test_redshift_db", "2023-06-01"),
             ]
         )
+        mock_mismatch_query.assert_called_once_with(
+            "queued_holds_test_redshift_db", "hold_info_test_redshift_db", "2023-06-01"
+        )
         mock_deleted_query.assert_called_once_with(
             "hold_info_test_redshift_db", "2023-06-01"
         )
@@ -66,6 +74,7 @@ class TestHoldsAlarms:
             [
                 mocker.call("count query"),
                 mocker.call("count query"),
+                mocker.call("mismatch query"),
                 mocker.call("deleted query"),
                 mocker.call("modified query"),
                 mocker.call("null query"),
@@ -78,9 +87,11 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_mismatch_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([0],),
             ([10],),
+            (),
             (),
             (),
             (),
@@ -100,9 +111,11 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_mismatch_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([0],),
+            (),
             (),
             (),
             (),
@@ -115,22 +128,39 @@ class TestHoldsAlarms:
             "2023-05-31 (ET)"
         ) in caplog.text
 
+    def test_run_checks_mismatched_holds_alarm(self, test_instance, mocker, caplog):
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_mismatch_query")
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([10],),
+            ([10],),
+            ([1], [2]),
+            (),
+            (),
+            (),
+        ]
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_checks()
+        assert (
+            "The following hold_ids appear in queued_holds_test_redshift_db but not in "
+            "hold_info_test_redshift_db: ([1], [2])"
+        ) in caplog.text
+
     def test_run_checks_deleted_holds_alarm(self, test_instance, mocker, caplog):
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_deleted_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_mismatch_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),
-            (
-                [
-                    1,
-                ],
-                [
-                    2,
-                ],
-            ),
+            (),
+            ([1], [2]),
             (),
             (),
         ]
@@ -147,18 +177,13 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_mismatch_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),
             (),
-            (
-                [
-                    1,
-                ],
-                [
-                    2,
-                ],
-            ),
+            (),
+            ([1], [2]),
             (),
         ]
 
@@ -173,19 +198,14 @@ class TestHoldsAlarms:
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_modified_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_null_query")
         mocker.patch("alarms.models.holds_alarms.build_redshift_holds_count_query")
+        mocker.patch("alarms.models.holds_alarms.build_redshift_holds_mismatch_query")
         test_instance.redshift_client.execute_query.side_effect = [
             ([10],),
             ([10],),
             (),
             (),
-            (
-                [
-                    1,
-                ],
-                [
-                    2,
-                ],
-            ),
+            (),
+            ([1], [2]),
         ]
 
         with caplog.at_level(logging.ERROR):
