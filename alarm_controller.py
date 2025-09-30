@@ -6,6 +6,8 @@ from alarms.models.daily_location_visits_alarms import DailyLocationVisitsAlarms
 from alarms.models.ezproxy_alarms import EZproxyAlarms
 from alarms.models.granular_location_visits_alarms import GranularLocationVisitsAlarms
 from alarms.models.holds_alarms import HoldsAlarms
+from alarms.models.location_closures_alarms import LocationClosuresAlarms
+from alarms.models.location_hours_alarms import LocationHoursAlarms
 from alarms.models.overdrive_checkouts_alarms import OverDriveCheckoutsAlarms
 from alarms.models.patron_info_alarms import PatronInfoAlarms
 from alarms.models.pc_reserve_alarms import PcReserveAlarms
@@ -69,6 +71,8 @@ class AlarmController:
             DailyLocationVisitsAlarms(self.redshift_client),
             EZproxyAlarms(self.redshift_client),
             HoldsAlarms(self.redshift_client),
+            LocationClosuresAlarms(self.redshift_client),
+            LocationHoursAlarms(self.redshift_client),
             OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
             PatronInfoAlarms(self.redshift_client, self.sierra_client),
             PcReserveAlarms(self.redshift_client, self.envisionware_client),

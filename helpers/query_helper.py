@@ -114,6 +114,27 @@ _REDSHIFT_HOLDS_NULL_QUERY = """
             )
         );"""
 
+_REDSHIFT_CLOSURES_COUNT_QUERY = (
+    "SELECT COUNT(*) FROM {table} WHERE closure_date = '{date}';"
+)
+
+_REDSHIFT_CLOSURES_LOCATION_ID_QUERY = """
+    SELECT location_id FROM {closures_table}
+    WHERE closure_date = '{date}' AND location_id NOT IN (
+        SELECT sierra_code FROM {branch_codes_table}
+    );"""
+
+_REDSHIFT_HOURS_CURRENT_QUERY = """
+    SELECT location_id, weekday FROM {}
+    GROUP BY location_id, weekday
+    HAVING SUM(CASE WHEN is_current THEN 1 END) != 1;"""
+
+_REDSHIFT_HOURS_LOCATION_ID_QUERY = """
+    SELECT location_id FROM {hours_table}
+    WHERE date_of_change = '{date}' AND location_id NOT IN (
+        SELECT sierra_code FROM {branch_codes_table}
+    );"""
+
 _REDSHIFT_OVERDRIVE_QUERY = (
     "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
 )
@@ -273,6 +294,26 @@ def build_redshift_holds_modified_query(table):
 
 def build_redshift_holds_null_query(table, date):
     return _REDSHIFT_HOLDS_NULL_QUERY.format(table=table, date=date)
+
+
+def build_redshift_closures_count_query(table, date):
+    return _REDSHIFT_CLOSURES_COUNT_QUERY.format(table=table, date=date)
+
+
+def build_redshift_closures_location_id_query(closures_table, branch_codes_table, date):
+    return _REDSHIFT_CLOSURES_LOCATION_ID_QUERY.format(
+        closures_table=closures_table, branch_codes_table=branch_codes_table, date=date
+    )
+
+
+def build_redshift_hours_current_query(table):
+    return _REDSHIFT_HOURS_CURRENT_QUERY.format(table)
+
+
+def build_redshift_hours_location_id_query(hours_table, branch_codes_table, date):
+    return _REDSHIFT_HOURS_LOCATION_ID_QUERY.format(
+        hours_table=hours_table, branch_codes_table=branch_codes_table, date=date
+    )
 
 
 def build_redshift_overdrive_query(table, date):
