@@ -17,7 +17,9 @@ class CloudLibraryAlarms(Alarm):
         if today.weekday() == 5:
             self.logger.info("cloudLibrary")
             redshift_table = "cloudlibrary_transactions" + self.redshift_suffix
-            dates_to_test = [(self.yesterday_date - timedelta(i)).isoformat() for i in range(0, 7)]
+            dates_to_test = [
+                (self.yesterday_date - timedelta(i)).isoformat() for i in range(0, 7)
+            ]
 
             for date in dates_to_test:
                 self.logger.info(f"Checking CL record count for {date}...")
