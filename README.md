@@ -8,6 +8,10 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When there are no holds updated in Redshift for the previous day
 * When an invalid hold appears in Redshift for the previous day
 * When a hold appears in the holds queue for the previous day without existing in the Redshift hold info table
+* When there are no location closures for the previous day
+* When an unknown location id appears in location closures
+* When there is not exactly one row marked "current" per location id/weekday combination
+* When an unknown location id appears in location hours
 * When the number of PC reserve records in Envisionware and Redshift differs for the previous day
 * When there are no PC reserve records in Sierra for the previous day
 * When the number of OverDrive checkout records online (via OverDrive Marketplace) and in Redshift differs for the previous day
