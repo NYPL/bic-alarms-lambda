@@ -58,7 +58,7 @@ class TestCloudLibraryAlarms:
             ([7],),
             ([6],),
             ([5],),
-            ([0],),  # May 31 will have no CL records
+            ([0],),  # May 30 will have no CL records
             ([4],),
             ([3],),
             ([2],),
@@ -68,7 +68,7 @@ class TestCloudLibraryAlarms:
         with caplog.at_level(logging.ERROR):
             test_saturday_instance.run_checks()
 
-        assert "No cloudLibrary records found for all of 2023-05-31" in caplog.text
+        assert "No cloudLibrary records found for all of 2023-05-30" in caplog.text
         assert len(caplog.records) == 1  # Assert only one error was triggered
 
         # Assert each day in the past week was tested
