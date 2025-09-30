@@ -12,7 +12,7 @@ class EZproxyAlarms(Alarm):
         self.logger = create_log("ezproxy_alarms")
 
     def run_checks(self):
-        self.logger.info("EZPROXY")
+        self.logger.info("EZProxy")
 
         redshift_table = "ezproxy_sessions" + self.redshift_suffix
         count_query = build_redshift_ezproxy_count_query(redshift_table, self.yesterday)

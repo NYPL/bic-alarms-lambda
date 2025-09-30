@@ -1,3 +1,7 @@
+## 2025-09-30
+### Added
+- Add weekly cloudLibrary alarm
+
 ## 2025-09-15
 ### Added
 - Add mismatched holds alarm

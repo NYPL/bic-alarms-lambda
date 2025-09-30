@@ -23,7 +23,7 @@ class PcReserveAlarms(Alarm):
             datetime_to_test = self.yesterday_date - timedelta(days=1)
         date = datetime_to_test.isoformat()
 
-        self.logger.info("PC RESERVE: {}".format(date))
+        self.logger.info("PC Reserve: {}".format(date))
         envisionware_query = build_envisionware_pc_reserve_query(date)
         envisionware_count = self.get_record_count(
             self.envisionware_client, envisionware_query

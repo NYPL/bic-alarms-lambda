@@ -17,7 +17,7 @@ class CircTransAlarms(Alarm):
         self.logger = create_log("circ_trans_alarms")
 
     def run_checks(self):
-        self.logger.info("CIRC TRANS")
+        self.logger.info("Circ Trans")
         redshift_parameters = [
             ("patron_circ_trans", "transaction_et"),
             (

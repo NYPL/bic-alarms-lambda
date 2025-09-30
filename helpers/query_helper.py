@@ -114,9 +114,7 @@ _REDSHIFT_HOLDS_NULL_QUERY = """
             )
         );"""
 
-_REDSHIFT_OVERDRIVE_QUERY = (
-    "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
-)
+_REDSHIFT_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
 
 _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY = """
     SELECT DISTINCT platform 
@@ -275,8 +273,9 @@ def build_redshift_holds_null_query(table, date):
     return _REDSHIFT_HOLDS_NULL_QUERY.format(table=table, date=date)
 
 
-def build_redshift_overdrive_query(table, date):
-    return _REDSHIFT_OVERDRIVE_QUERY.format(table=table, date=date)
+def build_redshift_ebook_query(table, date):
+    # Used for both cloudLibrary and OverDrive tests
+    return _REDSHIFT_EBOOK_QUERY.format(table=table, date=date)
 
 
 def build_redshift_overdrive_duplicate_query(table, date):
