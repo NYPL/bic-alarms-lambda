@@ -114,7 +114,9 @@ _REDSHIFT_HOLDS_NULL_QUERY = """
             )
         );"""
 
-_REDSHIFT_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
+_REDSHIFT_EBOOK_QUERY = (
+    "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
+)
 
 _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY = """
     SELECT DISTINCT platform 
@@ -271,6 +273,46 @@ def build_redshift_holds_modified_query(table):
 
 def build_redshift_holds_null_query(table, date):
     return _REDSHIFT_HOLDS_NULL_QUERY.format(table=table, date=date)
+
+
+def build_redshift_closures_count_query(table, date):
+    return _REDSHIFT_CLOSURES_COUNT_QUERY.format(table=table, date=date)
+
+
+def build_redshift_closures_location_id_query(closures_table, branch_codes_table, date):
+    return _REDSHIFT_CLOSURES_LOCATION_ID_QUERY.format(
+        closures_table=closures_table, branch_codes_table=branch_codes_table, date=date
+    )
+
+
+def build_redshift_hours_current_query(table):
+    return _REDSHIFT_HOURS_CURRENT_QUERY.format(table)
+
+
+def build_redshift_hours_location_id_query(hours_table, branch_codes_table, date):
+    return _REDSHIFT_HOURS_LOCATION_ID_QUERY.format(
+        hours_table=hours_table, branch_codes_table=branch_codes_table, date=date
+    )
+
+
+def build_redshift_closures_count_query(table, date):
+    return _REDSHIFT_CLOSURES_COUNT_QUERY.format(table=table, date=date)
+
+
+def build_redshift_closures_location_id_query(closures_table, branch_codes_table, date):
+    return _REDSHIFT_CLOSURES_LOCATION_ID_QUERY.format(
+        closures_table=closures_table, branch_codes_table=branch_codes_table, date=date
+    )
+
+
+def build_redshift_hours_current_query(table):
+    return _REDSHIFT_HOURS_CURRENT_QUERY.format(table)
+
+
+def build_redshift_hours_location_id_query(hours_table, branch_codes_table, date):
+    return _REDSHIFT_HOURS_LOCATION_ID_QUERY.format(
+        hours_table=hours_table, branch_codes_table=branch_codes_table, date=date
+    )
 
 
 def build_redshift_ebook_query(table, date):

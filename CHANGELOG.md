@@ -1,6 +1,10 @@
-## 2025-09-30
+## 2025-10-01
 ### Added
 - Add weekly cloudLibrary alarm
+
+## 2025-09-30
+### Added
+- Add hours and closures v2 alarms
 
 ## 2025-09-15
 ### Added
