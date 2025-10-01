@@ -5,9 +5,9 @@ from helpers.alarm_helper import (
 )
 from helpers.overdrive_web_scraper import OverDriveWebScraper
 from helpers.query_helper import (
+    build_redshift_ebook_query,
     build_redshift_overdrive_duplicate_platform_query,
     build_redshift_overdrive_duplicate_query,
-    build_redshift_ebook_query,
 )
 from nypl_py_utils.functions.log_helper import create_log
 
