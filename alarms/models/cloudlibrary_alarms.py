@@ -17,9 +17,7 @@ class CloudLibraryAlarms(Alarm):
         self.logger.info("cloudLibrary")
         redshift_table = "cloudlibrary_transactions" + self.redshift_suffix
 
-        self.logger.info(
-            f"Checking CL record count from ({date_to_test})..."
-        )
+        self.logger.info(f"Checking CL record count from ({date_to_test})...")
         redshift_query = build_redshift_ebook_query(redshift_table, date_to_test)
         redshift_count = self.get_record_count(self.redshift_client, redshift_query)
         check_no_records_found_alarm(
