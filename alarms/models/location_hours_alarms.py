@@ -12,7 +12,7 @@ class LocationHoursAlarms(Alarm):
         self.logger = create_log("location_hours_alarms")
 
     def run_checks(self):
-        self.logger.info("LOCATION HOURS")
+        self.logger.info("Location Hours")
 
         redshift_table = "location_hours_v2" + self.redshift_suffix
         redshift_branch_codes_table = "branch_codes_map" + self.redshift_suffix
