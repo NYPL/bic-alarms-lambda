@@ -18,7 +18,7 @@ class CloudLibraryAlarms(Alarm):
         redshift_table = "cloudlibrary_transactions" + self.redshift_suffix
 
         self.logger.info(
-            f"Checking CL record count from 4 days prior ({date_to_test})..."
+            f"Checking CL record count from ({date_to_test})..."
         )
         redshift_query = build_redshift_ebook_query(redshift_table, date_to_test)
         redshift_count = self.get_record_count(self.redshift_client, redshift_query)
