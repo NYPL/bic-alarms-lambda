@@ -2,6 +2,7 @@ import os
 
 from alarms.models.branch_codes_map_alarms import BranchCodesMapAlarms
 from alarms.models.circ_trans_alarms import CircTransAlarms
+from alarms.models.cloudlibrary_alarms import CloudLibraryAlarms
 from alarms.models.daily_location_visits_alarms import DailyLocationVisitsAlarms
 from alarms.models.ezproxy_alarms import EZproxyAlarms
 from alarms.models.granular_location_visits_alarms import GranularLocationVisitsAlarms
@@ -74,6 +75,7 @@ class AlarmController:
             LocationClosuresAlarms(self.redshift_client),
             LocationHoursAlarms(self.redshift_client),
             OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
+            CloudLibraryAlarms(self.redshift_client),
             PatronInfoAlarms(self.redshift_client, self.sierra_client),
             PcReserveAlarms(self.redshift_client, self.envisionware_client),
             SierraItypeCodesAlarms(self.redshift_client, self.sierra_client),

@@ -17,7 +17,7 @@ class GranularLocationVisitsAlarms(Alarm):
         if not self.run_added_tests:
             return
 
-        self.logger.info("GRANULAR LOCATION VISITS")
+        self.logger.info("Granular Location Visits")
         redshift_table = "location_visits" + self.redshift_suffix
         stale_start_date = (self.yesterday_date - timedelta(days=30)).isoformat()
         redshift_count_query = build_redshift_location_visits_count_query(

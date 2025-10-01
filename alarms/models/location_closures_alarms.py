@@ -13,7 +13,7 @@ class LocationClosuresAlarms(Alarm):
         self.logger = create_log("location_closures_alarms")
 
     def run_checks(self):
-        self.logger.info("LOCATION CLOSURES")
+        self.logger.info("Location Closures")
 
         redshift_table = "location_closures_v2" + self.redshift_suffix
         redshift_branch_codes_table = "branch_codes_map" + self.redshift_suffix

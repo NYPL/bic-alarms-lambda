@@ -16,7 +16,7 @@ class HoldsAlarms(Alarm):
         self.logger = create_log("holds_alarms")
 
     def run_checks(self):
-        self.logger.info("HOLDS")
+        self.logger.info("Holds")
         # The update_timestamp is stored in UTC and the poller is run late at
         # night, so the date for the most recent day of data is today
         date_to_test = (self.yesterday_date + timedelta(days=1)).isoformat()
@@ -90,13 +90,6 @@ class HoldsAlarms(Alarm):
             self.logger.error(
                 "The following hold_ids have an immutable field changing: "
                 "{}".format(modified_holds)
-            )
-
-    def check_null_hold_id_alarm(self, null_holds):
-        if len(null_holds) > 0:
-            self.logger.error(
-                "The following hold_ids have an improper null value: "
-                "{}".format(null_holds)
             )
 
     def check_null_hold_id_alarm(self, null_holds):

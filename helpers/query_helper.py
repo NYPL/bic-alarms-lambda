@@ -135,9 +135,7 @@ _REDSHIFT_HOURS_LOCATION_ID_QUERY = """
         SELECT sierra_code FROM {branch_codes_table}
     );"""
 
-_REDSHIFT_OVERDRIVE_QUERY = (
-    "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
-)
+_REDSHIFT_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
 
 _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY = """
     SELECT DISTINCT platform 
@@ -316,8 +314,9 @@ def build_redshift_hours_location_id_query(hours_table, branch_codes_table, date
     )
 
 
-def build_redshift_overdrive_query(table, date):
-    return _REDSHIFT_OVERDRIVE_QUERY.format(table=table, date=date)
+def build_redshift_ebook_query(table, date):
+    # Used for both cloudLibrary and OverDrive tests
+    return _REDSHIFT_EBOOK_QUERY.format(table=table, date=date)
 
 
 def build_redshift_overdrive_duplicate_query(table, date):

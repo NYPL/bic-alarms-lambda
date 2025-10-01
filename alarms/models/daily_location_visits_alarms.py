@@ -14,7 +14,7 @@ class DailyLocationVisitsAlarms(Alarm):
 
     def run_checks(self):
         date_to_test = (self.yesterday_date - timedelta(days=29)).isoformat()
-        self.logger.info(f"DAILY LOCATION VISITS: {date_to_test}")
+        self.logger.info(f"Daily Location Visits: {date_to_test}")
         s3_client = S3Client(
             os.environ["SHOPPERTRAK_S3_BUCKET"], os.environ["SHOPPERTRAK_S3_RESOURCE"]
         )

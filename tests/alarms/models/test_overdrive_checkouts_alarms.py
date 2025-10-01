@@ -26,7 +26,7 @@ class TestOverDriveCheckoutsAlarms:
 
     def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
         mock_redshift_query = mocker.patch(
-            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query",
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_ebook_query",
             return_value="redshift od query",
         )
         mock_duplicate_query = mocker.patch(
@@ -58,7 +58,7 @@ class TestOverDriveCheckoutsAlarms:
 
     def test_run_checks_unequal_counts_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
-            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query"
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_ebook_query"
         )
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
@@ -79,7 +79,7 @@ class TestOverDriveCheckoutsAlarms:
         self, test_instance, mocker, caplog
     ):
         mocker.patch(
-            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query",
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_ebook_query",
         )
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
@@ -100,7 +100,7 @@ class TestOverDriveCheckoutsAlarms:
 
     def test_run_checks_no_records_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
-            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query"
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_ebook_query"
         )
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
@@ -124,7 +124,7 @@ class TestOverDriveCheckoutsAlarms:
             "alarms.models.overdrive_checkouts_alarms.check_no_records_found_alarm"
         )
         mock_redshift_query = mocker.patch(
-            "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_query"
+            "alarms.models.overdrive_checkouts_alarms.build_redshift_ebook_query"
         )
         test_instance.overdrive_client.get_count.side_effect = OverDriveWebScraperError(
             "mock error"

@@ -19,7 +19,7 @@ class SierraItypeCodesAlarms(Alarm):
         self.logger = create_log("sierra_itype_codes_alarms")
 
     def run_checks(self):
-        self.logger.info("ITYPE CODES")
+        self.logger.info("Itype Codes")
         sierra_query = build_sierra_itypes_count_query()
         sierra_count = self.get_record_count(self.sierra_client, sierra_query)
 

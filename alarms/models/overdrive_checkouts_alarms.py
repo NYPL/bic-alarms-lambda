@@ -5,9 +5,9 @@ from helpers.alarm_helper import (
 )
 from helpers.overdrive_web_scraper import OverDriveWebScraper
 from helpers.query_helper import (
+    build_redshift_ebook_query,
     build_redshift_overdrive_duplicate_platform_query,
     build_redshift_overdrive_duplicate_query,
-    build_redshift_overdrive_query,
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -21,7 +21,7 @@ class OverDriveCheckoutsAlarms(Alarm):
         self.logger = create_log("overdrive_checkouts_alarms")
 
     def run_checks(self):
-        self.logger.info("OVERDRIVE CHECKOUTS")
+        self.logger.info("OverDrive Checkouts")
         try:
             overdrive_count = self.overdrive_client.get_count(self.yesterday)
         except Exception as e:
@@ -29,7 +29,7 @@ class OverDriveCheckoutsAlarms(Alarm):
             return
 
         redshift_table = "overdrive_checkouts" + self.redshift_suffix
-        redshift_query = build_redshift_overdrive_query(redshift_table, self.yesterday)
+        redshift_query = build_redshift_ebook_query(redshift_table, self.yesterday)
         redshift_count = self.get_record_count(self.redshift_client, redshift_query)
         check_no_records_found_alarm(
             logger=self.logger,
