@@ -11,26 +11,21 @@ class CloudLibraryAlarms(Alarm):
         self.logger = create_log("cloudlibrary_alarms")
 
     def run_checks(self):
-        today = self.yesterday_date + timedelta(days=1)
+        # Checks for data from 5 days ago (roughly
+        # how long it should take to enter the BIC)
+        date_to_test = self.yesterday_date - timedelta(days=4)
+        self.logger.info("cloudLibrary")
+        redshift_table = "cloudlibrary_transactions" + self.redshift_suffix
 
-        # Only run checks once a week on Saturdays
-        if today.weekday() == 5:
-            self.logger.info("cloudLibrary")
-            redshift_table = "cloudlibrary_transactions" + self.redshift_suffix
-            dates_to_test = [
-                (self.yesterday_date - timedelta(i)).isoformat() for i in range(0, 7)
-            ]
-
-            for date in dates_to_test:
-                self.logger.info(f"Checking CL record count for {date}...")
-                redshift_query = build_redshift_ebook_query(redshift_table, date)
-                redshift_count = self.get_record_count(
-                    self.redshift_client, redshift_query
-                )
-                check_no_records_found_alarm(
-                    logger=self.logger,
-                    database_count=redshift_count,
-                    conditional=True,
-                    database_type="cloudLibrary",
-                    date=date,
-                )
+        self.logger.info(
+            f"Checking CL record count from 4 days prior ({date_to_test})..."
+        )
+        redshift_query = build_redshift_ebook_query(redshift_table, date_to_test)
+        redshift_count = self.get_record_count(self.redshift_client, redshift_query)
+        check_no_records_found_alarm(
+            logger=self.logger,
+            database_count=redshift_count,
+            conditional=True,
+            database_type="cloudLibrary",
+            date=date_to_test,
+        )
