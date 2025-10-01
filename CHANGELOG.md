@@ -1,6 +1,6 @@
 ## 2025-10-01
 ### Added
-- Add weekly cloudLibrary alarm
+- Add cloudLibrary alarm
 
 ## 2025-09-30
 ### Added
