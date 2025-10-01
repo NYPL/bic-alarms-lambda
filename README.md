@@ -32,7 +32,7 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When the number of active itype/location/stat group codes in Sierra and Redshift differs
 * When there are duplicate active itype/location/stat group codes in Redshift
 * When there are active itype/location/stat group codes in Redshift without the necessary additional fields populated
-* When there are no cLoudlibrary records on any day within the past week
+* When there are no cLoudlibrary data from 5 days ago (roughly how long it should take to enter the BIC)
 
 ## How do I make a new alarm?
 To create a new alarm, set up a model for said alarm in the [alarms/models](alarms/models) directory. After creating your new alarm, add the alarm object to the [AlarmController](alarm_controller.py). Here are some examples:
