@@ -74,7 +74,7 @@ class AlarmController:
             HoldsAlarms(self.redshift_client),
             LocationClosuresAlarms(self.redshift_client),
             LocationHoursAlarms(self.redshift_client),
-            OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
+            # OverDriveCheckoutsAlarms(self.redshift_client, self.overdrive_credentials),
             CloudLibraryAlarms(self.redshift_client),
             PatronInfoAlarms(self.redshift_client, self.sierra_client),
             PcReserveAlarms(self.redshift_client, self.envisionware_client),
