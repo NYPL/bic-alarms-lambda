@@ -67,16 +67,16 @@ class TestBranchCodesMapAlarms:
         )
         test_instance.redshift_client.execute_query.side_effect = [
             (),
-            (["AA", None], [None, "bb"], ["CC", None], [None, "dd"]),
+            (["aa", None], [None, "BB"], ["cc", None], [None, "DD"]),
         ]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
 
         assert (
-            "The following Drupal branch codes have location hours but do not have a "
-            "known Sierra branch mapping: ['AA', 'CC']"
+            "The following Sierra branch codes have location hours but do not have a "
+            "known Drupal branch mapping: ['aa', 'cc']"
         ) in caplog.text
         assert (
-            "The following Sierra branch codes do not have known hours: ['bb', 'dd']"
+            "The following Drupal branch codes do not have known hours: ['BB', 'DD']"
         ) in caplog.text

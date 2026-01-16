@@ -1,3 +1,7 @@
+## 2026-01-16
+### Added
+- Update branch codes alarms to use v2 hours and closures
+
 ## 2025-10-01
 ### Added
 - Add cloudLibrary alarm
