@@ -34,7 +34,7 @@ class TestBranchCodesMapAlarms:
             "branch_codes_map_test_redshift_db"
         )
         mock_redshift_hours_query.assert_called_once_with(
-            "location_hours_test_redshift_db", "branch_codes_map_test_redshift_db"
+            "location_hours_v2_test_redshift_db", "branch_codes_map_test_redshift_db"
         )
         test_instance.redshift_client.execute_query.assert_has_calls(
             [mocker.call("duplicate query"), mocker.call("hours query")]
