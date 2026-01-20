@@ -14,7 +14,7 @@ class BranchCodesMapAlarms(Alarm):
     def run_checks(self):
         self.logger.info("Branch Codes Map")
         branch_codes_table = "branch_codes_map" + self.redshift_suffix
-        location_hours_table = "location_hours" + self.redshift_suffix
+        location_hours_table = "location_hours_v2" + self.redshift_suffix
 
         self.redshift_client.connect()
         duplicates = self.redshift_client.execute_query(
@@ -46,14 +46,14 @@ class BranchCodesMapAlarms(Alarm):
     def check_hours_ids_without_mapping(self, ids_not_in_map):
         if len(ids_not_in_map) > 0:
             self.logger.error(
-                "The following Drupal branch codes have location hours but do not have "
-                "a known Sierra branch mapping: {}".format(ids_not_in_map)
+                "The following Sierra branch codes have location hours but do not have "
+                "a known Drupal branch mapping: {}".format(ids_not_in_map)
             )
 
     def check_map_ids_without_hours(self, ids_not_in_hours):
         if len(ids_not_in_hours) > 0:
             self.logger.error(
-                "The following Sierra branch codes do not have known hours: {}".format(
+                "The following Drupal branch codes do not have known hours: {}".format(
                     ids_not_in_hours
                 )
             )

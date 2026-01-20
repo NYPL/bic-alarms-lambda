@@ -5,10 +5,16 @@ _REDSHIFT_BRANCH_CODES_DUPLICATE_QUERY = """
     HAVING COUNT(*) > 1;"""
 
 _REDSHIFT_BRANCH_CODES_HOURS_QUERY = """
-    SELECT drupal_location_id, sierra_code
-    FROM {location_hours_table} FULL JOIN {branch_codes_table}
-        ON {location_hours_table}.drupal_location_id = {branch_codes_table}.drupal_code
-    WHERE drupal_location_id IS NULL OR sierra_code IS NULL;"""
+    WITH joined_locations AS (
+        SELECT location_id, drupal_code
+        FROM {location_hours_table} FULL JOIN {branch_codes_table}
+            ON {location_hours_table}.location_id = {branch_codes_table}.sierra_code
+    )
+    SELECT * FROM joined_locations
+    WHERE drupal_code IS NULL OR (
+        location_id IS NULL
+        AND drupal_code NOT IN (SELECT drupal_code FROM joined_locations)
+    );"""
 
 _REDSHIFT_CIRC_TRANS_QUERY = (
     "SELECT COUNT(*) FROM {table} WHERE {date_field} = '{date}';"
