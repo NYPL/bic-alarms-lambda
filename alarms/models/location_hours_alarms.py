@@ -32,8 +32,8 @@ class LocationHoursAlarms(Alarm):
     def check_non_current(self, non_current_loc_days):
         if non_current_loc_days:
             self.logger.error(
-                "The following current (location_id, weekday) combinations did not "
-                f"contain exactly one current row: {non_current_loc_days}"
+                "The following current (location_id, weekday) combinations correspond "
+                f"to either 0 or >1 rows: {non_current_loc_days}"
             )
 
     def check_unknown_location_ids(self, unknown_location_ids):
