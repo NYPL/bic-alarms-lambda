@@ -2,6 +2,7 @@ from alarms.alarm import Alarm
 from helpers.alarm_helper import check_no_records_found_alarm
 from helpers.query_helper import (
     build_redshift_closures_count_query,
+    build_redshift_closures_duplicate_query,
     build_redshift_closures_location_id_query,
 )
 from nypl_py_utils.functions.log_helper import create_log
@@ -20,12 +21,16 @@ class LocationClosuresAlarms(Alarm):
         count_query = build_redshift_closures_count_query(
             redshift_table, self.yesterday
         )
+        duplicate_query = build_redshift_closures_duplicate_query(
+            redshift_table, self.yesterday
+        )
         location_id_query = build_redshift_closures_location_id_query(
             redshift_table, redshift_branch_codes_table, self.yesterday
         )
 
         self.redshift_client.connect()
         count = int(self.redshift_client.execute_query(count_query)[0][0])
+        duplicates = self.redshift_client.execute_query(duplicate_query)
         unknown_location_ids = self.redshift_client.execute_query(location_id_query)
         self.redshift_client.close_connection()
 
@@ -36,7 +41,15 @@ class LocationClosuresAlarms(Alarm):
             database_type=redshift_table,
             date=self.yesterday,
         )
+        self.check_duplicate_rows(duplicates)
         self.check_unknown_location_ids(unknown_location_ids)
+
+    def check_duplicate_rows(self, duplicates):
+        if duplicates:
+            self.logger.error(
+                "The following (location_id, alert_id) combinations correspond to more "
+                f"than one row: {duplicates}"
+            )
 
     def check_unknown_location_ids(self, unknown_location_ids):
         if unknown_location_ids:
