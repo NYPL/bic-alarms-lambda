@@ -1,3 +1,7 @@
+## 2026-01-22
+### Added
+- Add alarm for duplicate branch closures
+
 ## 2026-01-16
 ### Added
 - Update branch codes alarms to use v2 hours and closures

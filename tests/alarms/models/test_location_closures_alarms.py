@@ -22,11 +22,15 @@ class TestLocationClosuresAlarms:
             "alarms.models.location_closures_alarms.build_redshift_closures_count_query",
             return_value="redshift count query",
         )
+        mock_redshift_duplicate_query = mocker.patch(
+            "alarms.models.location_closures_alarms.build_redshift_closures_duplicate_query",
+            return_value="redshift duplicate query",
+        )
         mock_redshift_location_id_query = mocker.patch(
             "alarms.models.location_closures_alarms.build_redshift_closures_location_id_query",
             return_value="redshift location id query",
         )
-        test_instance.redshift_client.execute_query.side_effect = [([1],), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([1],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
@@ -34,6 +38,9 @@ class TestLocationClosuresAlarms:
 
         test_instance.redshift_client.connect.assert_called_once()
         mock_redshift_count_query.assert_called_once_with(
+            "location_closures_v2_test_redshift_db", "2023-05-31"
+        )
+        mock_redshift_duplicate_query.assert_called_once_with(
             "location_closures_v2_test_redshift_db", "2023-05-31"
         )
         mock_redshift_location_id_query.assert_called_once_with(
@@ -44,6 +51,7 @@ class TestLocationClosuresAlarms:
         test_instance.redshift_client.execute_query.assert_has_calls(
             [
                 mocker.call("redshift count query"),
+                mocker.call("redshift duplicate query"),
                 mocker.call("redshift location id query"),
             ]
         )
@@ -54,9 +62,12 @@ class TestLocationClosuresAlarms:
             "alarms.models.location_closures_alarms.build_redshift_closures_count_query"
         )
         mocker.patch(
+            "alarms.models.location_closures_alarms.build_redshift_closures_duplicate_query"
+        )
+        mocker.patch(
             "alarms.models.location_closures_alarms.build_redshift_closures_location_id_query"
         )
-        test_instance.redshift_client.execute_query.side_effect = [([0],), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([0],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
@@ -65,14 +76,44 @@ class TestLocationClosuresAlarms:
             "2023-05-31"
         ) in caplog.text
 
+    def test_run_checks_duplicate_alarm(self, test_instance, mocker, caplog):
+        mocker.patch(
+            "alarms.models.location_closures_alarms.build_redshift_closures_count_query"
+        )
+        mocker.patch(
+            "alarms.models.location_closures_alarms.build_redshift_closures_duplicate_query"
+        )
+        mocker.patch(
+            "alarms.models.location_closures_alarms.build_redshift_closures_location_id_query"
+        )
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([0],),
+            (["aa", "123"],),
+            (),
+        ]
+
+        with caplog.at_level(logging.ERROR):
+            test_instance.run_checks()
+        assert (
+            "The following (location_id, alert_id) combinations correspond to more "
+            "than one row: (['aa', '123'],)" in caplog.text
+        )
+
     def test_run_checks_unknown_location_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
             "alarms.models.location_closures_alarms.build_redshift_closures_count_query"
         )
         mocker.patch(
+            "alarms.models.location_closures_alarms.build_redshift_closures_duplicate_query"
+        )
+        mocker.patch(
             "alarms.models.location_closures_alarms.build_redshift_closures_location_id_query"
         )
-        test_instance.redshift_client.execute_query.side_effect = [([0],), (["fake"],)]
+        test_instance.redshift_client.execute_query.side_effect = [
+            ([0],),
+            (),
+            (["fake"],),
+        ]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()

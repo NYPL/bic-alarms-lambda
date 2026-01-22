@@ -124,6 +124,12 @@ _REDSHIFT_CLOSURES_COUNT_QUERY = (
     "SELECT COUNT(*) FROM {table} WHERE closure_date = '{date}';"
 )
 
+_REDSHIFT_CLOSURES_DUPLICATE_QUERY = """
+    SELECT location_id, alert_id FROM {table}
+    WHERE closure_date = '{date}'
+    GROUP BY location_id, alert_id
+    HAVING COUNT(*) > 1;"""
+
 _REDSHIFT_CLOSURES_LOCATION_ID_QUERY = """
     SELECT location_id FROM {closures_table}
     WHERE closure_date = '{date}' AND location_id NOT IN (
@@ -302,6 +308,10 @@ def build_redshift_holds_null_query(table, date):
 
 def build_redshift_closures_count_query(table, date):
     return _REDSHIFT_CLOSURES_COUNT_QUERY.format(table=table, date=date)
+
+
+def build_redshift_closures_duplicate_query(table, date):
+    return _REDSHIFT_CLOSURES_DUPLICATE_QUERY.format(table=table, date=date)
 
 
 def build_redshift_closures_location_id_query(closures_table, branch_codes_table, date):

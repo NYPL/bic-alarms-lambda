@@ -64,8 +64,8 @@ class TestLocationHoursAlarms:
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
         assert (
-            "The following (location_id, weekday) combinations did not contain exactly "
-            "one current row: (['aa', 'Sunday'],)"
+            "The following current (location_id, weekday) combinations did not contain "
+            "exactly one current row: (['aa', 'Sunday'],)"
         ) in caplog.text
 
     def test_run_checks_unknown_location_alarm(self, test_instance, mocker, caplog):
