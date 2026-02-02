@@ -43,10 +43,10 @@ class TestOverDriveCheckoutsAlarms:
         assert test_instance.redshift_client.connect.call_count == 2
         test_instance.overdrive_client.get_count.assert_called_once_with("2023-05-31")
         mock_redshift_query.assert_called_once_with(
-            "overdrive_checkouts_test_redshift_db", "2023-05-31"
+            "patron_overdrive_checkouts_test_redshift_db", "2023-05-31"
         )
         mock_duplicate_query.assert_called_once_with(
-            "overdrive_checkouts_test_redshift_db", "2023-05-31"
+            "patron_overdrive_checkouts_test_redshift_db", "2023-05-31"
         )
         test_instance.redshift_client.execute_query.assert_has_calls(
             [
@@ -71,7 +71,7 @@ class TestOverDriveCheckoutsAlarms:
 
         assert (
             "Number of OverDrive Marketplace records does not match number of Redshift "
-            "overdrive_checkouts_test_redshift_db records: 20 OverDrive Marketplace "
+            "patron_overdrive_checkouts_test_redshift_db records: 20 OverDrive Marketplace "
             "records and 10 Redshift records"
         ) in caplog.text
 

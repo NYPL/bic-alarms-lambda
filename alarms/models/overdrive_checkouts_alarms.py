@@ -28,7 +28,7 @@ class OverDriveCheckoutsAlarms(Alarm):
             self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
             return
 
-        redshift_table = "overdrive_checkouts" + self.redshift_suffix
+        redshift_table = "patron_overdrive_checkouts" + self.redshift_suffix
         redshift_query = build_redshift_ebook_query(redshift_table, self.yesterday)
         redshift_count = self.get_record_count(self.redshift_client, redshift_query)
         check_no_records_found_alarm(

@@ -1,3 +1,7 @@
+## 2026-02-03
+### Added
+- Update OverDrive web scraper to run JS
+
 ## 2026-01-22
 ### Added
 - Add alarm for duplicate branch closures
