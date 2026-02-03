@@ -1,6 +1,6 @@
 ## 2026-02-03
 ### Added
-- Update OverDrive web scraper to run JS
+- Update OverDrive web scraper url data & Chrome driver options
 
 ## 2026-01-22
 ### Added
