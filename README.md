@@ -41,19 +41,12 @@ To create a new alarm, set up a model for said alarm in the [alarms/models](alar
 * [LocationVisitsAlarms](alarms/models/granular_location_visits_alarms.py): custom alarms -- *each custom alarm is its own function, as is the norm*
 
 ## Local development
-Before running the code, make sure the following environment vars are set up in either your bash or zsh profile:
-```
-export AWS_ACCESS_KEY_ID=<AWS access key ID>
-export AWS_SECRET_ACCESS_KEY=<AWS secret key associated with key ID>
-```
-
-After setting up said vars, run the following on your command line:
+Run the following on your command line:
 ```
 make run
 ```
 The application logs should output to your terminal.
 
-* Export your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and run `make run`
 * Alternatively, to build and run a Docker container, run:
 ```
 docker image build -t bic-alarms:local .

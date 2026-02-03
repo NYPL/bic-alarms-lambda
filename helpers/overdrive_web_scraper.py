@@ -1,3 +1,5 @@
+import os
+
 from nypl_py_utils.functions.log_helper import create_log
 from selenium import webdriver
 from selenium.common import exceptions
@@ -7,14 +9,14 @@ from selenium.webdriver.support.wait import WebDriverWait
 from urllib.parse import quote
 
 _LOGIN_URL = "https://marketplace.overdrive.com/Account/Login"
-_CHECKOUTS_URL = "https://marketplace.overdrive.com/Insights/Reports/Checkouts?data="
-_URL_VARIABLES = (
+_BASE_URL = "https://marketplace.overdrive.com/Insights/Reports/{}?data="
+_URL_DATA = (
     '{{"ReportChartBy":"Format","Branch":[],"IsLuckyDay":null,"TitleIds":null,'
     '"Format":null,"Language":null,"Audience":null,"Rating":null,'
     '"Subject":null,"CirculationDateParameters":{{'
     '"DateRangePeriodType":"specific","DateUnitsValue":30,'
-    '"DateRangeDateUnit":"day","StartDateInputValue":"{date}",'
-    '"EndDateInputValue":"{date}"}},"ContentAccessLevel":null,"UserTypes":[],'
+    '"DateRangeDateUnit":"day","StartDateInputValue":"{start}",'
+    '"EndDateInputValue":"{end}"}},"ContentAccessLevel":null,"UserTypes":[],'
     '"LendingModel":null,"Website":null,"Creator":null,"PurchaseOrderId":null,'
     '"DrillDownKey":"{code}","DrillDownLabel":"{name}","Parameters":{{'
     '"page":1,"start":0,"limit":{limit},"sort":[]}}}}'
@@ -28,10 +30,17 @@ class OverDriveWebScraper:
         self.logger = create_log("overdrive_web_scraper")
         self.username = username
         self.password = password
-
         self.driver = None
-        self.chrome_options = Options()
+
+        prefs = {
+            "download.default_directory": os.getcwd(),
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True,
+        }
         options = ["--headless=new", "--disable-dev-shm-usage", "--no-sandbox"]
+        self.chrome_options = Options()
+        self.chrome_options.add_experimental_option("prefs", prefs)
         for option in options:
             self.chrome_options.add_argument(option)
 
@@ -42,8 +51,8 @@ class OverDriveWebScraper:
         self._log_in()
 
         self.logger.info(f"Getting OverDrive Marketplace record count for {date}")
-        url = _CHECKOUTS_URL + quote(
-            _URL_VARIABLES.format(date=date, code="null", name="null", limit="50")
+        url = _BASE_URL.format("Checkouts") + quote(
+            _URL_DATA.format(start=date, end=date, code="null", name="null", limit="50")
         )
         try:
             self.driver.get(url)
@@ -78,24 +87,22 @@ class OverDriveWebScraper:
         return int(count[count.find("(") + 1 : count.find(")")])
 
     def _log_in(self):
-        self.logger.info("Logging into OverDrive Marketplace")
+        self.logger.info("Logging into OverDrive")
         self.driver.get(_LOGIN_URL)
         try:
             self.driver.find_element(By.ID, "UserName").send_keys(self.username)
             self.driver.find_element(By.ID, "Password").send_keys(self.password)
             self.driver.find_element(By.XPATH, "//input[@type='submit']").click()
-        except exceptions.NoSuchElementException:
+        except exceptions.NoSuchElementException as e:
             self.driver.quit()
-            self.logger.error(f"OverDrive Marketplace login page elements not found")
+            self.logger.error(f"Login page elements not found: {e}")
             raise OverDriveWebScraperError(
-                f"OverDrive Marketplace login page elements not found"
+                f"Login page elements not found: {e}"
             ) from None
         if self.driver.current_url == _LOGIN_URL:
             self.driver.quit()
-            self.logger.error("OverDrive Marketplace login failed")
-            raise OverDriveWebScraperError(
-                "OverDrive Marketplace login failed"
-            ) from None
+            self.logger.error("Login failed")
+            raise OverDriveWebScraperError("Login failed") from None
 
 
 class OverDriveWebScraperError(Exception):
