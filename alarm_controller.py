@@ -45,9 +45,8 @@ class AlarmController:
             kms_client.decrypt(os.environ["REDSHIFT_DB_PASSWORD"]),
         )
         self.sierra_client = PostgreSQLClient(
-            # kms_client.decrypt(os.environ["SIERRA_DB_HOST"]),
-            # os.environ["SIERRA_DB_PORT"],
-            "10.199.1.24", "1032",
+            kms_client.decrypt(os.environ["SIERRA_DB_HOST"]),
+            os.environ["SIERRA_DB_PORT"],
             os.environ["SIERRA_DB_NAME"],
             kms_client.decrypt(os.environ["SIERRA_DB_USER"]),
             kms_client.decrypt(os.environ["SIERRA_DB_PASSWORD"]),

@@ -25,22 +25,20 @@ class OverDriveCheckoutsAlarms(Alarm):
     def run_checks(self):
         self.logger.info("OverDrive Checkouts")
         redshift_tables = ["patron_overdrive_checkouts", "title_overdrive_checkouts"]
-        
+
         try:
             overdrive_count = self.overdrive_client.get_count(self.date_to_test)
         except Exception as e:
             self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
             return
-        
+
         self.logger.info(f"Checking OD record count from ({self.date_to_test})...")
         for redshift_table in redshift_tables:
             table = redshift_table + self.redshift_suffix
             redshift_query = build_redshift_ebook_query(table, self.date_to_test)
             redshift_count = self.get_record_count(self.redshift_client, redshift_query)
             # If there are records in the table, perform further checks
-            adjusted_redshift_count = self._adjust_redshift_count(
-                table, redshift_count
-            )
+            adjusted_redshift_count = self._adjust_redshift_count(table, redshift_count)
             check_redshift_mismatch_alarm(
                 logger=self.logger,
                 database_type="OverDrive Marketplace",
@@ -48,7 +46,7 @@ class OverDriveCheckoutsAlarms(Alarm):
                 database_count=overdrive_count,
                 redshift_count=adjusted_redshift_count,
             )
-        
+
         check_no_records_found_alarm(
             logger=self.logger,
             database_count=overdrive_count,
