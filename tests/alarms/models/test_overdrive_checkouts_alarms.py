@@ -2,6 +2,7 @@ import logging
 import pytest
 
 from alarms.models.overdrive_checkouts_alarms import OverDriveCheckoutsAlarms
+from freezegun.api import FakeDate
 from helpers.overdrive_web_scraper import OverDriveWebScraperError
 
 
@@ -33,28 +34,28 @@ class TestOverDriveCheckoutsAlarms:
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query",
             return_value="redshift od duplicate query",
         )
-        test_instance.redshift_client.execute_query.side_effect = [([10],), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([10],), ()] * 2
         test_instance.overdrive_client.get_count.return_value = 10
+        mock_query_calls = [
+            mocker.call("patron_overdrive_checkouts_test_redshift_db", test_instance.date_to_test),
+            mocker.call("title_overdrive_checkouts_test_redshift_db", test_instance.date_to_test),
+        ]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
 
         assert caplog.text == ""
-        assert test_instance.redshift_client.connect.call_count == 2
-        test_instance.overdrive_client.get_count.assert_called_once_with("2023-05-31")
-        mock_redshift_query.assert_called_once_with(
-            "patron_overdrive_checkouts_test_redshift_db", "2023-05-31"
-        )
-        mock_duplicate_query.assert_called_once_with(
-            "patron_overdrive_checkouts_test_redshift_db", "2023-05-31"
-        )
+        assert test_instance.redshift_client.connect.call_count == 4
+        test_instance.overdrive_client.get_count.assert_called_once_with(test_instance.date_to_test)
+        mock_redshift_query.assert_has_calls(mock_query_calls)
+        mock_duplicate_query.assert_has_calls(mock_query_calls)
         test_instance.redshift_client.execute_query.assert_has_calls(
             [
                 mocker.call("redshift od query"),
                 mocker.call("redshift od duplicate query"),
             ]
         )
-        test_instance.redshift_client.close_connection.assert_called_once()
+        assert test_instance.redshift_client.close_connection.call_count == 2
 
     def test_run_checks_unequal_counts_alarm(self, test_instance, mocker, caplog):
         mocker.patch(
@@ -63,7 +64,7 @@ class TestOverDriveCheckoutsAlarms:
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
         )
-        test_instance.redshift_client.execute_query.side_effect = [([10],), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([10],), ()] * 2
         test_instance.overdrive_client.get_count.return_value = 20
 
         with caplog.at_level(logging.ERROR):
@@ -72,6 +73,11 @@ class TestOverDriveCheckoutsAlarms:
         assert (
             "Number of OverDrive Marketplace records does not match number of Redshift "
             "patron_overdrive_checkouts_test_redshift_db records: 20 OverDrive Marketplace "
+            "records and 10 Redshift records"
+        ) in caplog.text
+        assert (
+            "Number of OverDrive Marketplace records does not match number of Redshift "
+            "title_overdrive_checkouts_test_redshift_db records: 20 OverDrive Marketplace "
             "records and 10 Redshift records"
         ) in caplog.text
 
@@ -91,7 +97,7 @@ class TestOverDriveCheckoutsAlarms:
             ([11],),
             (["jQhmtNm/QuLk"],),
             (["OverDrive Read"], ["Kindle Book"]),
-        ]
+        ] * 2
         test_instance.overdrive_client.get_count.return_value = 10
 
         with caplog.at_level(logging.ERROR):
@@ -105,14 +111,14 @@ class TestOverDriveCheckoutsAlarms:
         mocker.patch(
             "alarms.models.overdrive_checkouts_alarms.build_redshift_overdrive_duplicate_query"
         )
-        test_instance.redshift_client.execute_query.side_effect = [([0],), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([0],), ()] * 2
         test_instance.overdrive_client.get_count.return_value = 0
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
 
         assert (
-            "No OverDrive Marketplace records found for all of 2023-05-31"
+            "No OverDrive Marketplace records found for all of 2023-05-27"
             in caplog.text
         )
 
