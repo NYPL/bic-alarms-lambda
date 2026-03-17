@@ -2,7 +2,6 @@ import logging
 import pytest
 
 from alarms.models.overdrive_checkouts_alarms import OverDriveCheckoutsAlarms
-from freezegun.api import FakeDate
 from helpers.overdrive_web_scraper import OverDriveWebScraperError
 
 
