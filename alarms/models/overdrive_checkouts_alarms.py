@@ -85,7 +85,7 @@ class OverDriveCheckoutsAlarms(Alarm):
                     redshift_table, self.date_to_test, checksum
                 )
             )
-        adjusted_redshift_count -= len(platform_types) - 1
+            adjusted_redshift_count -= len(platform_types) - 1
 
         self.redshift_client.close_connection()
         return adjusted_redshift_count
