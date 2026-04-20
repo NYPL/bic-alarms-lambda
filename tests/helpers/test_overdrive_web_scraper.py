@@ -112,6 +112,9 @@ class TestOverDriveWebScraper:
             [mocker.call(By.ID, "UserName"),
              mocker.call(By.ID, "Password"),
              mocker.call(By.XPATH, "//input[@type='submit']")])
+        test_instance.driver.find_elements.assert_called_once_with(
+            By.XPATH, "//*[@id='dialogModalContainer']/dialog/button"
+        )
         mock_username_el.send_keys.assert_called_once_with("mock_overdrive_username")
         mock_password_el.send_keys.assert_called_once_with("mock_overdrive_password")
         mock_submit_el.click.assert_called_once()

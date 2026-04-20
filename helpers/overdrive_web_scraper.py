@@ -90,10 +90,18 @@ class OverDriveWebScraper:
         self.logger.info("Logging into OverDrive")
         self.driver.get(_LOGIN_URL)
         try:
+            # Click out of cookie selection pop-up if present
+            cookie_settings = self.driver.find_elements(
+                By.XPATH, "//*[@id='dialogModalContainer']/dialog/button"
+            )
+            if cookie_settings:
+                cookie_settings[0].click()
+
+            # Input username and password, then submit form
             self.driver.find_element(By.ID, "UserName").send_keys(self.username)
             self.driver.find_element(By.ID, "Password").send_keys(self.password)
             self.driver.find_element(By.XPATH, "//input[@type='submit']").click()
-        except exceptions.NoSuchElementException as e:
+        except Exception as e:
             self.driver.quit()
             self.logger.error(f"Login page elements not found: {e}")
             raise OverDriveWebScraperError(

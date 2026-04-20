@@ -149,13 +149,13 @@ _REDSHIFT_HOURS_LOCATION_ID_QUERY = """
 
 _REDSHIFT_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
 
-_REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY = """
+_REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_QUERY = """
     SELECT DISTINCT platform 
     FROM {table} 
     WHERE transaction_et = '{date}'
     AND transaction_checksum = '{checksum}';"""
 
-_REDSHIFT_OVERDRIVE_DUPLICATE_TRANSACTIONS_QUERY = """
+_REDSHIFT_OVERDRIVE_FIND_DUPLICATE_CHECKSUMS_QUERY = """
     SELECT transaction_checksum 
     FROM {table} 
     WHERE transaction_et = '{date}'
@@ -335,14 +335,14 @@ def build_redshift_ebook_query(table, date):
     return _REDSHIFT_EBOOK_QUERY.format(table=table, date=date)
 
 
-def build_redshift_overdrive_duplicate_query(table, date):
-    return _REDSHIFT_OVERDRIVE_DUPLICATE_TRANSACTIONS_QUERY.format(
+def build_redshift_overdrive_duplicate_checksum_query(table, date):
+    return _REDSHIFT_OVERDRIVE_FIND_DUPLICATE_CHECKSUMS_QUERY.format(
         table=table, date=date
     )
 
 
 def build_redshift_overdrive_duplicate_platform_query(table, date, checksum):
-    return _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_TRANSACTION_QUERY.format(
+    return _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_QUERY.format(
         table=table, date=date, checksum=checksum
     )
 
