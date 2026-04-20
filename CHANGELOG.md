@@ -1,3 +1,8 @@
+## 2026-04-20
+### Added
+- Update OverDrive web scraper to avoid cookie pop-up
+- Fix OverDrive count adjustment so it only applies to patron checkouts
+
 ## 2026-03-13
 ### Added
 - Add OverDrive title alarms

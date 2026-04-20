@@ -8,7 +8,7 @@ from helpers.overdrive_web_scraper import OverDriveWebScraper
 from helpers.query_helper import (
     build_redshift_ebook_query,
     build_redshift_overdrive_duplicate_platform_query,
-    build_redshift_overdrive_duplicate_query,
+    build_redshift_overdrive_duplicate_checksum_query,
 )
 from nypl_py_utils.functions.log_helper import create_log
 
@@ -37,14 +37,16 @@ class OverDriveCheckoutsAlarms(Alarm):
             table = redshift_table + self.redshift_suffix
             redshift_query = build_redshift_ebook_query(table, self.date_to_test)
             redshift_count = self.get_record_count(self.redshift_client, redshift_query)
-            # If there are records in the table, perform further checks
-            adjusted_redshift_count = self._adjust_redshift_count(table, redshift_count)
+
+            if "patron_overdrive_checkouts" in table:
+                redshift_count = self._adjust_redshift_count(table, redshift_count)
+
             check_redshift_mismatch_alarm(
                 logger=self.logger,
                 database_type="OverDrive Marketplace",
                 redshift_table=table,
                 database_count=overdrive_count,
-                redshift_count=adjusted_redshift_count,
+                redshift_count=redshift_count,
             )
 
         check_no_records_found_alarm(
@@ -58,14 +60,16 @@ class OverDriveCheckoutsAlarms(Alarm):
     def _adjust_redshift_count(self, redshift_table, initial_redshift_count):
         """
         In OverDrive, when users download titles through different platforms, these
-        transactions are all counted as one row. This is not the case in Redshift --
-        these are separate rows that are otherwise identical aside from the
-        `platform` column. This method accounts for this discrepancy.
+        transactions are all counted as one row. This is not the case for the
+        Redshift OverDrive patron table -- these are separate rows that are otherwise
+        identical aside from the `platform` column. This method accounts for this discrepancy.
         """
         self.redshift_client.connect()
 
         duplicate_checksums = self.redshift_client.execute_query(
-            build_redshift_overdrive_duplicate_query(redshift_table, self.date_to_test)
+            build_redshift_overdrive_duplicate_checksum_query(
+                redshift_table, self.date_to_test
+            )
         )
 
         if not duplicate_checksums:
@@ -74,6 +78,7 @@ class OverDriveCheckoutsAlarms(Alarm):
 
         adjusted_redshift_count = initial_redshift_count
         duplicate_checksums = [checksum for checksum in duplicate_checksums[0]]
+
         for checksum in duplicate_checksums:
             platform_types = self.redshift_client.execute_query(
                 build_redshift_overdrive_duplicate_platform_query(
