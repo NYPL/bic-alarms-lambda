@@ -66,7 +66,9 @@ class TestHoldsAlarms:
         mock_deleted_query.assert_called_once_with(
             "hold_info_test_redshift_db", "2023-06-01"
         )
-        mock_modified_query.assert_called_once_with("hold_info_test_redshift_db")
+        mock_modified_query.assert_called_once_with(
+            "hold_info_test_redshift_db", "2023-06-01"
+        )
         mock_null_query.assert_called_once_with(
             "hold_info_test_redshift_db", "2023-06-01"
         )
