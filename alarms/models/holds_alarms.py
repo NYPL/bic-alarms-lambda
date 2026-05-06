@@ -43,7 +43,7 @@ class HoldsAlarms(Alarm):
             build_redshift_holds_deleted_query(redshift_info_table, date_to_test)
         )
         modified_holds = self.redshift_client.execute_query(
-            build_redshift_holds_modified_query(redshift_info_table)
+            build_redshift_holds_modified_query(redshift_info_table, date_to_test)
         )
         null_holds = self.redshift_client.execute_query(
             build_redshift_holds_null_query(redshift_info_table, date_to_test)

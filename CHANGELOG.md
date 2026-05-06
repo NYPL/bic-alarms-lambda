@@ -1,3 +1,8 @@
+## 2026-05-06
+### Fixed
+- Update holds alarms to always take in a specific date to test
+- Temporarily ignore holds alarms from 5/2 and 5/3
+
 ## 2026-04-20
 ### Added
 - Update OverDrive web scraper to avoid cookie pop-up

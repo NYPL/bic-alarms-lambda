@@ -79,22 +79,33 @@ _REDSHIFT_HOLDS_DELETED_QUERY = """
         WHERE TRUNC(update_timestamp) = '{date}' AND record_id IS NOT NULL
         GROUP BY hold_id
     ), deleted_holds AS (
-        SELECT hold_id, update_timestamp AS deleted_timestamp
+        SELECT hold_id, MAX(update_timestamp) AS last_deleted_timestamp
         FROM {table}
         WHERE record_id IS NULL AND hold_id IN (SELECT hold_id FROM active_holds)
+        GROUP BY hold_id
     )
     SELECT active_holds.hold_id
     FROM active_holds INNER JOIN deleted_holds
         ON active_holds.hold_id = deleted_holds.hold_id
-    WHERE last_active_timestamp >= deleted_timestamp;"""
+    WHERE last_active_timestamp >= last_deleted_timestamp
+        AND (
+            last_deleted_timestamp < '2026-05-02 21:00:00'
+            OR last_deleted_timestamp > '2026-05-03 10:00:00'
+        );"""
 
 _REDSHIFT_HOLDS_MODIFIED_QUERY = """
     SELECT hold_id FROM {table}
-    WHERE hold_id NOT IN (
-        SELECT hold_id FROM {table}
-        WHERE record_id IS NULL
-            AND record_type IS NULL
-            AND placed_utc IS NULL)
+    WHERE
+        hold_id IN (
+            SELECT hold_id
+            FROM {table}
+            WHERE TRUNC(update_timestamp) = '{date}'
+        )
+        AND hold_id NOT IN (
+            SELECT hold_id FROM {table}
+            WHERE record_id IS NULL
+                AND record_type IS NULL
+                AND placed_utc IS NULL)
     GROUP BY hold_id
     HAVING COUNT(DISTINCT record_id) > 1
         OR COUNT(DISTINCT record_type) > 1
@@ -298,8 +309,8 @@ def build_redshift_holds_deleted_query(table, date):
     return _REDSHIFT_HOLDS_DELETED_QUERY.format(table=table, date=date)
 
 
-def build_redshift_holds_modified_query(table):
-    return _REDSHIFT_HOLDS_MODIFIED_QUERY.format(table=table)
+def build_redshift_holds_modified_query(table, date):
+    return _REDSHIFT_HOLDS_MODIFIED_QUERY.format(table=table, date=date)
 
 
 def build_redshift_holds_null_query(table, date):
