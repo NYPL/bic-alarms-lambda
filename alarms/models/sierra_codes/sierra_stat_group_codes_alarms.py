@@ -1,4 +1,3 @@
-from venv import create
 from alarms.alarm import Alarm
 from helpers.query_helper import (
     build_redshift_code_counts_query,
@@ -33,10 +32,8 @@ class SierraStatGroupCodesAlarms(Alarm):
             build_redshift_code_counts_query("stat_group_code", stat_group_table)
         )[0]
 
-        # Subtract one from Redshift counts because stat group code 0 is
-        # manually maintained and not present in Sierra for technical reasons
-        total_redshift_count = int(redshift_counts[0]) - 1
-        distinct_redshift_count = int(redshift_counts[1]) - 1
+        total_redshift_count = int(redshift_counts[0])
+        distinct_redshift_count = int(redshift_counts[1])
         if self.run_added_tests:
             null_stat_group_codes = self.redshift_client.execute_query(
                 build_redshift_stat_group_null_query(stat_group_table, self.yesterday)

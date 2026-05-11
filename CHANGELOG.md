@@ -1,3 +1,7 @@
+## 2026-05-11
+### Fixed
+- Update stat group alarms to use exact Sierra count now that code 0 exists
+
 ## 2026-05-06
 ### Fixed
 - Update holds alarms to always take in a specific date to test

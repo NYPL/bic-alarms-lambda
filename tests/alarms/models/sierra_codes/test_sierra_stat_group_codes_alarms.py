@@ -44,7 +44,7 @@ class TestSierraItypeCodesAlarms:
         )
 
         test_instance.sierra_client.execute_query.return_value = [(10,)]
-        test_instance.redshift_client.execute_query.side_effect = [([11, 11],), (), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([10, 10],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
@@ -92,7 +92,7 @@ class TestSierraItypeCodesAlarms:
             "alarms.models.sierra_codes.sierra_stat_group_codes_alarms.build_redshift_stat_group_location_query"
         )
         test_instance.sierra_client.execute_query.return_value = [(10,)]
-        test_instance.redshift_client.execute_query.side_effect = [([21, 21],), (), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([20, 20],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
@@ -116,7 +116,7 @@ class TestSierraItypeCodesAlarms:
             "alarms.models.sierra_codes.sierra_stat_group_codes_alarms.build_redshift_stat_group_location_query"
         )
         test_instance.sierra_client.execute_query.return_value = [(10,)]
-        test_instance.redshift_client.execute_query.side_effect = [([11, 10],), (), ()]
+        test_instance.redshift_client.execute_query.side_effect = [([10, 9],), (), ()]
 
         with caplog.at_level(logging.ERROR):
             test_instance.run_checks()
@@ -141,7 +141,7 @@ class TestSierraItypeCodesAlarms:
         )
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([11, 11],),
+            ([10, 10],),
             ([1], [2]),
             (),
         ]
@@ -168,7 +168,7 @@ class TestSierraItypeCodesAlarms:
         )
         test_instance.sierra_client.execute_query.return_value = [(10,)]
         test_instance.redshift_client.execute_query.side_effect = [
-            ([11, 11],),
+            ([10, 10],),
             (),
             ([3], [4]),
         ]
