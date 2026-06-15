@@ -203,6 +203,13 @@ _REDSHIFT_ITYPE_NULL_QUERY = """
             OR age_category IS NULL
             OR is_print IS NULL);"""
 
+_REDSHIFT_PTYPE_NULL_QUERY = """            
+    SELECT code, COUNT(code) AS code_count FROM {table}
+    WHERE code != 0
+        AND deletion_date IS NULL
+    GROUP BY code
+    HAVING code_count > 1;"""
+
 _REDSHIFT_LOCATION_NULL_QUERY = """
     SELECT location_code FROM {table}
     WHERE creation_date = '{date}'
@@ -247,6 +254,11 @@ _SIERRA_CODE_COUNT_QUERY = "SELECT COUNT(code) FROM {table};"
 
 _SIERRA_ITYPES_COUNT_QUERY = (
     "SELECT COUNT(code) FROM sierra_view.itype_property_myuser "
+    "WHERE TRIM(name) != '';"
+)
+
+_SIERRA_PTYPES_COUNT_QUERY = (
+    "SELECT COUNT(value) FROM sierra_view.ptype_property_myuser "
     "WHERE TRIM(name) != '';"
 )
 
@@ -382,6 +394,10 @@ def build_redshift_itype_null_query(itype_table, date):
     return _REDSHIFT_ITYPE_NULL_QUERY.format(table=itype_table, date=date)
 
 
+def build_redshift_ptype_null_query(itype_table, date):
+    return _REDSHIFT_PTYPE_NULL_QUERY.format(table=itype_table, date=date)
+
+
 def build_redshift_location_null_query(location_table, date):
     return _REDSHIFT_LOCATION_NULL_QUERY.format(table=location_table, date=date)
 
@@ -416,6 +432,10 @@ def build_sierra_code_count_query(table):
 
 def build_sierra_itypes_count_query():
     return _SIERRA_ITYPES_COUNT_QUERY
+
+
+def build_sierra_ptypes_count_query():
+    return _SIERRA_PTYPES_COUNT_QUERY
 
 
 def build_envisionware_pc_reserve_query(date):
