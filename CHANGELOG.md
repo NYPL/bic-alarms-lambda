@@ -1,3 +1,7 @@
+## 2026-06-16
+### Added
+- Alarms to handle ptype code checks between sierra and redshift
+
 ## 2026-05-11
 ### Fixed
 - Update stat group alarms to use exact Sierra count now that code 0 exists
