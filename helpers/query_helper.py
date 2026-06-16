@@ -208,13 +208,9 @@ _REDSHIFT_PTYPE_NULL_QUERY = """
     WHERE code != 0
         AND creation_date = '{date}'
         AND deletion_date IS NOT NULL
-        AND (
-            description IS NULL
-            OR creation_date IS NULL
-            OR age_category IS NULL
-            OR adjusted_by_hand IS NULL
+        AND ( age_category IS NULL
             OR is_research IS NULL
-            OR is_department IS NULL);"""
+            OR is_department IS NULL );"""
 
 _REDSHIFT_LOCATION_NULL_QUERY = """
     SELECT location_code FROM {table}
