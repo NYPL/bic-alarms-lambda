@@ -204,11 +204,17 @@ _REDSHIFT_ITYPE_NULL_QUERY = """
             OR is_print IS NULL);"""
 
 _REDSHIFT_PTYPE_NULL_QUERY = """            
-    SELECT code, COUNT(code) AS code_count FROM {table}
+    SELECT code FROM {table}
     WHERE code != 0
-        AND deletion_date IS NULL
-    GROUP BY code
-    HAVING code_count > 1;"""
+        AND creation_date = '{date}'
+        AND deletion_date IS NOT NULL
+        AND (
+            description IS NULL
+            OR creation_date IS NULL
+            OR age_category IS NULL
+            OR adjusted_by_hand IS NULL
+            OR is_research IS NULL
+            OR is_department IS NULL);"""
 
 _REDSHIFT_LOCATION_NULL_QUERY = """
     SELECT location_code FROM {table}
