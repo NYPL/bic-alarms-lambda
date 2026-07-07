@@ -16,7 +16,7 @@ class TestCloudLibraryAlarms:
 
     def test_run_checks_no_alarm(self, test_instance, mocker, caplog):
         mock_redshift_query = mocker.patch(
-            "alarms.models.cloudlibrary_alarms.build_redshift_ebook_query",
+            "alarms.models.cloudlibrary_alarms.build_redshift_daily_ebook_query",
             return_value="redshift cl query",
         )
         test_instance.redshift_client.execute_query.return_value = ([10],)
@@ -34,7 +34,7 @@ class TestCloudLibraryAlarms:
 
     def test_run_checks_alarm(self, test_instance, mocker, caplog):
         mock_redshift_query = mocker.patch(
-            "alarms.models.cloudlibrary_alarms.build_redshift_ebook_query",
+            "alarms.models.cloudlibrary_alarms.build_redshift_daily_ebook_query",
             return_value="redshift cl query",
         )
         test_instance.redshift_client.execute_query.return_value = ([0],)

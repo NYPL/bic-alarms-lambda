@@ -22,11 +22,9 @@ _TEST_URL = (
     "%22%3A0%2C%22limit%22%3A50%2C%22sort%22%3A%5B%5D%7D%7D"
 )
 
+
 class TestOverDriveWebScraper:
     def test_get_count(self, mocker):
-        mock_log_in = mocker.patch(
-            "helpers.overdrive_web_scraper.OverDriveWebScraper._log_in"
-        )
         mock_waiter = mocker.patch("helpers.overdrive_web_scraper.WebDriverWait.until")
 
         mock_driver = mocker.MagicMock()
@@ -37,21 +35,17 @@ class TestOverDriveWebScraper:
         test_instance = OverDriveWebScraper(
             "mock_overdrive_username", "mock_overdrive_password"
         )
+        test_instance.driver = mock_driver
 
-        assert test_instance.get_count("2023-05-31") == 1234
+        assert test_instance.get_count("2023-05-31", "2023-05-31") == 1234
 
-        mock_driver.maximize_window.assert_called_once()
-        mock_log_in.assert_called_once()
         mock_driver.get.assert_called_once_with(_TEST_URL)
         mock_waiter.assert_called_once()
         mock_driver.find_element.assert_called_once_with(
-            By.ID, "column_TotalFormatted-textInnerEl")
-        mock_driver.quit.assert_called_once()
+            By.ID, "column_TotalFormatted-textInnerEl"
+        )
 
     def test_get_count_timeout(self, mocker):
-        mocker.patch(
-            "helpers.overdrive_web_scraper.OverDriveWebScraper._log_in"
-        )
         mocker.patch(
             "helpers.overdrive_web_scraper.WebDriverWait.until",
             side_effect=exceptions.TimeoutException,
@@ -64,17 +58,15 @@ class TestOverDriveWebScraper:
         test_instance = OverDriveWebScraper(
             "mock_overdrive_username", "mock_overdrive_password"
         )
+        test_instance.driver = mock_driver
 
         with pytest.raises(OverDriveWebScraperError):
-            test_instance.get_count("2023-05-31")
+            test_instance.get_count("2023-05-31", "2023-05-31")
 
         mock_driver.quit.assert_called_once()
         mock_driver.find_element.assert_not_called()
 
     def test_get_count_no_element(self, mocker):
-        mocker.patch(
-            "helpers.overdrive_web_scraper.OverDriveWebScraper._log_in"
-        )
         mocker.patch("helpers.overdrive_web_scraper.WebDriverWait.until")
 
         mock_driver = mocker.MagicMock()
@@ -85,9 +77,10 @@ class TestOverDriveWebScraper:
         test_instance = OverDriveWebScraper(
             "mock_overdrive_username", "mock_overdrive_password"
         )
+        test_instance.driver = mock_driver
 
         with pytest.raises(OverDriveWebScraperError):
-            test_instance.get_count("2023-05-31")
+            test_instance.get_count("2023-05-31", "2023-05-31")
 
         mock_driver.quit.assert_called_once()
 
@@ -101,7 +94,10 @@ class TestOverDriveWebScraper:
         mock_password_el = mocker.MagicMock()
         mock_submit_el = mocker.MagicMock()
         test_instance.driver.find_element.side_effect = [
-            mock_username_el, mock_password_el, mock_submit_el]
+            mock_username_el,
+            mock_password_el,
+            mock_submit_el,
+        ]
 
         test_instance._log_in()
 
@@ -109,9 +105,12 @@ class TestOverDriveWebScraper:
             "https://marketplace.overdrive.com/Account/Login"
         )
         test_instance.driver.find_element.assert_has_calls(
-            [mocker.call(By.ID, "UserName"),
-             mocker.call(By.ID, "Password"),
-             mocker.call(By.XPATH, "//input[@type='submit']")])
+            [
+                mocker.call(By.ID, "UserName"),
+                mocker.call(By.ID, "Password"),
+                mocker.call(By.XPATH, "//input[@type='submit']"),
+            ]
+        )
         test_instance.driver.find_elements.assert_called_once_with(
             By.XPATH, "//*[@id='dialogModalContainer']/dialog/button"
         )
@@ -128,7 +127,8 @@ class TestOverDriveWebScraper:
         test_instance.driver.current_url = "fake url"
         test_instance.driver.find_element.side_effect = [
             mocker.MagicMock(),
-            exceptions.NoSuchElementException]
+            exceptions.NoSuchElementException,
+        ]
 
         with pytest.raises(OverDriveWebScraperError):
             test_instance._log_in()
