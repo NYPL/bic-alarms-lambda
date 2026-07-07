@@ -158,7 +158,9 @@ _REDSHIFT_HOURS_LOCATION_ID_QUERY = """
         SELECT sierra_code FROM {branch_codes_table}
     );"""
 
-_REDSHIFT_DAILY_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
+_REDSHIFT_DAILY_EBOOK_QUERY = (
+    "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
+)
 
 _REDSHIFT_MONTHLY_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et BETWEEN '{start_date}' AND '{end_date}';"
 
@@ -376,9 +378,7 @@ def build_redshift_monthly_ebook_query(table, start_date, end_date):
 
 
 def build_redshift_daily_overdrive_platform_query(table, date):
-    return _REDSHIFT_OVERDRIVE_DAILY_PLATFORM_QUERY.format(
-        table=table, date=date
-    )
+    return _REDSHIFT_OVERDRIVE_DAILY_PLATFORM_QUERY.format(table=table, date=date)
 
 
 def build_redshift_monthly_overdrive_platform_query(table, start_date, end_date):

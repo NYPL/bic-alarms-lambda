@@ -105,18 +105,14 @@ class OverDriveCheckoutsAlarms(Alarm):
         self.redshift_client.connect()
 
         if monthly_check:
-            discrepancy_query = (
-                build_redshift_monthly_overdrive_platform_query(
-                    redshift_table,
-                    self.monthly_test_start_date,
-                    self.monthly_test_end_date,
-                )
+            discrepancy_query = build_redshift_monthly_overdrive_platform_query(
+                redshift_table,
+                self.monthly_test_start_date,
+                self.monthly_test_end_date,
             )
         else:
-            discrepancy_query = (
-                build_redshift_daily_overdrive_platform_query(
-                    redshift_table, self.daily_date_to_test
-                )
+            discrepancy_query = build_redshift_daily_overdrive_platform_query(
+                redshift_table, self.daily_date_to_test
             )
 
         discrepancy_result = self.redshift_client.execute_query(discrepancy_query)
