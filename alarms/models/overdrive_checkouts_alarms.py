@@ -7,8 +7,8 @@ from helpers.alarm_helper import (
 from helpers.overdrive_web_scraper import OverDriveWebScraper
 from helpers.query_helper import (
     build_redshift_daily_ebook_query,
-    build_redshift_monthly_ebook_query,
     build_redshift_daily_overdrive_platform_query,
+    build_redshift_monthly_ebook_query,
     build_redshift_monthly_overdrive_platform_query,
 )
 from nypl_py_utils.functions.log_helper import create_log
@@ -22,11 +22,10 @@ class OverDriveCheckoutsAlarms(Alarm):
         )
         self.logger = create_log("overdrive_checkouts_alarms")
         self.daily_date_to_test = self.yesterday_date - timedelta(days=4)
-        self.monthly_test_start_date = self.yesterday_date - timedelta(days=6)
-        self.monthly_test_end_date = self.yesterday_date - timedelta(days=36)
+        self.monthly_test_start_date = self.yesterday_date - timedelta(days=36)
 
     def run_checks(self):
-        self.logger.info("OverDrive Checkouts")
+        self.logger.info("Over\Drive Checkouts")
 
         try:
             self.overdrive_client.overdrive_login()
@@ -44,18 +43,19 @@ class OverDriveCheckoutsAlarms(Alarm):
         self._run_redshift_checks(overdrive_count, monthly_check=False)
 
         # The 'weekday' method returns Thursday as 3 so this check will run every Friday
-        if self.yesterday_date.weekday() == 3:
+        if self.yesterday_date.weekday() == 1:
             try:
-                self.logger.info("Weekly check for month long overdrive discrepancies")
-                monthly_overdrive_count = self.overdrive_client.get_count(
-                    self.monthly_test_start_date, self.monthly_test_end_date
+                self.logger.info(
+                    f"Running weekly check for inconsistencies between overdrive and redshift for the dates between {self.monthly_test_start_date} - {self.daily_date_to_test}"
                 )
+                monthly_overdrive_count = self.overdrive_client.get_count(
+                    self.monthly_test_start_date, self.daily_date_to_test
+                )
+                self._run_redshift_checks(monthly_overdrive_count, monthly_check=True)
             except Exception as e:
                 self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
                 self.overdrive_client.quit_driver()
                 return
-
-            self._run_redshift_checks(monthly_overdrive_count, monthly_check=True)
 
         self.overdrive_client.quit_driver()
         check_no_records_found_alarm(
@@ -72,7 +72,7 @@ class OverDriveCheckoutsAlarms(Alarm):
             table = redshift_table + self.redshift_suffix
             if monthly_check:
                 redshift_query = build_redshift_monthly_ebook_query(
-                    table, self.monthly_test_start_date, self.monthly_test_end_date
+                    table, self.monthly_test_start_date, self.daily_date_to_test
                 )
             else:
                 redshift_query = build_redshift_daily_ebook_query(
@@ -108,7 +108,7 @@ class OverDriveCheckoutsAlarms(Alarm):
             overdrive_duplicate_query = build_redshift_monthly_overdrive_platform_query(
                 redshift_table,
                 self.monthly_test_start_date,
-                self.monthly_test_end_date,
+                self.daily_date_to_test,
             )
         else:
             overdrive_duplicate_query = build_redshift_daily_overdrive_platform_query(

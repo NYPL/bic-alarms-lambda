@@ -124,6 +124,9 @@ class OverDriveWebScraper:
             raise OverDriveWebScraperError(
                 f"Login page elements not found: {e}"
             ) from None
+        # This sleep function gives the login attempt some time to finish
+        # it sometimes would error out only because the browser hadn't loaded
+        # the webpage and updated the url
         time.sleep(4)
         if self.driver.current_url == _LOGIN_URL:
             self.driver.quit()
