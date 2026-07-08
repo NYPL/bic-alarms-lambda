@@ -46,30 +46,20 @@ class OverDriveWebScraper:
             self.chrome_options.add_argument(option)
 
     def get_count(self, start_date, end_date):
-        self.logger.info(
-            f"Getting OverDrive Marketplace record count for the range {start_date} - {end_date}"
-        )
+        if start_date == end_date:
+            self.logger.info(
+                f"Getting OverDrive Marketplace record count for {start_date}"
+            )
+        else:
+            self.logger.info(
+                f"Getting OverDrive Marketplace record count for the range {start_date} - {end_date}"
+            )
         url = _BASE_URL.format("Checkouts") + quote(
             _URL_DATA.format(
                 start=start_date, end=end_date, code="null", name="null", limit="50"
             )
         )
-        self._access_page(url)
-        # The text should be in the format "Checkouts (1,234)"
-        count = self._get_row_count()
 
-        return int(count[count.find("(") + 1 : count.find(")")])
-
-    def overdrive_login(self):
-        self.logger.info("Opening Chrome web driver")
-        self.driver = webdriver.Chrome(options=self.chrome_options)
-        self.driver.maximize_window()
-        self._log_in()
-
-    def quit_driver(self):
-        self.driver.quit()
-
-    def _access_page(self, url):
         try:
             self.driver.get(url)
             WebDriverWait(self.driver, timeout=30).until(
@@ -85,6 +75,20 @@ class OverDriveWebScraper:
             raise OverDriveWebScraperError(
                 f"OverDrive Marketplace URL loading timed out: {url}"
             ) from None
+
+        # The text should be in the format "Checkouts (1,234)"
+        count = self._get_row_count()
+
+        return int(count[count.find("(") + 1 : count.find(")")])
+
+    def overdrive_login(self):
+        self.logger.info("Opening Chrome web driver")
+        self.driver = webdriver.Chrome(options=self.chrome_options)
+        self.driver.maximize_window()
+        self._log_in()
+
+    def quit_driver(self):
+        self.driver.quit()
 
     def _get_row_count(self):
         try:

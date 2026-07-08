@@ -43,10 +43,10 @@ class OverDriveCheckoutsAlarms(Alarm):
         )
         self._run_redshift_checks(overdrive_count, monthly_check=False)
 
-        # Run the monthly checks every Thursday
+        # The 'weekday' method returns Thursday as 3 so this check will run every Friday
         if self.yesterday_date.weekday() == 3:
             try:
-                self.logger.info("Weekly check for overdrive discrepancies")
+                self.logger.info("Weekly check for month long overdrive discrepancies")
                 monthly_overdrive_count = self.overdrive_client.get_count(
                     self.monthly_test_start_date, self.monthly_test_end_date
                 )
@@ -105,22 +105,22 @@ class OverDriveCheckoutsAlarms(Alarm):
         self.redshift_client.connect()
 
         if monthly_check:
-            discrepancy_query = build_redshift_monthly_overdrive_platform_query(
+            overdrive_duplicate_query = build_redshift_monthly_overdrive_platform_query(
                 redshift_table,
                 self.monthly_test_start_date,
                 self.monthly_test_end_date,
             )
         else:
-            discrepancy_query = build_redshift_daily_overdrive_platform_query(
+            overdrive_duplicate_query = build_redshift_daily_overdrive_platform_query(
                 redshift_table, self.daily_date_to_test
             )
 
-        discrepancy_result = self.redshift_client.execute_query(discrepancy_query)
-        discrepancy_count = (
-            int(discrepancy_result[0][0])
-            if discrepancy_result and discrepancy_result[0][0]
+        duplicate_result = self.redshift_client.execute_query(overdrive_duplicate_query)
+        duplicate_count = (
+            int(duplicate_result[0][0])
+            if duplicate_result and duplicate_result[0][0]
             else 0
         )
 
         self.redshift_client.close_connection()
-        return initial_redshift_count - discrepancy_count
+        return initial_redshift_count - duplicate_count
