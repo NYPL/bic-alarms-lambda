@@ -106,6 +106,9 @@ class OverDriveWebScraper:
     def _log_in(self):
         self.logger.info("Logging into OverDrive")
         self.driver.get(_LOGIN_URL)
+        # This sleep allows the cookies pop up modal time to load which has no close button until it is
+        # done loading causing the login to fail
+        time.sleep(4)
         try:
             # Click out of cookie selection pop-up if present
             cookie_settings = self.driver.find_elements(
