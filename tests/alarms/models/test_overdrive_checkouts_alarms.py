@@ -193,7 +193,7 @@ class TestOverDriveCheckoutsAlarms:
                 ),
                 mocker.call(
                     test_instance.monthly_test_start_date,
-                    test_instance.monthly_test_end_date,
+                    test_instance.daily_date_to_test,
                 ),
             ]
         )
@@ -202,17 +202,17 @@ class TestOverDriveCheckoutsAlarms:
                 mocker.call(
                     "patron_overdrive_checkouts_test_redshift_db",
                     test_instance.monthly_test_start_date,
-                    test_instance.monthly_test_end_date,
+                    test_instance.daily_date_to_test,
                 ),
                 mocker.call(
                     "title_overdrive_checkouts_test_redshift_db",
                     test_instance.monthly_test_start_date,
-                    test_instance.monthly_test_end_date,
+                    test_instance.daily_date_to_test,
                 ),
             ]
         )
         mock_monthly_overdrive.assert_called_once_with(
             "patron_overdrive_checkouts_test_redshift_db",
             test_instance.monthly_test_start_date,
-            test_instance.monthly_test_end_date,
+            test_instance.daily_date_to_test,
         )
