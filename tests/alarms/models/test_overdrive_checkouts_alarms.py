@@ -42,23 +42,23 @@ class TestOverDriveCheckoutsAlarms:
         assert caplog.text == ""
         assert test_instance.redshift_client.connect.call_count == 3
         test_instance.overdrive_client.get_count.assert_called_once_with(
-            test_instance.daily_date_to_test, test_instance.daily_date_to_test
+            test_instance.daily_test_date, test_instance.daily_test_date
         )
         mock_redshift_query.assert_has_calls(
             [
                 mocker.call(
                     "patron_overdrive_checkouts_test_redshift_db",
-                    test_instance.daily_date_to_test,
+                    test_instance.daily_test_date,
                 ),
                 mocker.call(
                     "title_overdrive_checkouts_test_redshift_db",
-                    test_instance.daily_date_to_test,
+                    test_instance.daily_test_date,
                 ),
             ]
         )
         mock_duplicate_query.assert_called_once_with(
             "patron_overdrive_checkouts_test_redshift_db",
-            test_instance.daily_date_to_test,
+            test_instance.daily_test_date,
         )
         test_instance.redshift_client.execute_query.assert_has_calls(
             [
@@ -189,11 +189,11 @@ class TestOverDriveCheckoutsAlarms:
         test_instance.overdrive_client.get_count.assert_has_calls(
             [
                 mocker.call(
-                    test_instance.daily_date_to_test, test_instance.daily_date_to_test
+                    test_instance.daily_test_date, test_instance.daily_test_date
                 ),
                 mocker.call(
                     test_instance.monthly_test_start_date,
-                    test_instance.daily_date_to_test,
+                    test_instance.daily_test_date,
                 ),
             ]
         )
@@ -202,17 +202,17 @@ class TestOverDriveCheckoutsAlarms:
                 mocker.call(
                     "patron_overdrive_checkouts_test_redshift_db",
                     test_instance.monthly_test_start_date,
-                    test_instance.daily_date_to_test,
+                    test_instance.daily_test_date,
                 ),
                 mocker.call(
                     "title_overdrive_checkouts_test_redshift_db",
                     test_instance.monthly_test_start_date,
-                    test_instance.daily_date_to_test,
+                    test_instance.daily_test_date,
                 ),
             ]
         )
         mock_monthly_overdrive.assert_called_once_with(
             "patron_overdrive_checkouts_test_redshift_db",
             test_instance.monthly_test_start_date,
-            test_instance.daily_date_to_test,
+            test_instance.daily_test_date,
         )
