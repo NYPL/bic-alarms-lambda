@@ -22,7 +22,8 @@ class OverDriveCheckoutsAlarms(Alarm):
         )
         self.logger = create_log("overdrive_checkouts_alarms")
         self.daily_date_to_test = self.yesterday_date - timedelta(days=4)
-        self.monthly_test_start_date = self.yesterday_date - timedelta(days=36)
+        # This is to make monthly checks start date 36 days before the current day
+        self.monthly_test_start_date = self.yesterday_date - timedelta(days=35)
 
     def run_checks(self):
         self.logger.info("OverDrive Checkouts")
