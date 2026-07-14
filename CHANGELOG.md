@@ -1,3 +1,7 @@
+## 2026-07-07
+### Added
+- Alarms to handle inconsistencies between Overdrive and Redshift
+
 ## 2026-06-16
 ### Added
 - Alarms to handle ptype code checks between sierra and redshift

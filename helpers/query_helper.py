@@ -158,19 +158,30 @@ _REDSHIFT_HOURS_LOCATION_ID_QUERY = """
         SELECT sierra_code FROM {branch_codes_table}
     );"""
 
-_REDSHIFT_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
+_REDSHIFT_DAILY_EBOOK_QUERY = (
+    "SELECT COUNT(*) FROM {table} WHERE transaction_et = '{date}';"
+)
+#  the inclusive start_date is so that the 36th day is checked the exclusive end_date is so that for this check it will not be counted
+#  since the daily check will already have been run for just the end_date, so both alarms wont trigger for the same issue
+_REDSHIFT_MONTHLY_EBOOK_QUERY = "SELECT COUNT(*) FROM {table} WHERE transaction_et >= '{start_date}' AND transaction_et < '{end_date}';"
 
-_REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_QUERY = """
-    SELECT DISTINCT platform 
-    FROM {table} 
-    WHERE transaction_et = '{date}'
-    AND transaction_checksum = '{checksum}';"""
+_REDSHIFT_OVERDRIVE_DAILY_PLATFORM_QUERY = """
+    SELECT COALESCE(SUM(platform_count - 1), 0) FROM (
+        SELECT COUNT(DISTINCT platform) AS platform_count
+        FROM {table}
+        WHERE transaction_et = '{date}'
+        GROUP BY transaction_checksum
+        HAVING COUNT(DISTINCT platform) > 1
+    );"""
 
-_REDSHIFT_OVERDRIVE_FIND_DUPLICATE_CHECKSUMS_QUERY = """
-    SELECT transaction_checksum 
-    FROM {table} 
-    WHERE transaction_et = '{date}'
-    GROUP BY transaction_checksum HAVING COUNT(*) > 1;"""
+_REDSHIFT_OVERDRIVE_MONTHLY_PLATFORM_QUERY = """
+    SELECT COALESCE(SUM(platform_count - 1), 0) FROM (
+        SELECT COUNT(DISTINCT platform) AS platform_count
+        FROM {table}
+        WHERE transaction_et >= '{start_date}' AND transaction_et < '{end_date}'
+        GROUP BY transaction_checksum
+        HAVING COUNT(DISTINCT platform) > 1
+    );"""
 
 _REDSHIFT_NEW_PATRONS_QUERY = """
     SELECT creation_date_et, COUNT(patron_id)
@@ -355,20 +366,25 @@ def build_redshift_hours_location_id_query(hours_table, branch_codes_table, date
     )
 
 
-def build_redshift_ebook_query(table, date):
+def build_redshift_daily_ebook_query(table, date):
     # Used for both cloudLibrary and OverDrive tests
-    return _REDSHIFT_EBOOK_QUERY.format(table=table, date=date)
+    return _REDSHIFT_DAILY_EBOOK_QUERY.format(table=table, date=date)
 
 
-def build_redshift_overdrive_duplicate_checksum_query(table, date):
-    return _REDSHIFT_OVERDRIVE_FIND_DUPLICATE_CHECKSUMS_QUERY.format(
-        table=table, date=date
+def build_redshift_monthly_ebook_query(table, start_date, end_date):
+    # Used for both cloudLibrary and OverDrive tests
+    return _REDSHIFT_MONTHLY_EBOOK_QUERY.format(
+        table=table, start_date=start_date, end_date=end_date
     )
 
 
-def build_redshift_overdrive_duplicate_platform_query(table, date, checksum):
-    return _REDSHIFT_OVERDRIVE_PLATFORMS_DUPLICATE_QUERY.format(
-        table=table, date=date, checksum=checksum
+def build_redshift_daily_overdrive_platform_query(table, date):
+    return _REDSHIFT_OVERDRIVE_DAILY_PLATFORM_QUERY.format(table=table, date=date)
+
+
+def build_redshift_monthly_overdrive_platform_query(table, start_date, end_date):
+    return _REDSHIFT_OVERDRIVE_MONTHLY_PLATFORM_QUERY.format(
+        table=table, start_date=start_date, end_date=end_date
     )
 
 
