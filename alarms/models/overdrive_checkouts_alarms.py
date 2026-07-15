@@ -41,20 +41,23 @@ class OverDriveCheckoutsAlarms(Alarm):
         self.logger.info(f"Checking OD record count from ({self.daily_test_date})...")
         self._run_redshift_checks(overdrive_count, monthly_check=False)
 
-        # The 'weekday' method returns Thursday as 3 so this check will run every Friday
-        if self.yesterday_date.weekday() == 3:
-            try:
-                self.logger.info(
-                    f"Running weekly check for inconsistencies between overdrive and redshift for the dates between {self.monthly_test_start_date} - {self.daily_test_date}"
-                )
-                monthly_overdrive_count = self.overdrive_client.get_count(
-                    self.monthly_test_start_date, self.daily_test_date
-                )
-                self._run_redshift_checks(monthly_overdrive_count, monthly_check=True)
-            except Exception as e:
-                self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
-                self.overdrive_client.quit_driver()
-                return
+        if self.run_added_tests:
+            # The 'weekday' method returns Thursday as 3 so this check will run every Friday
+            if self.yesterday_date.weekday() == 3:
+                try:
+                    self.logger.info(
+                        f"Running weekly check for inconsistencies between overdrive and redshift for the dates between {self.monthly_test_start_date} - {self.daily_test_date}"
+                    )
+                    monthly_overdrive_count = self.overdrive_client.get_count(
+                        self.monthly_test_start_date, self.daily_test_date
+                    )
+                    self._run_redshift_checks(
+                        monthly_overdrive_count, monthly_check=True
+                    )
+                except Exception as e:
+                    self.logger.error(f"Failed to scrape OverDrive Marketplace: {e}")
+                    self.overdrive_client.quit_driver()
+                    return
 
         self.overdrive_client.quit_driver()
         check_no_records_found_alarm(
