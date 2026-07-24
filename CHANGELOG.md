@@ -1,5 +1,9 @@
 ## 2026-07-07
 ### Added
+- Fix bug in the OverDrive monthly inconsistencies alarm caused by incorrect date range for the OverDrive website query
+
+## 2026-07-07
+### Added
 - Alarms to handle inconsistencies between Overdrive and Redshift
 
 ## 2026-06-16
