@@ -1,5 +1,5 @@
-## 2026-07-07
-### Added
+## 2026-07-24
+### Fixed
 - Fix bug in the OverDrive monthly inconsistencies alarm caused by incorrect date range for the OverDrive website query
 
 ## 2026-07-07
