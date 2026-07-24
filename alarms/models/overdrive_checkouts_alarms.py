@@ -49,7 +49,8 @@ class OverDriveCheckoutsAlarms(Alarm):
                         f"Running weekly check for inconsistencies between overdrive and redshift for the dates between {self.monthly_test_start_date} - {self.daily_test_date}"
                     )
                     monthly_overdrive_count = self.overdrive_client.get_count(
-                        self.monthly_test_start_date, self.daily_test_date
+                        self.monthly_test_start_date,
+                        self.daily_test_date - timedelta(1),
                     )
                     self._run_redshift_checks(
                         monthly_overdrive_count, monthly_check=True
