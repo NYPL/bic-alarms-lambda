@@ -45,12 +45,13 @@ class OverDriveCheckoutsAlarms(Alarm):
             # The 'weekday' method returns Thursday as 3 so this check will run every Friday
             if self.yesterday_date.weekday() == 3:
                 try:
+                    monthly_test_end_date = self.daily_test_date - timedelta(1)
                     self.logger.info(
-                        f"Running weekly check for inconsistencies between overdrive and redshift for the dates between {self.monthly_test_start_date} - {self.daily_test_date}"
+                        f"Running weekly check for inconsistencies between OverDrive and Redshift for the dates between {self.monthly_test_start_date} - {monthly_test_end_date}"
                     )
                     monthly_overdrive_count = self.overdrive_client.get_count(
                         self.monthly_test_start_date,
-                        self.daily_test_date - timedelta(1),
+                        monthly_test_end_date,
                     )
                     self._run_redshift_checks(
                         monthly_overdrive_count, monthly_check=True
