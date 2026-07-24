@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 import pytest
 
@@ -193,7 +194,7 @@ class TestOverDriveCheckoutsAlarms:
                 ),
                 mocker.call(
                     test_instance.monthly_test_start_date,
-                    test_instance.daily_test_date,
+                    test_instance.daily_test_date - timedelta(1),
                 ),
             ]
         )

@@ -16,6 +16,7 @@ Currently, the code will log an error (triggering an alarm to fire) under the fo
 * When the number of PC reserve records in Envisionware and Redshift differs for the previous day
 * When there are no PC reserve records in Sierra for the previous day
 * When the number of OverDrive checkout records online (via OverDrive Marketplace) and in Redshift from 5 days prior differs 
+* When the number of OverDrive checkout records online (via OverDrive Marketplace) and in Redshift from 36 to 6 days prior differs 
 * When there are no OverDrive checkout records online (via OverDrive Marketplace) from 5 days ago
 * When the number of newly created/deleted patron records in Sierra and Redshift differs for any day in the previous week
 * When there are no newly created patron records in Sierra for the previous any day in the previous week
